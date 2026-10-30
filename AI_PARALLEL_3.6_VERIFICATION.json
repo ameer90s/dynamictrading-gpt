@@ -1,0 +1,52 @@
+{
+  "date": "2026-10-30",
+  "product": "Dynamic Trading 3.6 + independent parallel adaptive AI-PAPER research",
+  "state": "LOCAL_TESTED_NOT_LIVE_VERIFIED",
+  "baseScannerHistoricalRef": {
+    "scope": "frozen research candidates 477 events",
+    "trades": 9,
+    "wins": 7,
+    "netPct": 1.60374,
+    "profitUsd": 16.0374,
+    "testOutput": {
+      "trades": 9,
+      "wins": 7,
+      "ending_equity": 1016.0374,
+      "net_pct": 1.60374,
+      "maxdd_pct": -0.71605,
+      "rejections": {
+        "TARGET_TOO_CLOSE_OR_LOW_RR": 23,
+        "ENTRY_INVALID_OR_NOT_FILLED": 64
+      }
+    },
+    "baseStrategyCoreCodeChanged": false
+  },
+  "aiParallelHistoricalRef": {
+    "scope": "archived selected candidate-symbol-days only, not full Sharia universe",
+    "sessions": 32,
+    "symbolDays": 67,
+    "everSmart": 56,
+    "everPending": 23,
+    "confirmedRealQuote": 0,
+    "profitNotCalculated": true
+  },
+  "automation": {
+    "netlifyCronBackground": true,
+    "deployPerformed": false,
+    "userAlpacaVerified": false,
+    "userPhonePushVerified": false,
+    "aiStatisticalModel": "ADAPTIVE_CONTEXTUAL_RULES_AND_OUTCOME_FEEDBACK",
+    "optionalLLMEnabledByDefault": false
+  },
+  "audit": {
+    "scannerEveryAttemptedMinute": "scanner-audit-YYYY-MM-DD-MINUTE",
+    "aiEveryAttemptedMinute": "ai-parallel-audit-YYYY-MM-DD-MINUTE",
+    "allUnscannedSymbolsPerMinute": "NOT_AVAILABLE; coverage recorded",
+    "futureBarUse": "FILTERS_OUT_UNCOMPLETED"
+  },
+  "tests": {
+    "fullNpmTest": "PASS",
+    "newAiAssertions": 30,
+    "zipTestPending": true
+  }
+}

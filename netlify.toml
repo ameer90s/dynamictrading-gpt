@@ -1,0 +1,42 @@
+[build]
+  publish = "public"
+  functions = "netlify/functions"
+
+[functions."daily-recommendation"]
+  # 09:30 ET onward: discovery cycles target full eligible-universe coverage within ~10m; persistent SMART revalidation continues every 1m through the regular-session close.
+  # UTC range covers both EDT and EST; the function gates on America/New_York time.
+  schedule = "* 13-21 * * 1-5"
+
+[functions."news-scan"]
+  # Broader news/catalyst refresh every 15 minutes through the regular-session schedule window, offset from price scans by the function credit guard.
+  schedule = "2,17,32,47 13-21 * * 1-5"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(), camera=(), microphone=()"
+
+[functions."outcome-tracker"]
+  # Follow every CONFIRMED signal (approved or not) once per minute through the US regular-session close.
+  schedule = "* 13-21 * * 1-5"
+
+[functions."premarket-memory"]
+  # Measurement-only memory snapshots before the regular session. Does not alter Dynamic Trading 3.6 recommendation logic.
+  schedule = "0,15,30,45 12-13 * * 1-5"
+
+[functions."sharia-daily-refresh"]
+  # Daily zero-credit AAOIFI master refresh before the U.S. regular session (12:15 UTC).
+  schedule = "15 12 * * 1-5"
+
+[functions."ai-parallel-scan"]
+  # Independent research-only scheduled scan, each minute in DST/standard hours.
+  # Can require paid Alpaca quota / enough Netlify function time; does not run
+  # inside the client/browser and never sends any broker order.
+  schedule = "* 13-21 * * 1-5"
+
+[functions."ai-parallel-llm-review"]
+  # Optional paid LLM analysis, OFF by default. Never changes trading decisions.
+  schedule = "7,37 13-21 * * 1-5"

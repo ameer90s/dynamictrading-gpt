@@ -1,0 +1,10 @@
+{
+  "project": "Dynamic Trading 3.6 research integration",
+  "origin_files_preserved": 66,
+  "missing_from_original": [],
+  "file_count": 95,
+  "historical_replay": "PASS_9_TRADES_7_WINS_1.60374pct",
+  "raw_alpaca": "PASS_40_SESSIONS_39781_BARS",
+  "live_broker_verified": false,
+  "live_push_verified": false
+}

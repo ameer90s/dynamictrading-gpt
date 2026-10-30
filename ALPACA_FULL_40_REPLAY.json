@@ -1,0 +1,4099 @@
+{
+  "stress": [
+    {
+      "spreadBps": 5,
+      "reference": {
+        "spreadBps": 5,
+        "trades": 9,
+        "net_pct": 1.60374
+      },
+      "observed": {
+        "trades": 9,
+        "wins": 7,
+        "ending_equity": 1016.0374,
+        "net_pct": 1.60374,
+        "maxdd_pct": -0.71605,
+        "rejections": {
+          "TARGET_TOO_CLOSE_OR_LOW_RR": 23,
+          "ENTRY_INVALID_OR_NOT_FILLED": 64
+        }
+      },
+      "passed": true
+    },
+    {
+      "spreadBps": 10,
+      "reference": {
+        "spreadBps": 10,
+        "trades": 10,
+        "net_pct": 0.92408
+      },
+      "observed": {
+        "trades": 10,
+        "wins": 7,
+        "ending_equity": 1009.2408,
+        "net_pct": 0.92408,
+        "maxdd_pct": -0.92987,
+        "rejections": {
+          "TARGET_TOO_CLOSE_OR_LOW_RR": 21,
+          "ENTRY_INVALID_OR_NOT_FILLED": 63
+        }
+      },
+      "passed": true
+    },
+    {
+      "spreadBps": 15,
+      "reference": {
+        "spreadBps": 15,
+        "trades": 10,
+        "net_pct": -0.28739
+      },
+      "observed": {
+        "trades": 10,
+        "wins": 6,
+        "ending_equity": 997.1261,
+        "net_pct": -0.28739,
+        "maxdd_pct": -2.09379,
+        "rejections": {
+          "TARGET_TOO_CLOSE_OR_LOW_RR": 19,
+          "ENTRY_INVALID_OR_NOT_FILLED": 62
+        }
+      },
+      "passed": true
+    }
+  ],
+  "comparison": "FROZEN_PYTHON_VS_INDEPENDENT_JS_OHLC_REPLAY",
+  "simulatedQuotes": true,
+  "historicalL1QuotesAvailable": false,
+  "scope": "PRESELECTED_RETEST_EVENTS_40_SESSIONS_NOT_COMPLETE_LIVE_DISCOVERY",
+  "trades": [
+    {
+      "date": "2026-09-04",
+      "symbol": "KLAC",
+      "retest_model": "VWAP",
+      "validation_minute": 631,
+      "entry_minute": 632,
+      "exit_minute": 666,
+      "entry": 184.36214651687504,
+      "stop": 183.46938250000002,
+      "target": 186.08517172135,
+      "exit": 186.0386504284197,
+      "reason": "TARGET",
+      "qty": 5.418682841754392,
+      "net_pnl_usd": 7.084442979621079,
+      "equity_usd": 1007.084442979621,
+      "hod_gap_pct": 1.0158557591720907,
+      "atr": 0.4992857142857109,
+      "risk_pct": 0.4842447507483884,
+      "reward_r": 1.9299895290427846
+    },
+    {
+      "date": "2026-09-09",
+      "symbol": "BSX",
+      "retest_model": "EMA12",
+      "validation_minute": 634,
+      "entry_minute": 635,
+      "exit_minute": 645,
+      "entry": 45.8279053628125,
+      "stop": 45.62167978867985,
+      "target": 46.0529053628125,
+      "exit": 46.0413921364718,
+      "reason": "TARGET",
+      "qty": 21.953533224235425,
+      "net_pnl_usd": 2.686788978464227,
+      "equity_usd": 1009.7712319580853,
+      "hod_gap_pct": 0.9537739805629109,
+      "atr": 0.06428571428571418,
+      "risk_pct": 0.44999999999999163,
+      "reward_r": 1.0910383008815026
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "NOW",
+      "retest_model": "EMA12",
+      "validation_minute": 632,
+      "entry_minute": 633,
+      "exit_minute": 639,
+      "entry": 132.90642830250005,
+      "stop": 132.3083493751388,
+      "target": 133.62517830250005,
+      "exit": 133.59177200792442,
+      "reason": "TARGET",
+      "qty": 7.590086084189125,
+      "net_pnl_usd": 3.2018177214281422,
+      "equity_usd": 1012.9730496795135,
+      "hod_gap_pct": 1.285544814740791,
+      "atr": 0.20535714285714082,
+      "risk_pct": 0.4500000000000053,
+      "reward_r": 1.2017644613749348
+    },
+    {
+      "date": "2026-09-11",
+      "symbol": "GLW",
+      "retest_model": "EMA12",
+      "validation_minute": 633,
+      "entry_minute": 634,
+      "exit_minute": 638,
+      "entry": 166.91342542687502,
+      "stop": 166.1623150124541,
+      "target": 167.747175426875,
+      "exit": 166.046945383125,
+      "reason": "SL",
+      "qty": 6.062861912344253,
+      "net_pnl_usd": -7.253348855058356,
+      "equity_usd": 1005.7197008244551,
+      "hod_gap_pct": 1.112297928328343,
+      "atr": 0.2382142857142802,
+      "risk_pct": 0.44999999999999873,
+      "reward_r": 1.1100232189467851
+    },
+    {
+      "date": "2026-09-14",
+      "symbol": "KLAC",
+      "retest_model": "OR5",
+      "validation_minute": 655,
+      "entry_minute": 656,
+      "exit_minute": 694,
+      "entry": 169.8712429107143,
+      "stop": 169.1068223176161,
+      "target": 170.8962429107143,
+      "exit": 170.85351884998664,
+      "reason": "TARGET",
+      "qty": 5.914595570202215,
+      "net_pnl_usd": 3.809764919136409,
+      "equity_usd": 1009.5294657435916,
+      "hod_gap_pct": 1.818293100327284,
+      "atr": 0.29285714285714043,
+      "risk_pct": 0.4499999999999964,
+      "reward_r": 1.340884860055464
+    },
+    {
+      "date": "2026-09-15",
+      "symbol": "QCOM",
+      "retest_model": "EMA12",
+      "validation_minute": 676,
+      "entry_minute": 677,
+      "exit_minute": 686,
+      "entry": 187.20356669437504,
+      "stop": 186.36115064425036,
+      "target": 188.15356669437506,
+      "exit": 188.10652830270146,
+      "reason": "TARGET",
+      "qty": 5.387341083036615,
+      "net_pnl_usd": 2.864562168941748,
+      "equity_usd": 1012.3940279125334,
+      "hod_gap_pct": 1.312172278018231,
+      "atr": 0.2714285714285763,
+      "risk_pct": 0.44999999999999757,
+      "reward_r": 1.127708808325068
+    },
+    {
+      "date": "2026-10-15",
+      "symbol": "GLW",
+      "retest_model": "EMA12",
+      "validation_minute": 634,
+      "entry_minute": 635,
+      "exit_minute": 643,
+      "entry": 134.84388111607146,
+      "stop": 133.89885,
+      "target": 136.03138111607146,
+      "exit": 135.99737327079245,
+      "reason": "TARGET",
+      "qty": 5.918276249563355,
+      "net_pnl_usd": 4.826685223342914,
+      "equity_usd": 1017.2207131358763,
+      "hod_gap_pct": 1.7176299471348466,
+      "atr": 0.3392857142857163,
+      "risk_pct": 0.7008335181764607,
+      "reward_r": 1.256572381379896
+    },
+    {
+      "date": "2026-10-16",
+      "symbol": "MCHP",
+      "retest_model": "EMA12",
+      "validation_minute": 685,
+      "entry_minute": 686,
+      "exit_minute": 710,
+      "entry": 75.71731031071428,
+      "stop": 75.3518025,
+      "target": 76.11231031071428,
+      "exit": 75.332964549375,
+      "reason": "SL",
+      "qty": 13.421246858422508,
+      "net_pnl_usd": -7.158399341922762,
+      "equity_usd": 1010.0623137939535,
+      "hod_gap_pct": 1.4299103928055334,
+      "atr": 0.11285714285714173,
+      "risk_pct": 0.482726881362235,
+      "reward_r": 1.0806882600623093
+    },
+    {
+      "date": "2026-10-23",
+      "symbol": "KLAC",
+      "retest_model": "EMA12",
+      "validation_minute": 633,
+      "entry_minute": 634,
+      "exit_minute": 639,
+      "entry": 147.44715971964285,
+      "stop": 146.78364750090446,
+      "target": 148.64965971964287,
+      "exit": 148.61249730471297,
+      "reason": "TARGET",
+      "qty": 6.843552061040662,
+      "net_pnl_usd": 5.9750484321147646,
+      "equity_usd": 1016.0373622260684,
+      "hod_gap_pct": 1.2362667981011821,
+      "atr": 0.3435714285714348,
+      "risk_pct": 0.449999999999998,
+      "reward_r": 1.8123253288183037
+    }
+  ],
+  "summary": {
+    "trades": 9,
+    "wins": 7,
+    "ending_equity": 1016.0374,
+    "net_pct": 1.60374,
+    "maxdd_pct": -0.71605,
+    "rejections": {
+      "TARGET_TOO_CLOSE_OR_LOW_RR": 23,
+      "ENTRY_INVALID_OR_NOT_FILLED": 64
+    }
+  },
+  "audit": {
+    "inputEvents": 477,
+    "validatedAsOf": 477,
+    "rejectedAsOf": 0,
+    "researchTradingDays": 27,
+    "allRawDates": 32
+  },
+  "checks": [
+    {
+      "date": "2026-09-01",
+      "symbol": "NOW",
+      "validationMinute": 605,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-01",
+      "symbol": "NOW",
+      "validationMinute": 609,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-01",
+      "symbol": "NOW",
+      "validationMinute": 613,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-01",
+      "symbol": "NOW",
+      "validationMinute": 622,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-01",
+      "symbol": "NOW",
+      "validationMinute": 624,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-01",
+      "symbol": "NOW",
+      "validationMinute": 625,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-01",
+      "symbol": "NOW",
+      "validationMinute": 625,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-02",
+      "symbol": "BSX",
+      "validationMinute": 606,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-02",
+      "symbol": "ABT",
+      "validationMinute": 621,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-02",
+      "symbol": "ABT",
+      "validationMinute": 621,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-02",
+      "symbol": "BSX",
+      "validationMinute": 623,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-02",
+      "symbol": "ABT",
+      "validationMinute": 624,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-02",
+      "symbol": "ABT",
+      "validationMinute": 624,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-02",
+      "symbol": "BSX",
+      "validationMinute": 634,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-02",
+      "symbol": "BSX",
+      "validationMinute": 634,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-02",
+      "symbol": "BSX",
+      "validationMinute": 634,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-02",
+      "symbol": "BSX",
+      "validationMinute": 681,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-02",
+      "symbol": "BSX",
+      "validationMinute": 681,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-02",
+      "symbol": "BSX",
+      "validationMinute": 681,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-02",
+      "symbol": "BSX",
+      "validationMinute": 708,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-02",
+      "symbol": "BSX",
+      "validationMinute": 713,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-02",
+      "symbol": "BSX",
+      "validationMinute": 715,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-03",
+      "symbol": "ACN",
+      "validationMinute": 618,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-03",
+      "symbol": "ACN",
+      "validationMinute": 619,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-03",
+      "symbol": "ACN",
+      "validationMinute": 627,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-03",
+      "symbol": "ACN",
+      "validationMinute": 664,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-03",
+      "symbol": "ACN",
+      "validationMinute": 664,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-03",
+      "symbol": "ACN",
+      "validationMinute": 667,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-03",
+      "symbol": "ACN",
+      "validationMinute": 667,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-04",
+      "symbol": "KLAC",
+      "validationMinute": 608,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-04",
+      "symbol": "KLAC",
+      "validationMinute": 618,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-04",
+      "symbol": "KLAC",
+      "validationMinute": 628,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-04",
+      "symbol": "KLAC",
+      "validationMinute": 629,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-04",
+      "symbol": "KLAC",
+      "validationMinute": 631,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-04",
+      "symbol": "ANET",
+      "validationMinute": 632,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-04",
+      "symbol": "ANET",
+      "validationMinute": 633,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-04",
+      "symbol": "ANET",
+      "validationMinute": 637,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-08",
+      "symbol": "NEM",
+      "validationMinute": 610,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-08",
+      "symbol": "NEM",
+      "validationMinute": 611,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-08",
+      "symbol": "NEM",
+      "validationMinute": 611,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-09",
+      "symbol": "SLB",
+      "validationMinute": 599,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-09",
+      "symbol": "SLB",
+      "validationMinute": 604,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-09",
+      "symbol": "BSX",
+      "validationMinute": 626,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-09",
+      "symbol": "BSX",
+      "validationMinute": 629,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-09",
+      "symbol": "BSX",
+      "validationMinute": 634,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "NOW",
+      "validationMinute": 591,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "NOW",
+      "validationMinute": 597,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "NOW",
+      "validationMinute": 597,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "NOW",
+      "validationMinute": 597,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "NOW",
+      "validationMinute": 597,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "NEM",
+      "validationMinute": 611,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "CSX",
+      "validationMinute": 616,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "EBAY",
+      "validationMinute": 620,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "NEM",
+      "validationMinute": 620,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "NEM",
+      "validationMinute": 620,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "EBAY",
+      "validationMinute": 621,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "EBAY",
+      "validationMinute": 624,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "NEM",
+      "validationMinute": 624,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "NEM",
+      "validationMinute": 624,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "NEM",
+      "validationMinute": 624,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "CSX",
+      "validationMinute": 625,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "NOW",
+      "validationMinute": 627,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "NEM",
+      "validationMinute": 628,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "NEM",
+      "validationMinute": 628,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "NEM",
+      "validationMinute": 628,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "NOW",
+      "validationMinute": 629,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "NOW",
+      "validationMinute": 632,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "NOW",
+      "validationMinute": 637,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "NOW",
+      "validationMinute": 638,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "NOW",
+      "validationMinute": 638,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "NOW",
+      "validationMinute": 638,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "NOW",
+      "validationMinute": 638,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "NOW",
+      "validationMinute": 639,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "NOW",
+      "validationMinute": 639,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "NOW",
+      "validationMinute": 639,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "NOW",
+      "validationMinute": 639,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "NOW",
+      "validationMinute": 640,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "NOW",
+      "validationMinute": 640,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "NOW",
+      "validationMinute": 642,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "NOW",
+      "validationMinute": 642,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "NOW",
+      "validationMinute": 642,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "NOW",
+      "validationMinute": 644,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "NOW",
+      "validationMinute": 644,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "NOW",
+      "validationMinute": 644,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "NOW",
+      "validationMinute": 652,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "NOW",
+      "validationMinute": 652,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "NOW",
+      "validationMinute": 652,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "NOW",
+      "validationMinute": 652,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "EBAY",
+      "validationMinute": 655,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "EBAY",
+      "validationMinute": 655,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "NOW",
+      "validationMinute": 668,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "NOW",
+      "validationMinute": 668,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "NOW",
+      "validationMinute": 668,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "NOW",
+      "validationMinute": 674,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-11",
+      "symbol": "MCHP",
+      "validationMinute": 602,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-11",
+      "symbol": "MCHP",
+      "validationMinute": 619,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-11",
+      "symbol": "MCHP",
+      "validationMinute": 619,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-11",
+      "symbol": "MCHP",
+      "validationMinute": 619,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-11",
+      "symbol": "MCHP",
+      "validationMinute": 620,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-11",
+      "symbol": "MCHP",
+      "validationMinute": 620,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-11",
+      "symbol": "MCHP",
+      "validationMinute": 620,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-11",
+      "symbol": "GLW",
+      "validationMinute": 625,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-11",
+      "symbol": "GLW",
+      "validationMinute": 626,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-11",
+      "symbol": "GLW",
+      "validationMinute": 633,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-11",
+      "symbol": "GLW",
+      "validationMinute": 633,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-11",
+      "symbol": "QCOM",
+      "validationMinute": 720,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-14",
+      "symbol": "MCHP",
+      "validationMinute": 598,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-14",
+      "symbol": "MCHP",
+      "validationMinute": 598,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-14",
+      "symbol": "MCHP",
+      "validationMinute": 606,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-14",
+      "symbol": "GLW",
+      "validationMinute": 608,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-14",
+      "symbol": "GLW",
+      "validationMinute": 608,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-14",
+      "symbol": "GLW",
+      "validationMinute": 608,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-14",
+      "symbol": "MCHP",
+      "validationMinute": 608,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-14",
+      "symbol": "GLW",
+      "validationMinute": 610,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-14",
+      "symbol": "GLW",
+      "validationMinute": 610,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-14",
+      "symbol": "GLW",
+      "validationMinute": 610,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-14",
+      "symbol": "MCHP",
+      "validationMinute": 615,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-14",
+      "symbol": "MCHP",
+      "validationMinute": 617,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-14",
+      "symbol": "KLAC",
+      "validationMinute": 619,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-14",
+      "symbol": "KLAC",
+      "validationMinute": 624,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-14",
+      "symbol": "MCHP",
+      "validationMinute": 624,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-14",
+      "symbol": "KLAC",
+      "validationMinute": 629,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-14",
+      "symbol": "MCHP",
+      "validationMinute": 630,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-14",
+      "symbol": "KLAC",
+      "validationMinute": 637,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-14",
+      "symbol": "MCHP",
+      "validationMinute": 644,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-14",
+      "symbol": "KLAC",
+      "validationMinute": 651,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-14",
+      "symbol": "KLAC",
+      "validationMinute": 655,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-14",
+      "symbol": "KLAC",
+      "validationMinute": 694,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-14",
+      "symbol": "KLAC",
+      "validationMinute": 694,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-14",
+      "symbol": "KLAC",
+      "validationMinute": 697,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-14",
+      "symbol": "KLAC",
+      "validationMinute": 697,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-14",
+      "symbol": "KLAC",
+      "validationMinute": 699,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-14",
+      "symbol": "KLAC",
+      "validationMinute": 701,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-14",
+      "symbol": "KLAC",
+      "validationMinute": 701,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-14",
+      "symbol": "KLAC",
+      "validationMinute": 711,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-15",
+      "symbol": "QCOM",
+      "validationMinute": 601,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-15",
+      "symbol": "QCOM",
+      "validationMinute": 622,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-15",
+      "symbol": "QCOM",
+      "validationMinute": 664,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-15",
+      "symbol": "QCOM",
+      "validationMinute": 676,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-15",
+      "symbol": "QCOM",
+      "validationMinute": 678,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-15",
+      "symbol": "QCOM",
+      "validationMinute": 678,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-15",
+      "symbol": "QCOM",
+      "validationMinute": 682,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-15",
+      "symbol": "QCOM",
+      "validationMinute": 682,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-15",
+      "symbol": "QCOM",
+      "validationMinute": 684,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-15",
+      "symbol": "QCOM",
+      "validationMinute": 684,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-15",
+      "symbol": "QCOM",
+      "validationMinute": 686,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-15",
+      "symbol": "QCOM",
+      "validationMinute": 686,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-16",
+      "symbol": "NOW",
+      "validationMinute": 598,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-16",
+      "symbol": "NOW",
+      "validationMinute": 616,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-16",
+      "symbol": "NOW",
+      "validationMinute": 616,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-16",
+      "symbol": "BSX",
+      "validationMinute": 624,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-16",
+      "symbol": "ABT",
+      "validationMinute": 627,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-16",
+      "symbol": "ABT",
+      "validationMinute": 628,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-16",
+      "symbol": "NOW",
+      "validationMinute": 628,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-16",
+      "symbol": "NOW",
+      "validationMinute": 628,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-16",
+      "symbol": "NOW",
+      "validationMinute": 628,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-16",
+      "symbol": "NOW",
+      "validationMinute": 630,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-16",
+      "symbol": "NOW",
+      "validationMinute": 630,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-16",
+      "symbol": "NOW",
+      "validationMinute": 630,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-16",
+      "symbol": "ABT",
+      "validationMinute": 631,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-16",
+      "symbol": "BSX",
+      "validationMinute": 633,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-16",
+      "symbol": "NOW",
+      "validationMinute": 674,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-16",
+      "symbol": "NOW",
+      "validationMinute": 674,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-16",
+      "symbol": "NOW",
+      "validationMinute": 674,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-16",
+      "symbol": "NOW",
+      "validationMinute": 678,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-16",
+      "symbol": "NOW",
+      "validationMinute": 678,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-16",
+      "symbol": "NOW",
+      "validationMinute": 678,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-16",
+      "symbol": "BSX",
+      "validationMinute": 679,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-16",
+      "symbol": "BSX",
+      "validationMinute": 679,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-16",
+      "symbol": "BSX",
+      "validationMinute": 707,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-16",
+      "symbol": "BSX",
+      "validationMinute": 707,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-16",
+      "symbol": "BSX",
+      "validationMinute": 717,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-17",
+      "symbol": "WDAY",
+      "validationMinute": 606,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-17",
+      "symbol": "ORCL",
+      "validationMinute": 610,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-17",
+      "symbol": "ORCL",
+      "validationMinute": 610,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-17",
+      "symbol": "COP",
+      "validationMinute": 619,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-17",
+      "symbol": "COP",
+      "validationMinute": 622,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-17",
+      "symbol": "ORCL",
+      "validationMinute": 641,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-18",
+      "symbol": "KLAC",
+      "validationMinute": 591,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-18",
+      "symbol": "KLAC",
+      "validationMinute": 608,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-18",
+      "symbol": "KLAC",
+      "validationMinute": 610,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-18",
+      "symbol": "KLAC",
+      "validationMinute": 610,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-18",
+      "symbol": "KLAC",
+      "validationMinute": 610,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-18",
+      "symbol": "KLAC",
+      "validationMinute": 611,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-18",
+      "symbol": "KLAC",
+      "validationMinute": 611,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-18",
+      "symbol": "KLAC",
+      "validationMinute": 611,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-18",
+      "symbol": "KLAC",
+      "validationMinute": 614,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-18",
+      "symbol": "KLAC",
+      "validationMinute": 614,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-18",
+      "symbol": "KLAC",
+      "validationMinute": 614,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-18",
+      "symbol": "KLAC",
+      "validationMinute": 622,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-18",
+      "symbol": "KLAC",
+      "validationMinute": 622,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-18",
+      "symbol": "KLAC",
+      "validationMinute": 622,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-18",
+      "symbol": "KLAC",
+      "validationMinute": 626,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-18",
+      "symbol": "KLAC",
+      "validationMinute": 627,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-18",
+      "symbol": "KLAC",
+      "validationMinute": 630,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-18",
+      "symbol": "KLAC",
+      "validationMinute": 630,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-18",
+      "symbol": "KLAC",
+      "validationMinute": 637,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-18",
+      "symbol": "KLAC",
+      "validationMinute": 638,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-18",
+      "symbol": "KLAC",
+      "validationMinute": 638,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-18",
+      "symbol": "KLAC",
+      "validationMinute": 645,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-18",
+      "symbol": "KLAC",
+      "validationMinute": 647,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-18",
+      "symbol": "KLAC",
+      "validationMinute": 647,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-18",
+      "symbol": "KLAC",
+      "validationMinute": 647,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-24",
+      "symbol": "OXY",
+      "validationMinute": 655,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-24",
+      "symbol": "OXY",
+      "validationMinute": 655,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-29",
+      "symbol": "MCHP",
+      "validationMinute": 612,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-29",
+      "symbol": "UBER",
+      "validationMinute": 639,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-29",
+      "symbol": "UBER",
+      "validationMinute": 641,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-29",
+      "symbol": "OXY",
+      "validationMinute": 646,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-29",
+      "symbol": "OXY",
+      "validationMinute": 648,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-29",
+      "symbol": "MCHP",
+      "validationMinute": 698,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-29",
+      "symbol": "MCHP",
+      "validationMinute": 698,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-29",
+      "symbol": "MCHP",
+      "validationMinute": 699,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-29",
+      "symbol": "MCHP",
+      "validationMinute": 699,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-29",
+      "symbol": "MCHP",
+      "validationMinute": 720,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-30",
+      "symbol": "ACN",
+      "validationMinute": 596,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-30",
+      "symbol": "ACN",
+      "validationMinute": 596,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-30",
+      "symbol": "ACN",
+      "validationMinute": 603,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-30",
+      "symbol": "ACN",
+      "validationMinute": 628,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-30",
+      "symbol": "ACN",
+      "validationMinute": 629,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-30",
+      "symbol": "ACN",
+      "validationMinute": 636,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-30",
+      "symbol": "ACN",
+      "validationMinute": 638,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-30",
+      "symbol": "ACN",
+      "validationMinute": 638,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-09-30",
+      "symbol": "ACN",
+      "validationMinute": 661,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-01",
+      "symbol": "OXY",
+      "validationMinute": 611,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-01",
+      "symbol": "OXY",
+      "validationMinute": 611,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-01",
+      "symbol": "XOM",
+      "validationMinute": 611,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-01",
+      "symbol": "OXY",
+      "validationMinute": 612,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-01",
+      "symbol": "OXY",
+      "validationMinute": 612,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-01",
+      "symbol": "OXY",
+      "validationMinute": 612,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-01",
+      "symbol": "XOM",
+      "validationMinute": 612,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-01",
+      "symbol": "XOM",
+      "validationMinute": 612,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-02",
+      "symbol": "CSX",
+      "validationMinute": 601,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-02",
+      "symbol": "CSX",
+      "validationMinute": 602,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-02",
+      "symbol": "CSX",
+      "validationMinute": 603,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-02",
+      "symbol": "CSX",
+      "validationMinute": 603,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-02",
+      "symbol": "OXY",
+      "validationMinute": 607,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-02",
+      "symbol": "OXY",
+      "validationMinute": 629,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-02",
+      "symbol": "OXY",
+      "validationMinute": 629,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-02",
+      "symbol": "OXY",
+      "validationMinute": 629,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-02",
+      "symbol": "OXY",
+      "validationMinute": 632,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-02",
+      "symbol": "OXY",
+      "validationMinute": 632,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-02",
+      "symbol": "OXY",
+      "validationMinute": 632,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-02",
+      "symbol": "OXY",
+      "validationMinute": 636,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-02",
+      "symbol": "OXY",
+      "validationMinute": 636,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-02",
+      "symbol": "OXY",
+      "validationMinute": 636,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-02",
+      "symbol": "OXY",
+      "validationMinute": 641,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-02",
+      "symbol": "OXY",
+      "validationMinute": 641,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-02",
+      "symbol": "OXY",
+      "validationMinute": 644,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-02",
+      "symbol": "OXY",
+      "validationMinute": 644,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-02",
+      "symbol": "OXY",
+      "validationMinute": 644,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-02",
+      "symbol": "OXY",
+      "validationMinute": 649,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-02",
+      "symbol": "OXY",
+      "validationMinute": 649,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-02",
+      "symbol": "OXY",
+      "validationMinute": 664,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-02",
+      "symbol": "OXY",
+      "validationMinute": 666,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-02",
+      "symbol": "OXY",
+      "validationMinute": 668,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-02",
+      "symbol": "OXY",
+      "validationMinute": 687,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-05",
+      "symbol": "NOW",
+      "validationMinute": 592,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-05",
+      "symbol": "NOW",
+      "validationMinute": 636,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-05",
+      "symbol": "NOW",
+      "validationMinute": 645,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-05",
+      "symbol": "NOW",
+      "validationMinute": 652,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-05",
+      "symbol": "NOW",
+      "validationMinute": 658,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-06",
+      "symbol": "ORCL",
+      "validationMinute": 606,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-06",
+      "symbol": "ORCL",
+      "validationMinute": 641,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-06",
+      "symbol": "ORCL",
+      "validationMinute": 642,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-06",
+      "symbol": "ORCL",
+      "validationMinute": 644,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-06",
+      "symbol": "ORCL",
+      "validationMinute": 644,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-06",
+      "symbol": "ORCL",
+      "validationMinute": 646,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-06",
+      "symbol": "ORCL",
+      "validationMinute": 646,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-06",
+      "symbol": "ORCL",
+      "validationMinute": 674,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-06",
+      "symbol": "ORCL",
+      "validationMinute": 685,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-07",
+      "symbol": "KLAC",
+      "validationMinute": 598,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-07",
+      "symbol": "KLAC",
+      "validationMinute": 598,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-07",
+      "symbol": "KLAC",
+      "validationMinute": 604,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-07",
+      "symbol": "GILD",
+      "validationMinute": 651,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-07",
+      "symbol": "GILD",
+      "validationMinute": 651,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-07",
+      "symbol": "GILD",
+      "validationMinute": 651,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-07",
+      "symbol": "KLAC",
+      "validationMinute": 653,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-07",
+      "symbol": "KLAC",
+      "validationMinute": 653,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-07",
+      "symbol": "KLAC",
+      "validationMinute": 659,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-07",
+      "symbol": "KLAC",
+      "validationMinute": 659,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-07",
+      "symbol": "KLAC",
+      "validationMinute": 664,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-07",
+      "symbol": "KLAC",
+      "validationMinute": 668,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-07",
+      "symbol": "KLAC",
+      "validationMinute": 668,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-07",
+      "symbol": "KLAC",
+      "validationMinute": 668,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-07",
+      "symbol": "KLAC",
+      "validationMinute": 672,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-07",
+      "symbol": "KLAC",
+      "validationMinute": 672,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-07",
+      "symbol": "KLAC",
+      "validationMinute": 673,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-07",
+      "symbol": "KLAC",
+      "validationMinute": 673,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-07",
+      "symbol": "KLAC",
+      "validationMinute": 673,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-07",
+      "symbol": "KLAC",
+      "validationMinute": 675,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-07",
+      "symbol": "KLAC",
+      "validationMinute": 676,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-07",
+      "symbol": "KLAC",
+      "validationMinute": 682,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-07",
+      "symbol": "KLAC",
+      "validationMinute": 682,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-07",
+      "symbol": "KLAC",
+      "validationMinute": 686,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-07",
+      "symbol": "KLAC",
+      "validationMinute": 686,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-07",
+      "symbol": "KLAC",
+      "validationMinute": 690,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-07",
+      "symbol": "KLAC",
+      "validationMinute": 690,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-07",
+      "symbol": "KLAC",
+      "validationMinute": 693,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-07",
+      "symbol": "KLAC",
+      "validationMinute": 693,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-07",
+      "symbol": "KLAC",
+      "validationMinute": 694,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-07",
+      "symbol": "KLAC",
+      "validationMinute": 694,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-08",
+      "symbol": "BKNG",
+      "validationMinute": 594,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-08",
+      "symbol": "SLB",
+      "validationMinute": 598,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-08",
+      "symbol": "MDT",
+      "validationMinute": 599,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-08",
+      "symbol": "SLB",
+      "validationMinute": 599,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-08",
+      "symbol": "SLB",
+      "validationMinute": 614,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-08",
+      "symbol": "MDT",
+      "validationMinute": 618,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-08",
+      "symbol": "MDT",
+      "validationMinute": 618,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-08",
+      "symbol": "MDT",
+      "validationMinute": 620,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-08",
+      "symbol": "MDT",
+      "validationMinute": 620,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-09",
+      "symbol": "UBER",
+      "validationMinute": 605,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-09",
+      "symbol": "UBER",
+      "validationMinute": 606,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-09",
+      "symbol": "UBER",
+      "validationMinute": 606,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-09",
+      "symbol": "MDT",
+      "validationMinute": 632,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-09",
+      "symbol": "MDT",
+      "validationMinute": 636,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-09",
+      "symbol": "MDT",
+      "validationMinute": 642,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-13",
+      "symbol": "NOW",
+      "validationMinute": 599,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-13",
+      "symbol": "NOW",
+      "validationMinute": 599,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-13",
+      "symbol": "ORCL",
+      "validationMinute": 601,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-13",
+      "symbol": "ORCL",
+      "validationMinute": 601,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-13",
+      "symbol": "NOW",
+      "validationMinute": 603,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-13",
+      "symbol": "NOW",
+      "validationMinute": 603,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-13",
+      "symbol": "NOW",
+      "validationMinute": 603,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-13",
+      "symbol": "NOW",
+      "validationMinute": 605,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-13",
+      "symbol": "NOW",
+      "validationMinute": 605,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-13",
+      "symbol": "NOW",
+      "validationMinute": 605,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-13",
+      "symbol": "QCOM",
+      "validationMinute": 615,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-13",
+      "symbol": "QCOM",
+      "validationMinute": 616,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-13",
+      "symbol": "ORCL",
+      "validationMinute": 619,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-13",
+      "symbol": "QCOM",
+      "validationMinute": 622,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-13",
+      "symbol": "ORCL",
+      "validationMinute": 626,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-13",
+      "symbol": "ORCL",
+      "validationMinute": 626,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-13",
+      "symbol": "KLAC",
+      "validationMinute": 637,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-13",
+      "symbol": "KLAC",
+      "validationMinute": 637,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-13",
+      "symbol": "KLAC",
+      "validationMinute": 637,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-13",
+      "symbol": "ORCL",
+      "validationMinute": 637,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-13",
+      "symbol": "ORCL",
+      "validationMinute": 637,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-13",
+      "symbol": "ORCL",
+      "validationMinute": 638,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-13",
+      "symbol": "ORCL",
+      "validationMinute": 638,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-13",
+      "symbol": "ORCL",
+      "validationMinute": 638,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-13",
+      "symbol": "QCOM",
+      "validationMinute": 640,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-13",
+      "symbol": "QCOM",
+      "validationMinute": 640,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-13",
+      "symbol": "ORCL",
+      "validationMinute": 645,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-13",
+      "symbol": "QCOM",
+      "validationMinute": 654,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-13",
+      "symbol": "QCOM",
+      "validationMinute": 655,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-13",
+      "symbol": "UBER",
+      "validationMinute": 661,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-13",
+      "symbol": "ORCL",
+      "validationMinute": 664,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-13",
+      "symbol": "QCOM",
+      "validationMinute": 664,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-13",
+      "symbol": "UBER",
+      "validationMinute": 664,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-13",
+      "symbol": "QCOM",
+      "validationMinute": 667,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-13",
+      "symbol": "ORCL",
+      "validationMinute": 668,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-13",
+      "symbol": "ORCL",
+      "validationMinute": 668,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-13",
+      "symbol": "ORCL",
+      "validationMinute": 668,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-13",
+      "symbol": "ORCL",
+      "validationMinute": 670,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-15",
+      "symbol": "MCHP",
+      "validationMinute": 620,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-15",
+      "symbol": "MCHP",
+      "validationMinute": 620,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-15",
+      "symbol": "GLW",
+      "validationMinute": 622,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-15",
+      "symbol": "GLW",
+      "validationMinute": 622,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-15",
+      "symbol": "GLW",
+      "validationMinute": 634,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-15",
+      "symbol": "GLW",
+      "validationMinute": 639,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-15",
+      "symbol": "GLW",
+      "validationMinute": 639,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-15",
+      "symbol": "GLW",
+      "validationMinute": 640,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-15",
+      "symbol": "MCHP",
+      "validationMinute": 640,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-15",
+      "symbol": "MCHP",
+      "validationMinute": 642,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-15",
+      "symbol": "MCHP",
+      "validationMinute": 644,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-15",
+      "symbol": "MCHP",
+      "validationMinute": 644,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-15",
+      "symbol": "NKE",
+      "validationMinute": 644,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-15",
+      "symbol": "MCHP",
+      "validationMinute": 645,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-15",
+      "symbol": "MCHP",
+      "validationMinute": 645,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-15",
+      "symbol": "MCHP",
+      "validationMinute": 646,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-15",
+      "symbol": "MCHP",
+      "validationMinute": 646,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-15",
+      "symbol": "MCHP",
+      "validationMinute": 651,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-15",
+      "symbol": "MCHP",
+      "validationMinute": 651,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-15",
+      "symbol": "MCHP",
+      "validationMinute": 654,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-15",
+      "symbol": "MCHP",
+      "validationMinute": 654,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-16",
+      "symbol": "MCHP",
+      "validationMinute": 592,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-16",
+      "symbol": "MCHP",
+      "validationMinute": 592,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-16",
+      "symbol": "MCHP",
+      "validationMinute": 685,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-16",
+      "symbol": "MCHP",
+      "validationMinute": 685,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-16",
+      "symbol": "MCHP",
+      "validationMinute": 692,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-16",
+      "symbol": "MCHP",
+      "validationMinute": 692,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-16",
+      "symbol": "MCHP",
+      "validationMinute": 699,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-16",
+      "symbol": "MCHP",
+      "validationMinute": 704,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-20",
+      "symbol": "BKNG",
+      "validationMinute": 593,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-20",
+      "symbol": "BKNG",
+      "validationMinute": 593,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-20",
+      "symbol": "MDT",
+      "validationMinute": 615,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-20",
+      "symbol": "MDT",
+      "validationMinute": 620,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-20",
+      "symbol": "MDT",
+      "validationMinute": 620,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-20",
+      "symbol": "MDT",
+      "validationMinute": 622,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-20",
+      "symbol": "MDT",
+      "validationMinute": 629,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-20",
+      "symbol": "MDT",
+      "validationMinute": 631,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-20",
+      "symbol": "MDT",
+      "validationMinute": 660,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-20",
+      "symbol": "MDT",
+      "validationMinute": 660,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-20",
+      "symbol": "MDT",
+      "validationMinute": 660,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-20",
+      "symbol": "MDT",
+      "validationMinute": 662,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-20",
+      "symbol": "MDT",
+      "validationMinute": 662,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-20",
+      "symbol": "MDT",
+      "validationMinute": 662,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-20",
+      "symbol": "MDT",
+      "validationMinute": 663,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-20",
+      "symbol": "MDT",
+      "validationMinute": 663,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-20",
+      "symbol": "MDT",
+      "validationMinute": 675,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-20",
+      "symbol": "MDT",
+      "validationMinute": 675,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-20",
+      "symbol": "MDT",
+      "validationMinute": 680,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-20",
+      "symbol": "MDT",
+      "validationMinute": 689,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-20",
+      "symbol": "GILD",
+      "validationMinute": 694,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-20",
+      "symbol": "GILD",
+      "validationMinute": 694,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-20",
+      "symbol": "GILD",
+      "validationMinute": 694,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-20",
+      "symbol": "GILD",
+      "validationMinute": 697,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-20",
+      "symbol": "GILD",
+      "validationMinute": 697,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-20",
+      "symbol": "GILD",
+      "validationMinute": 697,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-20",
+      "symbol": "MDT",
+      "validationMinute": 699,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-20",
+      "symbol": "MDT",
+      "validationMinute": 699,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-20",
+      "symbol": "MDT",
+      "validationMinute": 699,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-20",
+      "symbol": "GILD",
+      "validationMinute": 704,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-20",
+      "symbol": "GILD",
+      "validationMinute": 708,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-20",
+      "symbol": "GILD",
+      "validationMinute": 715,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-21",
+      "symbol": "EBAY",
+      "validationMinute": 606,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-21",
+      "symbol": "EBAY",
+      "validationMinute": 610,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-21",
+      "symbol": "EBAY",
+      "validationMinute": 622,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-21",
+      "symbol": "EBAY",
+      "validationMinute": 623,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-22",
+      "symbol": "PG",
+      "validationMinute": 637,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-22",
+      "symbol": "PG",
+      "validationMinute": 637,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-22",
+      "symbol": "PG",
+      "validationMinute": 638,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-22",
+      "symbol": "PG",
+      "validationMinute": 638,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-22",
+      "symbol": "PG",
+      "validationMinute": 645,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-22",
+      "symbol": "PG",
+      "validationMinute": 645,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-22",
+      "symbol": "PG",
+      "validationMinute": 646,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-22",
+      "symbol": "PG",
+      "validationMinute": 646,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-22",
+      "symbol": "PG",
+      "validationMinute": 650,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-22",
+      "symbol": "PG",
+      "validationMinute": 650,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-22",
+      "symbol": "PG",
+      "validationMinute": 652,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-22",
+      "symbol": "NOW",
+      "validationMinute": 654,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-22",
+      "symbol": "NOW",
+      "validationMinute": 654,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-22",
+      "symbol": "NOW",
+      "validationMinute": 655,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-22",
+      "symbol": "NOW",
+      "validationMinute": 655,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-22",
+      "symbol": "NOW",
+      "validationMinute": 657,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-22",
+      "symbol": "NOW",
+      "validationMinute": 657,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-22",
+      "symbol": "NOW",
+      "validationMinute": 657,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-22",
+      "symbol": "PG",
+      "validationMinute": 657,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-22",
+      "symbol": "PG",
+      "validationMinute": 660,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-22",
+      "symbol": "PG",
+      "validationMinute": 663,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-22",
+      "symbol": "PG",
+      "validationMinute": 663,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-22",
+      "symbol": "NOW",
+      "validationMinute": 679,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-22",
+      "symbol": "NOW",
+      "validationMinute": 701,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-22",
+      "symbol": "NOW",
+      "validationMinute": 701,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-23",
+      "symbol": "HAL",
+      "validationMinute": 595,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-23",
+      "symbol": "SLB",
+      "validationMinute": 595,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-23",
+      "symbol": "SLB",
+      "validationMinute": 595,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-23",
+      "symbol": "SLB",
+      "validationMinute": 597,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-23",
+      "symbol": "OXY",
+      "validationMinute": 610,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-23",
+      "symbol": "HAL",
+      "validationMinute": 615,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-23",
+      "symbol": "HAL",
+      "validationMinute": 615,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-23",
+      "symbol": "HAL",
+      "validationMinute": 615,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-23",
+      "symbol": "OXY",
+      "validationMinute": 615,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-23",
+      "symbol": "OXY",
+      "validationMinute": 617,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-23",
+      "symbol": "OXY",
+      "validationMinute": 617,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-23",
+      "symbol": "OXY",
+      "validationMinute": 618,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-23",
+      "symbol": "OXY",
+      "validationMinute": 626,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-23",
+      "symbol": "KLAC",
+      "validationMinute": 633,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-23",
+      "symbol": "KLAC",
+      "validationMinute": 635,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-23",
+      "symbol": "KLAC",
+      "validationMinute": 635,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-23",
+      "symbol": "KLAC",
+      "validationMinute": 636,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-23",
+      "symbol": "KLAC",
+      "validationMinute": 636,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-23",
+      "symbol": "KLAC",
+      "validationMinute": 638,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-23",
+      "symbol": "KLAC",
+      "validationMinute": 658,
+      "model": "OR15",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-23",
+      "symbol": "KLAC",
+      "validationMinute": 658,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-23",
+      "symbol": "KLAC",
+      "validationMinute": 670,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-23",
+      "symbol": "KLAC",
+      "validationMinute": 673,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-23",
+      "symbol": "KLAC",
+      "validationMinute": 686,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-23",
+      "symbol": "KLAC",
+      "validationMinute": 686,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-23",
+      "symbol": "KLAC",
+      "validationMinute": 691,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-26",
+      "symbol": "XOM",
+      "validationMinute": 661,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-27",
+      "symbol": "MCHP",
+      "validationMinute": 633,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-27",
+      "symbol": "MCHP",
+      "validationMinute": 633,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-27",
+      "symbol": "MCHP",
+      "validationMinute": 635,
+      "model": "EMA12",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-27",
+      "symbol": "MCHP",
+      "validationMinute": 635,
+      "model": "VWAP",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    },
+    {
+      "date": "2026-10-27",
+      "symbol": "GILD",
+      "validationMinute": 706,
+      "model": "OR5",
+      "passed": true,
+      "reason": "VALID_ASOF"
+    }
+  ],
+  "reference": {
+    "trades": 9,
+    "wins": 7,
+    "ending_equity": 1016.0374,
+    "net_pct": 1.60374,
+    "maxdd_pct": -0.71605,
+    "rejections": {
+      "TARGET_TOO_CLOSE_OR_LOW_RR": 23,
+      "ENTRY_INVALID_OR_NOT_FILLED": 64
+    }
+  },
+  "deviations": [],
+  "passed": true
+}

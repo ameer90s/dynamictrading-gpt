@@ -1,0 +1,100 @@
+{
+  "pass": true,
+  "referenceTrades": 9,
+  "asofEventsMatched": 9,
+  "confirmedUsingMOCKQuotes": 9,
+  "smartUsingMOCKQuotes": 0,
+  "note": "Mock quotes are used for TEST ONLY and never presented as historical Alpaca bid/ask",
+  "outcomes": [
+    {
+      "date": "2026-09-04",
+      "symbol": "KLAC",
+      "referenceRetest": "VWAP",
+      "validationMinute": 631,
+      "finalState": "CONFIRMED",
+      "reason": "PAPER_CONFIRMED",
+      "profitPotentialScore": 63,
+      "netGainUsd": 7.34
+    },
+    {
+      "date": "2026-09-09",
+      "symbol": "BSX",
+      "referenceRetest": "EMA12",
+      "validationMinute": 634,
+      "finalState": "CONFIRMED",
+      "reason": "PAPER_CONFIRMED",
+      "profitPotentialScore": 45,
+      "netGainUsd": 2.9
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "NOW",
+      "referenceRetest": "EMA12",
+      "validationMinute": 632,
+      "finalState": "CONFIRMED",
+      "reason": "PAPER_CONFIRMED",
+      "profitPotentialScore": 49,
+      "netGainUsd": 3.4
+    },
+    {
+      "date": "2026-09-11",
+      "symbol": "GLW",
+      "referenceRetest": "EMA12",
+      "validationMinute": 633,
+      "finalState": "CONFIRMED",
+      "reason": "PAPER_CONFIRMED",
+      "profitPotentialScore": 47,
+      "netGainUsd": 2.99
+    },
+    {
+      "date": "2026-09-14",
+      "symbol": "KLAC",
+      "referenceRetest": "OR5",
+      "validationMinute": 655,
+      "finalState": "CONFIRMED",
+      "reason": "PAPER_CONFIRMED",
+      "profitPotentialScore": 58,
+      "netGainUsd": 4.03
+    },
+    {
+      "date": "2026-09-15",
+      "symbol": "QCOM",
+      "referenceRetest": "EMA12",
+      "validationMinute": 676,
+      "finalState": "CONFIRMED",
+      "reason": "PAPER_CONFIRMED",
+      "profitPotentialScore": 51,
+      "netGainUsd": 3.07
+    },
+    {
+      "date": "2026-10-15",
+      "symbol": "GLW",
+      "referenceRetest": "EMA12",
+      "validationMinute": 634,
+      "finalState": "CONFIRMED",
+      "reason": "PAPER_CONFIRMED",
+      "profitPotentialScore": 55,
+      "netGainUsd": 4.91
+    },
+    {
+      "date": "2026-10-16",
+      "symbol": "MCHP",
+      "referenceRetest": "EMA12",
+      "validationMinute": 685,
+      "finalState": "CONFIRMED",
+      "reason": "PAPER_CONFIRMED",
+      "profitPotentialScore": 48,
+      "netGainUsd": 3.21
+    },
+    {
+      "date": "2026-10-23",
+      "symbol": "KLAC",
+      "referenceRetest": "EMA12",
+      "validationMinute": 633,
+      "finalState": "CONFIRMED",
+      "reason": "PAPER_CONFIRMED",
+      "profitPotentialScore": 46,
+      "netGainUsd": 6.15
+    }
+  ]
+}

@@ -1,0 +1,193 @@
+
+> dynamic-trading-web@3.6 test
+> npm run test:syntax && npm run test:functional && npm run test:regression && npm run test:improvements && npm run test:36
+
+
+> dynamic-trading-web@3.6 test:syntax
+> find netlify public scripts -type f \( -name '*.js' -o -name '*.mjs' \) -print0 | xargs -0 -n1 node --check && node --check verify_35.mjs
+
+
+> dynamic-trading-web@3.6 test:functional
+> node verify_35.mjs && node scripts/test-sharia-local.mjs && node scripts/test-premarket-full-universe.mjs && node scripts/test-dynamic-full-universe.mjs && node scripts/test-delivery-stress.mjs && node scripts/test-sharia-daily.mjs
+
+FUNCTIONAL_TESTS_PASS
+PASS Local DB keeps only AAOIFI compliant rows
+PASS Local DB records independent source
+PASS Scanner works with no Sharia API key
+PASS Dynamic universe equals verified local DB
+PASS No unknown/non-compliant symbol admitted
+PASS Fresh local DB has priority over external Sharia API
+FUNCTIONAL_PASS 6/6
+FUNCTIONAL_PREMARKET_PASS 12/12
+FUNCTIONAL_DYNAMIC_FULL_UNIVERSE_PASS
+DELIVERY_STRESS_PASS 12/12
+daily sharia refresh: PASS 7/7
+
+> dynamic-trading-web@3.6 test:regression
+> python3 audit_30.py && node scripts/test-requirements-29.mjs && node scripts/audit-v35.mjs
+
+30_POINT_AUDIT PASS 30/30
+STATIC_REGRESSION_PASS
+REQUIREMENTS_29_PASS 29/29
+PASS No fixed default scanner universe
+PASS Dynamic pool requires supplied universe
+PASS No bundled fixed Sharia bootstrap
+PASS latest accepts current version
+PASS background scheduled every minute
+PASS background has no saved primary symbols
+PASS manual path has no saved primary symbols
+PASS persistent dynamic SMART watch used
+PASS Scanner Learning v3.5 storage
+PASS UI Scanner Learning 3.6
+PASS Scanner Health Monitor UI
+PASS Force Refresh is manual only label
+PASS Ask execution gate
+PASS Service worker 3.6 cache
+PASS No operational v3.3/v3.4 refs
+AUDIT_PASS 15/15
+AUDIT_V351_PASS 11/11
+AUDIT_DYNAMIC_COVERAGE_PASS 6/6
+
+> dynamic-trading-web@3.6 test:improvements
+> node scripts/test-v35-improvements.mjs && node scripts/test-smart-focus-recovery.mjs
+
+V36_LEGACY_IMPROVEMENTS_PASS 24/24
+SMART_FOCUS_RECOVERY_PASS 16/16
+
+> dynamic-trading-web@3.6 test:36
+> node scripts/test-research36.mjs && node scripts/test-shadow36.mjs && node scripts/test-live-research36.mjs && node scripts/audit-live-candidates-40.mjs && node scripts/test-integrated-alpaca36.mjs && node scripts/replay-alpaca-40.mjs
+
+RESEARCH36_PASS 12/12
+SHADOW36_PASS 8/8
+LIVE_RESEARCH36_PASS 9/9 as-of retest + 6 paper quote/safety checks
+{
+  "allCandidates": 477,
+  "lateCandidates": 281,
+  "lateMatching": 281,
+  "lateMissed": 0,
+  "earlyResearchExcluded": 196,
+  "allMatchCount": 281,
+  "misses": []
+}
+{
+  "pass": true,
+  "referenceTrades": 9,
+  "asofEventsMatched": 9,
+  "confirmedUsingMOCKQuotes": 9,
+  "smartUsingMOCKQuotes": 0,
+  "note": "Mock quotes are used for TEST ONLY and never presented as historical Alpaca bid/ask",
+  "outcomes": [
+    {
+      "date": "2026-09-04",
+      "symbol": "KLAC",
+      "referenceRetest": "VWAP",
+      "validationMinute": 631,
+      "finalState": "CONFIRMED",
+      "reason": "PAPER_CONFIRMED",
+      "profitPotentialScore": 63,
+      "netGainUsd": 7.34
+    },
+    {
+      "date": "2026-09-09",
+      "symbol": "BSX",
+      "referenceRetest": "EMA12",
+      "validationMinute": 634,
+      "finalState": "CONFIRMED",
+      "reason": "PAPER_CONFIRMED",
+      "profitPotentialScore": 45,
+      "netGainUsd": 2.9
+    },
+    {
+      "date": "2026-09-10",
+      "symbol": "NOW",
+      "referenceRetest": "EMA12",
+      "validationMinute": 632,
+      "finalState": "CONFIRMED",
+      "reason": "PAPER_CONFIRMED",
+      "profitPotentialScore": 49,
+      "netGainUsd": 3.4
+    },
+    {
+      "date": "2026-09-11",
+      "symbol": "GLW",
+      "referenceRetest": "EMA12",
+      "validationMinute": 633,
+      "finalState": "CONFIRMED",
+      "reason": "PAPER_CONFIRMED",
+      "profitPotentialScore": 47,
+      "netGainUsd": 2.99
+    },
+    {
+      "date": "2026-09-14",
+      "symbol": "KLAC",
+      "referenceRetest": "OR5",
+      "validationMinute": 655,
+      "finalState": "CONFIRMED",
+      "reason": "PAPER_CONFIRMED",
+      "profitPotentialScore": 58,
+      "netGainUsd": 4.03
+    },
+    {
+      "date": "2026-09-15",
+      "symbol": "QCOM",
+      "referenceRetest": "EMA12",
+      "validationMinute": 676,
+      "finalState": "CONFIRMED",
+      "reason": "PAPER_CONFIRMED",
+      "profitPotentialScore": 51,
+      "netGainUsd": 3.07
+    },
+    {
+      "date": "2026-10-15",
+      "symbol": "GLW",
+      "referenceRetest": "EMA12",
+      "validationMinute": 634,
+      "finalState": "CONFIRMED",
+      "reason": "PAPER_CONFIRMED",
+      "profitPotentialScore": 55,
+      "netGainUsd": 4.91
+    },
+    {
+      "date": "2026-10-16",
+      "symbol": "MCHP",
+      "referenceRetest": "EMA12",
+      "validationMinute": 685,
+      "finalState": "CONFIRMED",
+      "reason": "PAPER_CONFIRMED",
+      "profitPotentialScore": 48,
+      "netGainUsd": 3.21
+    },
+    {
+      "date": "2026-10-23",
+      "symbol": "KLAC",
+      "referenceRetest": "EMA12",
+      "validationMinute": 633,
+      "finalState": "CONFIRMED",
+      "reason": "PAPER_CONFIRMED",
+      "profitPotentialScore": 46,
+      "netGainUsd": 6.15
+    }
+  ]
+}
+{
+  "passed": true,
+  "summary": {
+    "trades": 9,
+    "wins": 7,
+    "ending_equity": 1016.0374,
+    "net_pct": 1.60374,
+    "maxdd_pct": -0.71605,
+    "rejections": {
+      "TARGET_TOO_CLOSE_OR_LOW_RR": 23,
+      "ENTRY_INVALID_OR_NOT_FILLED": 64
+    }
+  },
+  "audit": {
+    "inputEvents": 477,
+    "validatedAsOf": 477,
+    "rejectedAsOf": 0,
+    "researchTradingDays": 27,
+    "allRawDates": 32
+  },
+  "deviations": []
+}
