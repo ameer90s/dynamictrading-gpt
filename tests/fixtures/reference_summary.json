@@ -1,0 +1,11 @@
+{
+  "trades": 9,
+  "wins": 7,
+  "ending_equity": 1016.0374,
+  "net_pct": 1.60374,
+  "maxdd_pct": -0.71605,
+  "rejections": {
+    "TARGET_TOO_CLOSE_OR_LOW_RR": 23,
+    "ENTRY_INVALID_OR_NOT_FILLED": 64
+  }
+}
