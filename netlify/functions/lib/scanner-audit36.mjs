@@ -9,9 +9,11 @@ export async function writeScannerAudit36(store,dateKey,minute,rows,{eligibleCou
   attempted:true,source:x.research36?.features?.source||null,features:x.research36?.features||null,
   openingChecks:x.research36?.openingChecks||[],confirmationChecks:x.research36?.confirmationChecks||[],executionChecks:x.research36?.executionChecks||[],
   quote:x.research36?.quote||null,price:x.price??null,focusRank:x.focusRank??null,
-  observer:'BASE_3.6',confidenceUncalibrated:true}));
- const obj={version:'3.6',day:dateKey,minute,storedAt:new Date().toISOString(),eligibleCount,attemptedSymbols:attempted,
-  records:latest,errors,coverage:{attempted:attempted.length,completed:latest.length,missing:attempted.filter(x=>!latest.some(r=>r.symbol===x))}};
+  observer:'BASE_3.7',confidenceUncalibrated:true}));
+ const seen=new Set(latest.map(r=>r.symbol));
+ for(const symbol of [...new Set(attempted)].filter(Boolean)){if(!seen.has(symbol))latest.push({symbol,state:'UNRESOLVED',reason:'ATTEMPTED_NO_RESULT',attempted:true,source:null,features:null,openingChecks:[],confirmationChecks:[],executionChecks:[],quote:null,price:null,focusRank:null,observer:'BASE_3.7',confidenceUncalibrated:true});}
+ const obj={version:'3.7',day:dateKey,minute,storedAt:new Date().toISOString(),eligibleCount,attemptedSymbols:attempted,
+  records:latest,errors,coverage:{attempted:[...new Set(attempted)].length,completed:seen.size,missing:[...new Set(attempted)].filter(x=>!seen.has(x)),unresolvedCount:[...new Set(attempted)].filter(x=>!seen.has(x)).length}};
  await store.setJSON(key,obj);
  return obj;
 }

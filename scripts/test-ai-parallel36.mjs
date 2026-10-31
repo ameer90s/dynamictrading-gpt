@@ -55,7 +55,7 @@ check(rec.suggestions.some(x=>x.area==='DISCOVERY'),'coverage issues generate di
 check(rec.suggestions.some(x=>x.area==='OUTCOMES')||rec.outcomes.comparable===1,'independent results counted');
 const stored=new Map();const store={setJSON:async(k,v)=>stored.set(k,v)};
 const audit=await writeScannerAudit36(store,'2026-10-30',585,[{symbol:'AA',recommendationState:'WAIT',stateReason:'OPEN_RETURN_LOW',research36:{features:{rsi14:25},openingChecks:[{passed:false,gate:'OPEN_RETURN_LOW'}]}}],{eligibleCount:25,attempted:['AA','BB']});
-check(audit.records.length===1&&audit.coverage.missing.includes('BB')&&audit.records[0].openingChecks.length===1,'base audit includes failed discovery and missing coverage');
+check(audit.records.length===2&&audit.coverage.missing.includes('BB')&&audit.records[0].openingChecks.length===1&&audit.records.find(x=>x.symbol==='BB')?.reason==='ATTEMPTED_NO_RESULT','base audit includes failed discovery and missing coverage');
 const cyc=independentCycle({dateKey:'2026-10-30',now:nowAt(580),minute:580,universe:['TEST'],batch:['TEST'],barMap:{TEST:b580,SPY:s580},approved:['TEST'],quotes:{},existing:{records:{}},history:[]});
 check(cyc.audit.snapshots.length===1&&cyc.audit.snapshots[0].checks.opening.length>=7,'AI discovery minute audit includes complete gates and features');
 check(cyc.state.records.TEST.pending?.type==='EARLY','AI schedule stores pending independent signal');

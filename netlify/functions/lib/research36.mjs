@@ -121,7 +121,7 @@ function executionGates(f,quote,trigger,p,now){
  const gain=ask>0&&target!=null&&qty!=null?(target-ask)*qty-p.roundTripFeeUsd:null;
  const loss=ask>0&&stop!=null&&qty!=null?(ask-stop)*qty+p.roundTripFeeUsd:null;
  const netR=loss>0?gain/loss:null;
- const checks=[gate('alpaca_quote',quote?.source?.includes('Alpaca')?1:0,'==',1,'NO_AUTHENTIC_ALPACA_QUOTE'),
+ const checks=[gate('alpaca_quote',String(quote?.source||'').startsWith('Alpaca')?1:0,'==',1,'NO_AUTHENTIC_ALPACA_QUOTE'),
    gate('bid_ask_valid',bid>0&&ask>=bid&&bidSize>0&&askSize>0?1:0,'==',1,'INVALID_BID_ASK'),
    gate('quote_age_nonnegative',age,'>=',0,'FUTURE_QUOTE'),
    gate('quote_age_max',age,'<=',p.maxQuoteAgeSec,'STALE_QUOTE'),

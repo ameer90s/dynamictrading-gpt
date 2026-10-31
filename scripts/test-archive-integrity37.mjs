@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {writeScannerAudit36} from '../netlify/functions/lib/scanner-audit36.mjs';
+const records=new Map();
+const store={async setJSON(k,v){records.set(k,structuredClone(v));},async get(k){return structuredClone(records.get(k)??null)}};
+const day='2026-10-30';
+const zero=await writeScannerAudit36(store,day,570,[],{eligibleCount:100,attempted:[],errors:[]});
+assert.equal(zero.records.length,0);assert.equal(zero.minute,570);
+assert.deepEqual(await store.get('scanner-audit-2026-10-30-0570'),zero);
+const missing=await writeScannerAudit36(store,day,571,[],{eligibleCount:100,attempted:['AAA','BBB','AAA'],errors:['feed_timeout']});
+assert.equal(missing.records.length,2);assert(missing.records.every(x=>x.reason==='ATTEMPTED_NO_RESULT'));
+assert.equal(missing.coverage.unresolvedCount,2);assert.equal(missing.errors[0],'feed_timeout');
+const success=await writeScannerAudit36(store,day,572,[{symbol:'AAA',recommendationState:'SMART',stateReason:'RETEST_PENDING',price:20}],{eligibleCount:100,attempted:['AAA','BBB']});
+assert.equal(success.records.length,2);assert.equal(success.records.find(x=>x.symbol==='AAA').state,'SMART');
+assert.equal(success.records.find(x=>x.symbol==='BBB').state,'UNRESOLVED');
+assert.equal(success.coverage.unresolvedCount,1);
+console.log('PASS archive 3.7: zero candidates, missed symbols, reasons, read-back, minute isolation');

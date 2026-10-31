@@ -37,6 +37,18 @@ const still=evaluateResearch36('AAA',[...stock,future],[...spy,bar(633,510)],q,{
 assert.deepEqual(still.features,c.features,'no future bar leakage into decision features');
 const badQuote=evaluateResearch36('AAA',stock,spy,{...q,source:'synthetic proxy quote'},{now,allowHistorical:true});
 assert.equal(badQuote.state,'SMART');
+// Bid/Ask fail-closed regression: fabricated provenance, crossed book, sizes, time order.
+for (const [name,override,reason] of [
+ ['spoofed source',{source:'simulated not Alpaca'},'NO_AUTHENTIC_ALPACA_QUOTE'],
+ ['crossed book',{bid:101.70,ask:101.61},'INVALID_BID_ASK'],
+ ['missing depth',{bidSize:0},'INVALID_BID_ASK'],
+ ['future quote',{timestamp:'2026-10-29T14:33:06Z'},'FUTURE_QUOTE'],
+ ['quote before signal close',{timestamp:'2026-10-29T14:31:59Z'},'STALE_QUOTE'],
+]) {
+ const result=evaluateResearch36('AAA',stock,spy,{...q,...override},{now,allowHistorical:true});
+ assert.notEqual(result.state,'CONFIRMED',`${name} must never confirm`);
+ assert.ok(result.executionChecks.some(x=>!x.passed&&x.reason===reason),`${name}: expected ${reason}`);
+}
 const ai=computeAiAdvisor36([{signals:{AAA:{transitions:[{version:'3.6',state:'SMART'}],confirmedSignals:[]}}}]);
 assert.equal(ai.calibration.status,'UNCALIBRATED');assert.equal(ai.automaticStrategyChange,false);
 assert.ok(shadowSix(101,100,0.4,103,stock).atr_4>101);

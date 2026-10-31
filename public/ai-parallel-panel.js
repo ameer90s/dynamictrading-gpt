@@ -15,7 +15,25 @@ try{const res=await fetch('/api/ai-parallel?sessions=1',{cache:'no-store'});if(!
  const rec=el('aiParallelRecommendations');if(rec){const r=s?.recommendations||{},items=r.suggestions||latest?.recommendations||[];rec.innerHTML=items.map(x=>`<article class="dt36-advice"><b>${safe(x.area)} · ${safe(x.title)}</b><p>الفرضية: ${safe(x.hypothesis)}</p><small>التجربة المقترحة: ${safe(x.experiment)}</small><details><summary>الأدلة</summary><pre style="white-space:pre-wrap;overflow-wrap:anywhere">${safe(JSON.stringify(x.evidence||{},null,2))}</pre></details><small>بحث فقط؛ غير مطبق تلقائياً في ماسح 3.6.</small></article>`).join('')+(s?.llmReview?.suggestions||[]).map(x=>`<article class="dt36-advice"><b>LLM · ${safe(x.area)} · ${safe(x.title_ar)}</b><p>الدليل: ${safe(x.observed_fact_ar)}</p><small>الفرضية: ${safe(x.hypothesis_ar)} · الاختبار: ${safe(x.experiment_ar)}</small><p>المخاطر: ${safe(x.risk_ar)}</p></article>`).join('')||'لا توجد توصيات موثقة بعد.';}
  const comp=el('aiParallelCompare');if(comp){const c=s?.recommendations?.comparison||{};comp.innerHTML=`AI Paper: ${fmt(c.aiTrades)} · الماسح الأساسي (أحداث التأكيد القابلة للمقارنة): ${fmt(c.scannerComparableEvents)} · فرص AI غير موجودة لدى الأساسي في اليوم نفسه: ${fmt(c.aiOnly)}. هذه مقارنة اكتشاف أولية وليست إثباتاً لتفوق الأرباح.\n <div>${(s?.aiPositions||[]).slice(-25).map(x=>`${safe(x.symbol)} · ${safe(x.setupType)} · ${safe(x.outcome||x.status)} · صافي افتراضي ${fmt(x.netUsd)}$`).join(' | ')}</div>`;}
 }catch(e){const status=el('aiParallelStatus');if(status)status.textContent=`بيانات AI غير متاحة: ${e.message}`;}finally{pending=false;}}
-function exportAudit(kind,format){const now=new Date(),day=el('aiParallelStatus')?.dataset?.day||'';const url=`/api/ai-parallel-audit?kind=${encodeURIComponent(kind)}&minutes=390&format=${encodeURIComponent(format)}`;window.open(url,'_blank','noopener,noreferrer');}
+async function exportAudit(kind,format){
+ const status=el('aiParallelStatus');const buttons=['aiParallelExportJson','aiParallelExportCsv','scannerAuditExportJson'].map(el).filter(Boolean);
+ buttons.forEach(b=>b.disabled=true);
+ try{
+  const day=status?.dataset?.day||'';
+  const url=`/api/ai-parallel-audit?kind=${encodeURIComponent(kind)}&minutes=390&format=${encodeURIComponent(format)}${day?`&day=${encodeURIComponent(day)}`:''}`;
+  const response=await fetch(url,{cache:'no-store'});
+  if(!response.ok)throw new Error(`HTTP ${response.status}: ${(await response.text()).slice(0,180)}`);
+  const blob=await response.blob();
+  if(format==='json'){
+   const data=JSON.parse(await blob.text());
+   if(!data.foundMinutes)throw new Error(`لا توجد سجلات محفوظة بتاريخ ${data.dateKey}. لا يمكن تصدير بيانات غير موجودة.`);
+  }else if(blob.size<150){throw new Error('لا توجد سجلات قابلة للتصدير في الفترة المختارة.');}
+  const link=document.createElement('a'),objectUrl=URL.createObjectURL(blob);
+  link.href=objectUrl;link.download=`${kind}-audit-${day||new Date().toISOString().slice(0,10)}.${format}`;
+  document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(objectUrl),60000);
+ }catch(error){if(status)status.textContent=`فشل تنزيل السجل: ${error.message}`;}
+ finally{buttons.forEach(b=>b.disabled=false);}
+}
 function init(){el('aiParallelRefresh')?.addEventListener('click',()=>refresh(true));el('aiParallelExportJson')?.addEventListener('click',()=>exportAudit('ai-parallel','json'));el('aiParallelExportCsv')?.addEventListener('click',()=>exportAudit('ai-parallel','csv'));el('scannerAuditExportJson')?.addEventListener('click',()=>exportAudit('scanner','json'));refresh(true);setInterval(()=>refresh(),60000);}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
