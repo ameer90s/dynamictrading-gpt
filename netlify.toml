@@ -40,10 +40,10 @@
 # Legacy ai-parallel-llm-review is not scheduled.
 # Only research-openai37 schedules a single opt-in post-close review.
 
-# Browser-facing API alias for the existing functions. This does not create
-# a new scheduled job or modify any trading policy.
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/:splat"
-  status = 200
-  force = true
+# DT37 ROUTING FIX: DO NOT add a catch-all /api/* rewrite.
+# The browser API endpoints are directly registered via export const config.path
+# in each Netlify Function (for example, latest.mjs -> /api/latest).
+# Netlify removes the default /.netlify/functions/<name> route for functions
+# with an explicit custom path, so proxying /api/* to that default route
+# returns 404 HTML and breaks market, signals and alerts.
+# Scheduled functions without a custom path are not affected.
