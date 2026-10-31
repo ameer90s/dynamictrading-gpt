@@ -17,6 +17,6 @@ assert(page.includes('dt37-next.css')&&page.includes('dt37-next.js'));
 assert(css.includes('@media(max-width:630px)'),'mobile UI');
 assert(script.includes('DynamicTradingTabNav'),'tab navigation linked to single nav');
 assert(!app.includes('dynamic_trading_ui_tab_v35'),'no old tab storage overriding new UI');
-assert(cache.includes('dt37-next.css?v=3751')&&cache.includes('dt37-next.js?v=3751'),'cached new design');
+assert(cache.includes('dt37-next.css?v=3752')&&cache.includes('dt37-next.js?v=3752'),'cached new design');
 assert(page.includes('dt37ArchiveMinutes')&&page.includes('dt37ResearchRuns'),'all archive counters retained');
 console.log('DT37_NEXT_UX_PASS 17/17');

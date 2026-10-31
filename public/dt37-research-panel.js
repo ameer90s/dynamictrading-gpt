@@ -37,8 +37,8 @@ async function refresh(){if(inflight)return;inflight=true;put('researchLastRun',
  if(demo){render(example);inflight=false;loaded=true;return}
  try{const ctrl=new AbortController();const timer=setTimeout(()=>ctrl.abort(),12000);let res;
   try{res=await fetch('/.netlify/functions/research-status37',{cache:'no-store',signal:ctrl.signal})}finally{clearTimeout(timer)}
-  if(!res.ok)throw Error(`HTTP_${res.status}`);render(await res.json());
- }catch{render({status:'ARCHIVE_UNAVAILABLE'});put('researchLastRun','تعذر الاتصال بخدمة الباحث — لم نعرض بيانات تجريبية')}
+  if(!res.ok)throw Error(`HTTP_${res.status}`);render(await window.DT37ApiJson.parse(res));
+ }catch(error){render({status:'ARCHIVE_UNAVAILABLE'});const msg=String(error?.message||'HTTP_UNAVAILABLE');put('researchLastRun',msg.startsWith('API_')?msg:'تعذر الاتصال بخدمة الباحث — لا توجد بيانات قابلة للتحقق')}
  finally{inflight=false;loaded=true}
 }
 function start(){$('dt37ResearchRefresh')?.addEventListener('click',refresh);

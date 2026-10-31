@@ -8,7 +8,7 @@ import {pairedDailyResearch,ledgerKey,researchHours,combineLedgerShards} from '.
 import {researchAgent37FromAudit} from './research-agent37.mjs';
 
 export const PILOT = Object.freeze({
-  start:'2026-11-02', endExclusive:'2026-12-02', model:'gpt-6.1-terra',
+  start:'2026-11-02', endExclusive:'2026-12-02', model:'gpt-6.1-sol',
   maxOutputTokens:3000, maxInputChars:65000, budgetUsd:5,
   reservePerCallUsd:0.18, maxCalls:25,
 });
@@ -157,10 +157,10 @@ export function verifyReview(parsed,evidence){
     citationIdFormatChecked:true,factualCausationNotVerified:true,canTrade:false,canChangeScanner:false};
 }
 export function estimatedCostUsd(usage){
-  // Standard un-cached price for GPT-6.1 Terra, $1 input/$5 output per 1M.
+  // Standard un-cached short-context rate for GPT-6.1 Sol: $2 input/$10 output per 1M.
   // The independent 18c reservation is more conservative and protects pilot spend.
   const i=Math.max(0,safeNum(usage?.input_tokens)||0),o=Math.max(0,safeNum(usage?.output_tokens)||0);
-  return Math.round((i/1e6+5*o/1e6)*1e6)/1e6;
+  return Math.round((2*i/1e6+10*o/1e6)*1e6)/1e6;
 }
 export async function callOpenAiResearch({evidence,apiKey,fetchFn=fetch,timeoutMs=24000}={}){
   if(!apiKey)throw Error('MISSING_API_KEY');
@@ -174,7 +174,12 @@ export async function callOpenAiResearch({evidence,apiKey,fetchFn=fetch,timeoutM
     method:'POST',headers:{'content-type':'application/json','authorization':`Bearer ${apiKey}`},
     body:JSON.stringify(request),signal:controller.signal});}finally{clearTimeout(timer);}
   if(!response?.ok)throw Error(`OPENAI_HTTP_${response?.status||'UNKNOWN'}`);
-  const data=await response.json();
+  // Never parse a returned login/error HTML page as JSON. Never log the body
+  // (it could contain provider diagnostics or other sensitive content).
+  const type=String(response.headers?.get?.('content-type')||'').toLowerCase();
+  if(type&&!/\bjson\b|\+json\b/.test(type))throw Error('OPENAI_NON_JSON_RESPONSE');
+  let data;try{data=await response.json();}catch{throw Error('OPENAI_RESPONSE_INVALID_JSON');}
+  if(!data||typeof data!=='object'||Array.isArray(data))throw Error('OPENAI_RESPONSE_INVALID_JSON');
   const txt=(data.output||[]).flatMap(o=>(o.content||[]).filter(c=>c.type==='output_text').map(c=>c.text||'')).join('\n');
   if(!txt)throw Error('OPENAI_EMPTY_OUTPUT');
   let parsed;try{parsed=JSON.parse(txt)}catch{throw Error('OPENAI_INVALID_JSON')}

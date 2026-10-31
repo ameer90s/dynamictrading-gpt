@@ -4,7 +4,7 @@ const el=id=>document.getElementById(id),safe=x=>String(x??'غير متاح').re
 const fmt=x=>x==null?'—':typeof x==='number'?Number(x).toLocaleString('en-US',{maximumFractionDigits:4}):safe(x);
 let pending=false,last=0;
 async function refresh(force=false){if(pending||(!force&&Date.now()-last<45000))return;pending=true;last=Date.now();
-try{const res=await fetch('/api/ai-parallel?sessions=1',{cache:'no-store'});if(!res.ok)throw Error(`HTTP ${res.status}`);const data=await res.json(),s=data.days?.[0],latest=data.latest;
+try{const res=await fetch('/api/ai-parallel?sessions=1',{cache:'no-store'});if(!res.ok)throw Error(`HTTP ${res.status}`);const data=await window.DT37ApiJson.parse(res),s=data.days?.[0],latest=data.latest;
  const status=el('aiParallelStatus');if(status)status.innerHTML=latest?.at?`<b>الحالة:</b> ${safe(latest.serviceStatus)} · <b>آخر تشغيل:</b> ${safe(latest.at)} · <b>تغطية الكون:</b> ${fmt(latest.coverage?.coveragePct)}% · <b>تم فحصه:</b> ${fmt(s?.scannedSymbols)} سهم · <b>الصفقات الورقية:</b> ${fmt(s?.aiPositions?.length)} · <b>Confidence:</b> غير مُعاير`:'لا يوجد تشغيل AI مسجل حتى الآن. تحقق من إعداد Alpaca ومن جدولة ai-parallel-scan على Netlify.';
  const candidates=el('aiParallelCandidates');if(candidates)candidates.innerHTML=(s?.transitions||[]).slice(0,25).map(x=>`<article class="dt36-transition"><div class="dt36-head"><b>${safe(x.symbol)} · ${safe(x.state)}</b><small>${safe(x.reason)}</small></div>
  <div>السعر ${fmt(x.features?.price)} · RVOL ${fmt(x.features?.volumeRatio)} · RSI ${fmt(x.features?.rsi14)} · ATR% ${fmt(x.features?.atrPct)} · HOD ${fmt(x.features?.hod)}</div>

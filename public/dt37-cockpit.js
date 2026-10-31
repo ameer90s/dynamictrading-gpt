@@ -5,7 +5,7 @@ const demo=new URLSearchParams(location.search).get('preview')==='1';
 const put=(id,value)=>{const n=$(id);if(n)n.textContent=String(value??'—')};
 const pretty=(s)=>{try{return new Date(s).toLocaleString('ar-AE',{timeZone:'Asia/Dubai',dateStyle:'short',timeStyle:'short'})}catch{return '—'}};
 const ageMinutes=t=>{const ms=Date.now()-Date.parse(t||'');return Number.isFinite(ms)&&ms>=0?Math.floor(ms/60000):null};
-const fetchJson=async(url)=>{const c=new AbortController(),timer=setTimeout(()=>c.abort(),12000);try{const r=await fetch(url,{cache:'no-store',signal:c.signal});if(!r.ok)throw Error(`HTTP_${r.status}`);return await r.json()}finally{clearTimeout(timer)}};
+const fetchJson=async(url)=>{const c=new AbortController(),timer=setTimeout(()=>c.abort(),12000);try{const r=await fetch(url,{cache:'no-store',signal:c.signal});if(!r.ok)throw Error(`HTTP_${r.status}`);return await window.DT37ApiJson.parse(r)}finally{clearTimeout(timer)}};
 let busy=false;
 function setUiState(){
  if(!demo)return;

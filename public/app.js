@@ -93,7 +93,7 @@ function applyMarketClockState(state,fallback=false){
   }
 }
 async function refreshMarketClock(){
-  try{const r=await fetch("/api/market-clock",{cache:"no-store"});if(!r.ok)return;applyMarketClockState(await r.json(),false);}catch{}
+  try{const r=await fetch("/api/market-clock",{cache:"no-store"});if(!r.ok)return;applyMarketClockState(await readJsonResponse(r),false);}catch{}
 }
 function updateTimingNote(now,clock){
   const note=$("recommendationTiming"); if(!note)return;
@@ -113,7 +113,7 @@ function uaeTimeForNyTarget(now,target){
 
 async function checkSelection(silent=false){
   try{
-    const response=await fetch("/api/selection",{cache:"no-store"}); const data=await response.json();
+    const response=await fetch("/api/selection",{cache:"no-store"}); const data=await readJsonResponse(response);
     if(response.ok&&data.selected&&data.trade){
       storage.setItem(STORE.selected,JSON.stringify(data.trade));
       applyTradeLock(data.trade,data.nextTradeDate,!!data.carryOver);
@@ -133,7 +133,7 @@ async function checkSelection(silent=false){
   }
   return false;
 }
-async function readJsonResponse(response){const ct=String(response.headers?.get?.('content-type')||'').toLowerCase();const text=await response.text();if(!ct.includes('application/json'))throw new Error(`STALE — DO NOT TRADE: الخادم أعاد ${ct||'non-JSON'} بدلاً من بيانات التحليل.`);try{return JSON.parse(text);}catch{throw new Error('STALE — DO NOT TRADE: استجابة التحليل ليست JSON صالحاً.');}}
+async function readJsonResponse(response){return window.DT37ApiJson.parse(response);}
 async function loadMarket(daily){
   if(!daily){const wait=heavyScanWaitSeconds();if(wait>0){showMessage(`حماية الخطة المجانية: انتظر ${wait} ثانية قبل مسح السوق الكامل.`,"error");return;}}
   setBusy(true);hideMessage();
@@ -258,7 +258,7 @@ async function selectTrade(r){
   try{
     document.querySelectorAll(".select-trade").forEach(b=>b.disabled=true);
     const response=await fetch("/api/selection",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({symbol:r.symbol,generatedAt:currentData?.generatedAt||null,mode:currentData?.strategyMode||$("strategyMode")?.value||"active",acceptBadTrade:bad})});
-    const data=await response.json();
+    const data=await readJsonResponse(response);
     if(!response.ok){
       if(data.locked&&data.trade){storage.setItem(STORE.selected,JSON.stringify(data.trade));applyTradeLock(data.trade,data.trade?.lockedUntilTradeDate);return;}
       throw new Error(data.error||"تعذر اعتماد الصفقة");
@@ -325,7 +325,7 @@ async function recordResult(r,result){
   renderStats();renderSelectedTradeResultState();
   try{
     const response=await fetch("/api/selection",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({result})});
-    const data=await response.json().catch(()=>({}));
+    const data=await readJsonResponse(response).catch(()=>({}));
     if(response.ok&&data.trade){selectedTrade=data.trade;storage.setItem(STORE.selected,JSON.stringify(data.trade));if(!data.dailyStop){storage.removeItem(STORE.selected);clearTradeLock(true);showMessage(`تم تسجيل ${result}. فُتح اعتماد فرصة جديدة لهذه الجلسة. SL اليوم: ${Number(data.slCount||0)}/2`,result==="SL"?"error":"ok");}else{storage.removeItem(STORE.selected);clearTradeLock(true);showMessage("تم تسجيل SL الثاني: توقف اعتماد صفقات جديدة لباقي جلسة اليوم، ويستمر البحث والمراقبة.","error");}}
     else throw new Error(data.error||"تعذر مزامنة النتيجة");
     showMessage(`تم تسجيل نتيجة ${r.symbol}: ${result}${errorTags.length?` · تحليل السبب: ${errorTags.join("، ")}`:""}`,result==="SL"?"error":"ok");
@@ -410,7 +410,7 @@ function renderStats(){
 
 async function renderScannerPerformance(){
   const box=$('scannerHistory');if(!box)return;const range=Number($('scannerHistoryRange')?.value||1);
-  try{const r=await fetch(`/api/signal-history?sessions=${range}`,{cache:'no-store'});if(!r.ok)return;const raw=await r.json();let sessions=range===1?[raw]:(raw.sessions||[]);if(range===2)sessions=sessions.slice(1,2);const rows=[];
+  try{const r=await fetch(`/api/signal-history?sessions=${range}`,{cache:'no-store'});if(!r.ok)return;const raw=await readJsonResponse(r);let sessions=range===1?[raw]:(raw.sessions||[]);if(range===2)sessions=sessions.slice(1,2);const rows=[];
     for(const d of sessions)for(const rec of Object.values(d.signals||{}))for(const sig of (rec.confirmedSignals||[]))rows.push({...sig,symbol:rec.symbol,dateKey:d.dateKey});
     rows.sort((a,b)=>Date.parse(b.confirmedAt||0)-Date.parse(a.confirmedAt||0));const done=rows.filter(x=>['T1','T2','T3','SL'].includes(x.finalOutcome)),wins=done.filter(x=>x.finalOutcome!=='SL');
     $('scanTotal').textContent=rows.length;$('scanWin').textContent=done.length?`${Math.round(wins.length/done.length*100)}%`:'--';$('scanT3').textContent=done.filter(x=>x.finalOutcome==='T3').length;$('scanSL').textContent=done.filter(x=>x.finalOutcome==='SL').length;
@@ -418,13 +418,13 @@ async function renderScannerPerformance(){
   }catch{box.innerHTML='<div class="empty-state">تعذر تحميل سجل الماسح حالياً.</div>';}
 }
 async function renderScannerLearningQuality(){
-  try{const r=await fetch('/api/calibration',{cache:'no-store'}),c=await r.json();if(!r.ok)return;const n=Number(c.sampleSize||0),badge=$('sampleQuality');if(badge){badge.className='sample-badge '+(n>=60?'good':n>=20?'mid':'');badge.textContent=n>=60?`العينة: جيدة (${n} Scanner)`:n>=20?`العينة: أولية (${n} Scanner)`:`العينة: ${n}/20 CONFIRMED قبل التكيّف`;}
+  try{const r=await fetch('/api/calibration',{cache:'no-store'}),c=await readJsonResponse(r);if(!r.ok)return;const n=Number(c.sampleSize||0),badge=$('sampleQuality');if(badge){badge.className='sample-badge '+(n>=60?'good':n>=20?'mid':'');badge.textContent=n>=60?`العينة: جيدة (${n} Scanner)`:n>=20?`العينة: أولية (${n} Scanner)`:`العينة: ${n}/20 CONFIRMED قبل التكيّف`;}
     if($('performanceThreshold'))$('performanceThreshold').textContent=`${Number(c.minConfidence||64)}%+`;if($('performanceFilterNote'))$('performanceFilterNote').textContent=c.active?'Scanner Learning 3.7 فعّال · تعديل محافظ':'Scanner Learning 3.7 · Shadow حتى 20 نتيجة';
     const syms=Object.entries(c.performanceModel?.symbol||{}).filter(([,v])=>v?.count>=2).sort((a,b)=>Number(b[1].expectancy||0)-Number(a[1].expectancy||0));if(syms.length){$('bestSymbol').textContent=syms[0][0];$('bestSymbolSub').textContent=`${syms[0][1].count} إشارات · ${Number(syms[0][1].expectancy||0)>=0?'+':''}${Number(syms[0][1].expectancy||0).toFixed(2)} / إشارة`;const perf=$('symbolPerformance');if(perf)perf.innerHTML='<div class="performance-row header"><span>السهم</span><span>CONFIRMED</span><span>Expectancy</span><span>Win%</span><span>المصدر</span></div>'+syms.map(([sym,v])=>`<div class="performance-row"><span><b>${esc(sym)}</b></span><span>${Number(v.count||0)}</span><span class="${Number(v.expectancy||0)>=0?'good':'bad'}">${Number(v.expectancy||0)>=0?'+':''}${Number(v.expectancy||0).toFixed(2)}R</span><span>${v.count?Math.round(Number(v.wins||0)/Number(v.count)*100):0}%</span><span>Scanner 3.7</span></div>`).join('');}
     if($('modelStatus'))$('modelStatus').textContent=c.active?`النموذج: Scanner Learning 3.7 · ${n} نتيجة تلقائية`:`النموذج: أساسي — يبدأ Scanner Learning بعد 20 نتيجة تلقائية`;
   }catch{}
 }
-async function loadSignalHistorySessions(n=1){const r=await fetch(`/api/signal-history?sessions=${n}`,{cache:'no-store'});if(!r.ok)throw new Error('تعذر تحميل السجل');return r.json();}
+async function loadSignalHistorySessions(n=1){const r=await fetch(`/api/signal-history?sessions=${n}`,{cache:'no-store'});if(!r.ok)throw new Error('تعذر تحميل السجل');return readJsonResponse(r);}
 function downloadText(name,text,type){const b=new Blob([text],{type}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),500);}
 async function exportSignalHistory(kind='json'){try{const d=await loadSignalHistorySessions(30);if(kind==='json')return downloadText('dynamic-trading-signal-history-30.json',JSON.stringify(d,null,2),'application/json');const rows=[['date','version','symbol','signalId','confirmedAt','approvedAt','entry','entryLow','entryHigh','bid','ask','last','spreadBps','quoteAgeSec','priceBucket','setupFamily','confidence','lowestBeforeRally','timeToLowSec','recoveryTimeSec','maePct','mfePct','t1','t2','t3','sl','preT3Status','recommendedTarget','outcome','postSlMfePct','postT3MfePct','hits','pushLatencyMs','pushDisplayedAt','pushClickedAt','firstAppOpenAt','firstRevalidationAt','actionableAtFirstRevalidation','signalAgeAtApprovalSec','originalShadow','approvalShadow','entrySlippagePct','repeatClass','aiQuality','aiEntry','aiT1','aiT2','aiT3','aiSL','recordClass']];for(const sess of d.sessions||[])for(const rec of Object.values(sess.signals||{}))for(const x of rec.confirmedSignals||[]){const f=x.features||{};rows.push([sess.dateKey,x.version||sess.schemaVersion||'',rec.symbol,x.signalId||'',x.confirmedAt||'',x.approvedAt||'',x.entry||'',x.entryLow||'',x.entryHigh||'',f.bid||'',f.ask||'',f.last||'',f.spreadBps??'',f.quoteAgeSec??'',f.priceBucket||'',f.setupFamily||'',f.confidence??'',x.lowestBeforeRally??'',x.timeToLowSec??'',x.recoveryTimeSec??'',x.maePct??'',x.mfePct??'',x.t1||'',x.t2||'',x.t3||'',x.sl||'',x.preT3Continuation?.status||'',x.recommendedTarget||'',x.finalOutcome||'',x.postSlMfePct??'',x.postT3MfePct??'',(x.hits||[]).join('>'),x.pushLatencyMs??'',x.pushDisplayedAt||'',x.pushClickedAt||'',x.firstAppOpenAt||'',x.firstRevalidationAt||'',x.actionableAtFirstRevalidation??'',x.signalAgeAtApprovalSec??'',x.recommendedTarget||'',x.approvalShadow||'',x.shadow?.entrySlippagePct??'',x.repeatClass||'',x.aiShadow?.quality||'',x.aiShadow?.entry??'',x.aiShadow?.t1??'',x.aiShadow?.t2??'',x.aiShadow?.t3??'',x.aiShadow?.sl??'',f.recordClass||'ACTUAL_PROGRAM_SIGNAL']);}downloadText('dynamic-trading-signal-history-30.csv',rows.map(r=>r.map(v=>`"${String(v).replaceAll('"','""')}"`).join(',')).join('\n'),'text/csv');}catch(e){showMessage(e.message||'تعذر التصدير','error');}}
 function renderErrorAnalysis(h){const box=$("errorAnalysis");if(!box)return;const losses=h.filter(x=>x.result==="SL"),m=new Map();for(const t of losses){const tags=t.errorTags?.length?t.errorTags:["فشل Setup بدون سبب واضح"];for(const tag of tags)m.set(tag,(m.get(tag)||0)+1);}const rows=[...m.entries()].sort((a,b)=>b[1]-a[1]);box.innerHTML=rows.length?rows.map(([tag,count])=>`<div class="error-chip"><b>${esc(tag)}</b><span>${count} مرة · ${losses.length?Math.round(count/losses.length*100):0}% من SL</span></div>`).join(""):'<div class="empty-state">تظهر أسباب الخسارة بعد تسجيل صفقات شراء SL جديدة.</div>';}
@@ -436,11 +436,11 @@ function sideAr(side){return side==="LONG"?"شراء":side==="SHORT"?"شورت �
 async function runBacktest(){
   const input=$("backtestSymbol"),monthsEl=$("backtestMonths"),btn=$("backtestBtn"),box=$("backtestResult");if(!input||!btn||!box)return;
   const symbol=input.value.trim().toUpperCase().replace(/[^A-Z0-9.\-]/g,"")||"PLTR",months=Number(monthsEl?.value||6);input.value=symbol;btn.disabled=true;btn.textContent="جاري الاختبار…";box.innerHTML=`<div class="empty-state">يتم جلب ${months} أشهر من بيانات ${esc(symbol)} واختبار 5 إعدادات…</div>`;
-  try{const r=await fetch(`/api/backtest?symbol=${encodeURIComponent(symbol)}&months=${months}`,{cache:"no-store"}),d=await r.json();if(!r.ok)throw new Error(d.error||"تعذر الباكتيست");renderBacktestResult(symbol,d,box);}catch(e){box.innerHTML=`<div class="empty-state bad">${esc(e.message||"تعذر الاختبار")}</div>`;}finally{btn.disabled=false;btn.textContent="تشغيل Backtest";}
+  try{const r=await fetch(`/api/backtest?symbol=${encodeURIComponent(symbol)}&months=${months}`,{cache:"no-store"}),d=await readJsonResponse(r);if(!r.ok)throw new Error(d.error||"تعذر الباكتيست");renderBacktestResult(symbol,d,box);}catch(e){box.innerHTML=`<div class="empty-state bad">${esc(e.message||"تعذر الاختبار")}</div>`;}finally{btn.disabled=false;btn.textContent="تشغيل Backtest";}
 }
 async function applyBacktestProfile(symbol,profileId,btn){
   if(!confirm(`اعتماد مقترح Backtest ${profileId} لسهم ${symbol}؟\n\nلن يتغير أي إعداد إلا بعد موافقتك هذه. سيطبق على ${symbol} فقط، ويمكن تغييره لاحقاً بعد Backtest جديد.`))return;
-  btn.disabled=true;try{const r=await fetch('/api/backtest',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({symbol,profileId})}),d=await r.json();if(!r.ok)throw new Error(d.error||'تعذر تطبيق الإعداد');showMessage(`تم اعتماد المقترح ${d.profile.label||profileId} على ${symbol}. سيستخدمه التحليل القادم تلقائياً.`,`ok`);btn.textContent='✓ تم التطبيق';}catch(e){showMessage(e.message||'تعذر تطبيق الإعداد','error');btn.disabled=false;}
+  btn.disabled=true;try{const r=await fetch('/api/backtest',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({symbol,profileId})}),d=await readJsonResponse(r);if(!r.ok)throw new Error(d.error||'تعذر تطبيق الإعداد');showMessage(`تم اعتماد المقترح ${d.profile.label||profileId} على ${symbol}. سيستخدمه التحليل القادم تلقائياً.`,`ok`);btn.textContent='✓ تم التطبيق';}catch(e){showMessage(e.message||'تعذر تطبيق الإعداد','error');btn.disabled=false;}
 }
 function renderBacktestResult(symbol,d,box){
   const best=d.recommendedProfile||{},oos=d.outOfSample||{},pf=d.profitFactor==null?'--':Number(d.profitFactor)>=900?'∞':Number(d.profitFactor).toFixed(2),stable=d.stability?.stable;
@@ -461,7 +461,7 @@ function proWaitSeconds(){const lastHeavy=Number(storage.getItem(STORE.lastHeavy
 async function loadMarketPro(manual=false){
   const wait=proWaitSeconds();if(wait>0){if(manual)showMessage(`مسح السوق الكامل استهلك حصة الطلبات الحالية. حدّث Market Pro بعد ${wait} ثانية.`,"error");return;}
   const btn=$("proRefreshBtn");btn.disabled=true;btn.textContent="جاري تحديث السوق…";
-  try{const response=await fetch("/api/market-pro",{cache:"no-store"});const data=await response.json();if(!response.ok)throw new Error(data.error||"تعذر تحديث Market Pro");proData=data;storage.setItem(STORE.pro,JSON.stringify(data));storage.setItem(STORE.lastProFetch,String(Date.now()));renderPro(data);if(manual)showMessage(`تم تحديث Market Pro: الشارت وVWAP وRVOL. ${data.extendedHoursNote||""}`.trim(),"ok");}
+  try{const response=await fetch("/api/market-pro",{cache:"no-store"});const data=await readJsonResponse(response);if(!response.ok)throw new Error(data.error||"تعذر تحديث Market Pro");proData=data;storage.setItem(STORE.pro,JSON.stringify(data));storage.setItem(STORE.lastProFetch,String(Date.now()));renderPro(data);if(manual)showMessage(`تم تحديث Market Pro: الشارت وVWAP وRVOL. ${data.extendedHoursNote||""}`.trim(),"ok");}
   catch(error){showMessage(error.message||"تعذر تحديث Market Pro","error");if($("autoLive").checked)stopProAuto(true);}finally{btn.disabled=false;btn.textContent="تحديث Market Pro";}
 }
 function toggleProAuto(){if($("autoLive").checked){const wait=proWaitSeconds();if(wait>0){$("autoLive").checked=false;showMessage(`يمكن تشغيل التحديث التلقائي بعد ${wait} ثانية من مسح السوق.`,"error");return;}if(!proData)loadMarketPro(false);clearInterval(proAutoTimer);proAutoTimer=setInterval(()=>loadMarketPro(false),30000);showMessage("تم تشغيل تحديث Market Pro كل 30 ثانية.","ok");}else stopProAuto(false);}
@@ -527,7 +527,7 @@ async function enableBackgroundAlerts(){
   try{
     if(!("serviceWorker" in navigator)||!("PushManager" in window)||!("Notification" in window))throw new Error("هذا المتصفح لا يدعم تنبيهات الخلفية.");
     const permission=await Notification.requestPermission();if(permission!=="granted")throw new Error("يجب السماح بالإشعارات لتفعيل تنبيه CONFIRMED BUY.");
-    const cfg=await fetch("/api/push-subscribe",{cache:"no-store"}).then(r=>r.json());if(!cfg.configured||!cfg.publicKey)throw new Error("مفاتيح VAPID غير مضافة في Netlify بعد.");
+    const cfg=await fetch("/api/push-subscribe",{cache:"no-store"}).then(readJsonResponse);if(!cfg.configured||!cfg.publicKey)throw new Error("مفاتيح VAPID غير مضافة في Netlify بعد.");
     const reg=await navigator.serviceWorker.ready;let sub=await reg.pushManager.getSubscription();
     if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:urlBase64ToUint8Array(cfg.publicKey)});
     const r=await fetch("/api/push-subscribe",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(sub)});if(!r.ok)throw new Error("تعذر حفظ اشتراك التنبيه.");
@@ -639,9 +639,9 @@ async function refresh36Panels(force=false){
  if(dt36AuditPending||(!force&&Date.now()-dt36LastAuditAt<55000))return;
  dt36AuditPending=true;dt36LastAuditAt=Date.now();
  try{const [tr,ar]=await Promise.all([fetch('/api/transition-cards',{cache:'no-store'}),fetch('/api/ai-insights',{cache:'no-store'})]);
-  if(tr.ok&&el){const d=await tr.json();el.innerHTML=d.cards?.length?d.cards.map(dt36Card).join(''):
+  if(tr.ok&&el){const d=await readJsonResponse(tr);el.innerHTML=d.cards?.length?d.cards.map(dt36Card).join(''):
     '<div class="empty-state">لا توجد انتقالات إلى SMART أو CONFIRMED مسجلة اليوم. سيظهر السبب مع أول تغيير.</div>';}
-  if(ar.ok&&ai){const d=await ar.json();const o=d.outcomes||{};
+  if(ar.ok&&ai){const d=await readJsonResponse(ar);const o=d.outcomes||{};
     ai.innerHTML=`<p><b>الجلسات:</b> ${esc(dt36Num(d.sessionsAnalyzed))} · SMART ${esc(dt36Num(d.smartTransitions))} · صفقات مكتملة ${esc(dt36Num(o.completedComparable))}
      · <b>Confidence:</b> ${esc(d.calibration?.status||'UNCALIBRATED')}</p>`+
     (d.recommendations||[]).map(r=>`<article class="dt36-advice"><b>${esc(r.title)}</b><p>${esc(r.evidence||'')}</p><small>${esc(r.hypothesis||'')} · اقتراح فقط / لا تغيير تلقائي</small></article>`).join('')+
