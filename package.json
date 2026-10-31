@@ -1,6 +1,6 @@
 {
   "name": "dynamic-trading-web",
-  "version": "3.6",
+  "version": "3.7",
   "private": true,
   "type": "module",
   "engines": {
@@ -11,12 +11,13 @@
     "web-push": "latest"
   },
   "scripts": {
-    "test": "npm run test:syntax && npm run test:functional && npm run test:regression && npm run test:improvements && npm run test:36 && npm run test:ai-parallel",
+    "test": "npm run test:syntax && npm run test:functional && npm run test:regression && npm run test:improvements && npm run test:36 && npm run test:ai-parallel && npm run test:archive37",
     "test:syntax": "find netlify public scripts -type f \\( -name '*.js' -o -name '*.mjs' \\) -print0 | xargs -0 -n1 node --check && node --check verify_35.mjs",
     "test:functional": "node verify_35.mjs && node scripts/test-sharia-local.mjs && node scripts/test-premarket-full-universe.mjs && node scripts/test-dynamic-full-universe.mjs && node scripts/test-delivery-stress.mjs && node scripts/test-sharia-daily.mjs",
     "test:regression": "python3 audit_30.py && node scripts/test-requirements-29.mjs && node scripts/audit-v35.mjs",
     "test:improvements": "node scripts/test-v35-improvements.mjs && node scripts/test-smart-focus-recovery.mjs",
     "test:36": "node scripts/test-research36.mjs && node scripts/test-shadow36.mjs && node scripts/test-live-research36.mjs && node scripts/audit-live-candidates-40.mjs && node scripts/test-integrated-alpaca36.mjs && node scripts/replay-alpaca-40.mjs",
-    "test:ai-parallel": "node scripts/test-ai-parallel36.mjs && node scripts/replay-ai-parallel-alpaca36.mjs"
+    "test:ai-parallel": "node scripts/test-ai-parallel36.mjs && node scripts/replay-ai-parallel-alpaca36.mjs",
+    "test:archive37": "node scripts/test-archive-integrity37.mjs && node scripts/test-audit-export37.mjs && node scripts/test-archive-health37.mjs"
   }
 }

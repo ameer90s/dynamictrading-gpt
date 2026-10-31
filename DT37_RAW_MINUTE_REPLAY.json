@@ -1,0 +1,29 @@
+{
+  "source": "RAW_ALPACA_SEP_OCT_2026",
+  "checkpoint": "EVERY_MINUTE_10_35_TO_12_00_ET",
+  "symbolDays": 7872,
+  "evaluations": 676992,
+  "openingPassSymbolDays": 530,
+  "smartSymbolDays": 530,
+  "confirmationGatesPassedSymbolDays": 124,
+  "confirmedWithAuthenticQuotes": 0,
+  "missingSpySymbolDays": 0,
+  "rejectionReasons": {
+    "INCOMPLETE_OPENING": 3751,
+    "WAIT_CONFIRMED_RETEST": 474,
+    "OPEN_RETURN_WEAK": 2871,
+    "OPEN_MOMENTUM_WEAK": 599,
+    "OPEN_VOLUME_WEAK": 116,
+    "TOO_CLOSE_TO_HOD": 22,
+    "WEAK_CONFIRMATION_CANDLE": 4,
+    "WEAK_RETEST_VOLUME": 7,
+    "NO_AUTHENTIC_ALPACA_QUOTE": 3,
+    "BELOW_VWAP": 20,
+    "OPEN_LIQUIDITY_WEAK": 5
+  },
+  "limitations": [
+    "OHLCV archive does not include historical authentic bid/ask",
+    "Sharia eligibility mechanically bypassed for gate audit only",
+    "This tests research36 gates, not live Netlify storage or full-universe discovery"
+  ]
+}

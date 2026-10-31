@@ -1,0 +1,3 @@
+# Dynamic Trading 3.7 — historical minute audit
+2026-10-31
+Full raw Sep/Oct OHLCV replay from 10:35 to 12:00 ET, every minute, 676,992 evaluations, 7,872 symbol-days. 530 opening/SMART symbol-days, 124 technical confirmation-gate-pass symbol-days, 0 executions confirmed using authentic bid/ask because archive does not contain quote history. Sharia approval bypassed **only in audit**; historical replay cannot prove actual Sharia eligibility. Opening-gate failures are evaluated once at 10:35 and their invariant result is counted for each remaining minute. Live Netlify storage is not tested. Do not claim final live readiness from this audit.
