@@ -11,17 +11,19 @@ import { getShariaUniverse } from "./lib/sharia.mjs";
 import { getSmartWatch, smartWatchSymbols, updateSmartWatch } from "./lib/smart-watch.mjs";
 import { SMART_FOCUS_SIZE, selectSmartFocus, persistFocusRanks, confirmationDiagnostics, applyFocusMetadata } from "./lib/smart-focus.mjs";
 import {STRATEGY_VERSION} from "./lib/version.mjs";
-import {writeScannerAudit36} from "./lib/scanner-audit36.mjs";
+import {writeScannerAudit36,writeScannerFailure37} from "./lib/scanner-audit36.mjs";
+import {shariaSnapshotEvidence} from "./lib/research-sharia37.mjs";
 
 export default async()=>{
   const clock=recommendationWindow();
-  if(!clock.isTradingDay||clock.session!=="REGULAR"||clock.minuteOfDay<clock.startMinute||clock.minuteOfDay>clock.endMinute)return new Response("Skipped: outside Dynamic Trading 3.6 recommendation window",{status:200});
+  if(!clock.isTradingDay||clock.session!=="REGULAR"||clock.minuteOfDay<clock.startMinute||clock.minuteOfDay>clock.endMinute)return new Response("Skipped: outside Dynamic Trading 3.7 recommendation window",{status:200});
+  const store=getStore('dynamic-trading');
+  try{
   const apiKey=process.env.TWELVE_DATA_API_KEY;const hasAlpaca=alpacaConfigured();if(!apiKey&&!hasAlpaca)throw new Error("أضف Alpaca أو TWELVE_DATA_API_KEY");
-  const store=getStore("dynamic-trading");
-
   const sharia=await getShariaUniverse(store);
   if(!sharia.symbols?.length) throw new Error("تعذر تحميل كون شرعي موثّق. تم إيقاف المسح بدلاً من استخدام قائمة أسهم ثابتة.");
-  const primary=[]; // Dynamic Trading 3.6 background scanner has no fixed/privileged symbols.
+  const shariaEvidence=shariaSnapshotEvidence(sharia);
+  const primary=[]; // no fixed/privileged symbols.
   const searchPool=normalizePool(sharia.symbols);
   const sessionUniverse=await getOrBuildSessionUniverse(store,clock.dateKey,searchPool);
   const eligiblePool=normalizePool(sessionUniverse.eligibleSymbols);
@@ -35,9 +37,9 @@ export default async()=>{
   if(clock.minuteOfDay<610){
     const batches=discoveryBatches(eligiblePool,clock.minuteOfDay);let data=null;const allDiscoveryAudit=[];for(const batch of batches){const micro=await loadMicrostructure(batch);const part=await analyzeUniverse(batch,apiKey,weights,calibration,phase,"active",news.bySymbol||{},micro,symbolProfiles);discovery=mergeDiscovery(discovery,part,clock.minuteOfDay,eligiblePool,batch);allDiscoveryAudit.push(...(part.all||[]));await updateSmartWatch(store,clock.dateKey,part);data=part;}
     data=data||await analyzeUniverse([],apiKey,weights,calibration,phase,"active",news.bySymbol||{}, {},symbolProfiles);await store.setJSON(`dynamic-discovery-${clock.dateKey}`,discovery);
-    await writeScannerAudit36(store,clock.dateKey,clock.minuteOfDay,allDiscoveryAudit,{eligibleCount:eligiblePool.length,attempted:batches.flat(),errors:data.errors||[]});
+    await writeScannerAudit36(store,clock.dateKey,clock.minuteOfDay,allDiscoveryAudit,{eligibleCount:eligiblePool.length,attempted:batches.flat(),errors:data.errors||[],shariaEvidence});
     data.tradeDate=clock.dateKey;data.appName='Dynamic Trading';data.strategyVersion=STRATEGY_VERSION;data.performanceCostPolicy={weeklyNetTargetPct:2.5,subscriptionCostUsd:10,subscriptionTreatment:'DEDUCT_FROM_WEEKLY_NET_TARGET_AND_RETURN'};data.shariaUniverseSource=sharia.source;data.shariaMethodology=sharia.methodology;data.shariaUniverseUpdatedAt=sharia.fetchedAt;data.shariaCacheStatus=sharia.cacheStatus;data.shariaUniverseCount=sharia.count;data.evaluationPhase=phase;data.discoveryPhase=true;data.primarySymbols=primary;data.top5=[];data.display8=clock.minuteOfDay>=585?(data.all||[]).filter(x=>["SMART","CONFIRMED"].includes(x.recommendationState)):[];data.fallbackTrade=null;data.dailyRecommendation=null;data.candidateFrozen=false;data.dynamicSelection={mode:"DISCOVERY",poolSize:eligiblePool.length,shariaPoolSize:searchPool.length,priceBands:sessionUniverse.priceBands,priceScreenCoveragePct:sessionUniverse.quoteCoveragePct,batch:batches.flat(),primary,scannedSymbols:discovery.scannedSymbols,leaders:discovery.leaders};
-    // 3.6: SMART can start at 09:45 ET; persist and notify in discovery phase.
+    // 3.7: SMART can start at 09:45 ET; persist and notify in discovery phase.
     if(clock.minuteOfDay>=585){await updateSignalHistory(store,data,clock.dateKey);
       await sendSmartPushes(store,data,clock.dateKey);await sendConfirmedPushes(store,data,clock.dateKey);}
     await store.setJSON("latest-daily",data);await store.setJSON(`candidate-${clock.dateKey}`,data);await store.setJSON(`candidate-${clock.dateKey}-active`,data);
@@ -53,7 +55,7 @@ export default async()=>{
   let watch=await getSmartWatch(store,clock.dateKey);const focusSelection=selectSmartFocus(watch,SMART_FOCUS_SIZE);await persistFocusRanks(store,clock.dateKey,watch,focusSelection.ranked);watch=await getSmartWatch(store,clock.dateKey);const universe=focusSelection.focus.map(x=>x.symbol);const micro=await loadMicrostructure(universe);
   let data=await analyzeUniverse(universe,apiKey,weights,calibration,phase,"active",news.bySymbol||{},micro,symbolProfiles);data=applyFocusMetadata(data,focusSelection.ranked);
   await updateSmartWatch(store,clock.dateKey,data);
-  await writeScannerAudit36(store,clock.dateKey,clock.minuteOfDay,[...cycleRows,...(data.all||[])],{eligibleCount:eligiblePool.length,attempted:[...discoveryBatchesNow.flat(),...universe],errors:data.errors||[]});
+  await writeScannerAudit36(store,clock.dateKey,clock.minuteOfDay,[...cycleRows,...(data.all||[])],{eligibleCount:eligiblePool.length,attempted:[...discoveryBatchesNow.flat(),...universe],errors:data.errors||[],shariaEvidence});
   const merged=new Map();for(const r of cycleRows)if(r?.symbol&&(r.recommendationState==='SMART'||r.recommendationState==='CONFIRMED'))merged.set(r.symbol,r);for(const r of (data.all||[]))if(r?.symbol)merged.set(r.symbol,r);data.all=[...merged.values()];
   data=buildRecommendationDeck(data,primary,calibration,phase,"active");
   const watchAfter=await getSmartWatch(store,clock.dateKey);data.smartFocus={size:SMART_FOCUS_SIZE,focusSymbols:universe,ranked:focusSelection.ranked.map(x=>({symbol:x.symbol,rank:x.focusRank,tier:x.focusTier,score:x.focusScore})),backgroundCount:focusSelection.background.length,rolling:true,persistentAll:true};data.confirmationDiagnostics=confirmationDiagnostics(watchAfter,data);
@@ -65,6 +67,11 @@ export default async()=>{
   await store.setJSON("latest-daily",data);await store.setJSON(`candidate-${clock.dateKey}`,data);await store.setJSON(`candidate-${clock.dateKey}-active`,data);
   if(data.top5.length){await store.setJSON(`candidate-ready-${clock.dateKey}`,data);await store.setJSON(`candidate-ready-${clock.dateKey}-active`,data);return new Response(`Actionable setup refreshed at ${phase}; ${data.display8?.length||0} cards`,{status:200});}
   return new Response(data.fallbackTrade?`BAD TRADE deck saved at ${phase}; ${data.display8?.length||0} cards`:`No signal available at ${phase}`,{status:200});
+  }catch(e){
+   try{await writeScannerFailure37(store,clock.dateKey,clock.minuteOfDay,e?.message||'SCANNER_CYCLE_ERROR');}
+   catch(logError){console.error('DT37_SCANNER_FAILURE_LOGGING_ERROR',String(logError?.message||logError).slice(0,100));}
+   throw e;
+  }
 };
 async function loadMicrostructure(symbols){if(!alpacaConfigured())return {};try{return await fetchLatestQuotes(symbols,process.env.ALPACA_API_KEY_ID,process.env.ALPACA_API_SECRET_KEY);}catch{return {};}}
 function phaseFor(m){return m<610?"09:30–10:09":m<630?"10:10–10:29":m<690?"10:30–11:29":m<750?"11:30–12:29":m<840?"12:30–13:59":"14:00–16:00";}

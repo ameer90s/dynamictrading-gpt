@@ -1,5 +1,5 @@
 (() => {
-  const STORAGE_KEY = "dynamic_trading_ui_tab_v35";
+  const STORAGE_KEY = "dynamic_trading_ui_tab_v37";
   function allButtons(){ return [...document.querySelectorAll('.main-tabs .tab-button[data-tab]')]; }
   function allPanels(){ return [...document.querySelectorAll('.tab-panel[data-panel]')]; }
   function activate(name, scroll=false){

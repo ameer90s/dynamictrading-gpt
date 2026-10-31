@@ -13,11 +13,11 @@ ok('background has no saved primary symbols',!daily.includes('primary-symbols-v2
 ok('manual path has no saved primary symbols',!market.includes('primary-symbols-v27'));
 ok('persistent dynamic SMART watch used',daily.includes('selectSmartFocus(watch,SMART_FOCUS_SIZE)')&&market.includes('selectSmartFocus(watch,SMART_FOCUS_SIZE)')&&daily.includes('updateSmartWatch')&&market.includes('updateSmartWatch'));
 ok('Scanner Learning v3.5 storage',learning.includes('scanner-learning-state-v35')&&learning.includes('scanner-calibration-v35'));
-ok('UI Scanner Learning 3.6', (index.includes('Scanner Learning 3.5')||index.includes('Scanner Learning 3.6'))&&!index.includes('Scanner Learning v3.3'));
+ok('UI Scanner Learning 3.7', index.includes('Scanner Learning 3.7')&&!index.includes('Scanner Learning v3.3'));
 ok('Scanner Health Monitor UI',index.includes('scannerHealthState')&&app.includes('renderScannerHealth'));
 ok('Force Refresh is manual only label',index.includes('تحديث يدوي / Force Refresh'));
 ok('Ask execution gate',selection.includes('ASK_ABOVE_ENTRY_RANGE')&&selection.includes('executableEntry'));
-ok('Service worker 3.6 cache',sw.includes('dynamic-trading-v3.6'));
+ok('Service worker 3.7 cache',sw.includes('dynamic-trading-v3.7')); 
 ok('No operational v3.3/v3.4 refs',[daily,market,index,app,sw].every(x=>!(/v3\.[34]/.test(x))));
 console.log(checks.map(([n])=>`PASS ${n}`).join('\n'));console.log(`AUDIT_PASS ${checks.length}/${checks.length}`);
 const telemetry=read('netlify/functions/telemetry.mjs'),premarket=read('netlify/functions/premarket-memory.mjs'),push=read('netlify/functions/lib/push.mjs');

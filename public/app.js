@@ -11,7 +11,7 @@ const STORE = {
   pro: "dynamic_trading_pro", selected: "dynamic_trading_selected_trade_v282", lastHeavyScan: "dynamic_trading_last_heavy_scan", lastProFetch: "dynamic_trading_last_pro_fetch"
 };
 let currentData = safeJson(storage.getItem(STORE.latest));
-if(currentData?.strategyVersion && currentData.strategyVersion !== '3.6') currentData = null;
+if(currentData?.strategyVersion && currentData.strategyVersion !== '3.7') currentData = null;
 let proData = safeJson(storage.getItem(STORE.pro));
 let selectedTrade = null;
 let selectionCarryOver = false;
@@ -402,7 +402,7 @@ function renderStats(){
   const symbols=groupedPerformance(h,x=>x.symbol||"?").filter(x=>x.count>=2),times=groupedPerformance(h,timeBucket).filter(x=>x.key!=="غير معروف"&&x.count>=2),bands=groupedPerformance(h,x=>confidenceBucket(x.confidence)).filter(x=>x.count>=2);
   setInsight("bestSymbol","bestSymbolSub",symbols[0]);setInsight("bestTime","bestTimeSub",times[0]);setInsight("bestConfidence","bestConfidenceSub",bands[0]);
   const modeVal=$("strategyMode")?.value;const modeBase=modeVal==="active"?64:modeVal==="balanced"?75:82;$("performanceThreshold").textContent=`${Math.max(modeBase,cal.minConfidence)}%+`;const penalties=Object.values(cal.symbolThresholds).filter(x=>x>cal.minConfidence).length+Object.values(cal.phaseThresholds).filter(x=>x>cal.minConfidence).length;$("performanceFilterNote").textContent=cal.active?`متكيف · ${penalties} تشديدات · BAD TRADE مستبعدة من التعلم`:`EV يستخدم prior محافظ · BAD TRADE مستبعدة من التعلم`;
-  const perf=$("symbolPerformance");perf.innerHTML=symbols.length?`<div class="performance-row header"><span>السهم</span><span>الصفقات</span><span>Expectancy</span><span>Win%</span><span>PF</span></div>`+symbols.map(g=>`<div class="performance-row"><span><b>${esc(g.key)}</b></span><span>${g.count}</span><span class="${g.expectancy>=0?'good':'bad'}">${g.expectancy>=0?'+':''}${g.expectancy.toFixed(2)}R</span><span>${Math.round(g.winRate)}%</span><span>${formatPF(g.pf)}</span></div>`).join("")+`<div class="calibration-note">${cal.active?`Scanner Learning 3.6 فعّال: الحد العام ${cal.minConfidence}%. Expected-R يستخدم Bayesian shrinkage مع نتائجك حتى لا يبالغ بعينة صغيرة.`:`بعد 20 صفقة يبدأ التشديد التلقائي. Expected-R متاح من الآن لكن بمزيج محافظ من prior + النتائج المتاحة.`}</div>`:'<div class="empty-state">تظهر مقارنة الأسهم بعد تسجيل نتيجتين على الأقل.</div>';
+  const perf=$("symbolPerformance");perf.innerHTML=symbols.length?`<div class="performance-row header"><span>السهم</span><span>الصفقات</span><span>Expectancy</span><span>Win%</span><span>PF</span></div>`+symbols.map(g=>`<div class="performance-row"><span><b>${esc(g.key)}</b></span><span>${g.count}</span><span class="${g.expectancy>=0?'good':'bad'}">${g.expectancy>=0?'+':''}${g.expectancy.toFixed(2)}R</span><span>${Math.round(g.winRate)}%</span><span>${formatPF(g.pf)}</span></div>`).join("")+`<div class="calibration-note">${cal.active?`Scanner Learning 3.7 فعّال: الحد العام ${cal.minConfidence}%. Expected-R يستخدم Bayesian shrinkage مع نتائجك حتى لا يبالغ بعينة صغيرة.`:`بعد 20 صفقة يبدأ التشديد التلقائي. Expected-R متاح من الآن لكن بمزيج محافظ من prior + النتائج المتاحة.`}</div>`:'<div class="empty-state">تظهر مقارنة الأسهم بعد تسجيل نتيجتين على الأقل.</div>';
   for(const k of ["T1","T2","T3","SL"])$(`count${k}`).textContent=h.filter(x=>x.result===k).length;
   const allHistory=getHistory();const box=$("history");box.innerHTML=allHistory.length?allHistory.slice(0,20).map(x=>`<div class="history-row ${x.badTrade?'bad-history':''}"><span><b>${esc(x.symbol)}</b> · ${sideAr(x.side)} ${x.badTrade?'<em class="bad-tag">BAD</em>':''}</span><span>${x.confidence}%</span><span>${x.result} (${Number(x.R).toFixed(1)}R)</span><span>${formatDubai(x.closedAt)}</span></div>`).join(""):'<div class="empty-state">لا توجد صفقات معتمدة مسجلة.</div>';
   renderErrorAnalysis(h);renderScannerPerformance();renderScannerLearningQuality();
@@ -419,9 +419,9 @@ async function renderScannerPerformance(){
 }
 async function renderScannerLearningQuality(){
   try{const r=await fetch('/api/calibration',{cache:'no-store'}),c=await r.json();if(!r.ok)return;const n=Number(c.sampleSize||0),badge=$('sampleQuality');if(badge){badge.className='sample-badge '+(n>=60?'good':n>=20?'mid':'');badge.textContent=n>=60?`العينة: جيدة (${n} Scanner)`:n>=20?`العينة: أولية (${n} Scanner)`:`العينة: ${n}/20 CONFIRMED قبل التكيّف`;}
-    if($('performanceThreshold'))$('performanceThreshold').textContent=`${Number(c.minConfidence||64)}%+`;if($('performanceFilterNote'))$('performanceFilterNote').textContent=c.active?'Scanner Learning 3.6 فعّال · تعديل محافظ':'Scanner Learning 3.6 · Shadow حتى 20 نتيجة';
-    const syms=Object.entries(c.performanceModel?.symbol||{}).filter(([,v])=>v?.count>=2).sort((a,b)=>Number(b[1].expectancy||0)-Number(a[1].expectancy||0));if(syms.length){$('bestSymbol').textContent=syms[0][0];$('bestSymbolSub').textContent=`${syms[0][1].count} إشارات · ${Number(syms[0][1].expectancy||0)>=0?'+':''}${Number(syms[0][1].expectancy||0).toFixed(2)} / إشارة`;const perf=$('symbolPerformance');if(perf)perf.innerHTML='<div class="performance-row header"><span>السهم</span><span>CONFIRMED</span><span>Expectancy</span><span>Win%</span><span>المصدر</span></div>'+syms.map(([sym,v])=>`<div class="performance-row"><span><b>${esc(sym)}</b></span><span>${Number(v.count||0)}</span><span class="${Number(v.expectancy||0)>=0?'good':'bad'}">${Number(v.expectancy||0)>=0?'+':''}${Number(v.expectancy||0).toFixed(2)}R</span><span>${v.count?Math.round(Number(v.wins||0)/Number(v.count)*100):0}%</span><span>Scanner 3.6</span></div>`).join('');}
-    if($('modelStatus'))$('modelStatus').textContent=c.active?`النموذج: Scanner Learning 3.6 · ${n} نتيجة تلقائية`:`النموذج: أساسي — يبدأ Scanner Learning بعد 20 نتيجة تلقائية`;
+    if($('performanceThreshold'))$('performanceThreshold').textContent=`${Number(c.minConfidence||64)}%+`;if($('performanceFilterNote'))$('performanceFilterNote').textContent=c.active?'Scanner Learning 3.7 فعّال · تعديل محافظ':'Scanner Learning 3.7 · Shadow حتى 20 نتيجة';
+    const syms=Object.entries(c.performanceModel?.symbol||{}).filter(([,v])=>v?.count>=2).sort((a,b)=>Number(b[1].expectancy||0)-Number(a[1].expectancy||0));if(syms.length){$('bestSymbol').textContent=syms[0][0];$('bestSymbolSub').textContent=`${syms[0][1].count} إشارات · ${Number(syms[0][1].expectancy||0)>=0?'+':''}${Number(syms[0][1].expectancy||0).toFixed(2)} / إشارة`;const perf=$('symbolPerformance');if(perf)perf.innerHTML='<div class="performance-row header"><span>السهم</span><span>CONFIRMED</span><span>Expectancy</span><span>Win%</span><span>المصدر</span></div>'+syms.map(([sym,v])=>`<div class="performance-row"><span><b>${esc(sym)}</b></span><span>${Number(v.count||0)}</span><span class="${Number(v.expectancy||0)>=0?'good':'bad'}">${Number(v.expectancy||0)>=0?'+':''}${Number(v.expectancy||0).toFixed(2)}R</span><span>${v.count?Math.round(Number(v.wins||0)/Number(v.count)*100):0}%</span><span>Scanner 3.7</span></div>`).join('');}
+    if($('modelStatus'))$('modelStatus').textContent=c.active?`النموذج: Scanner Learning 3.7 · ${n} نتيجة تلقائية`:`النموذج: أساسي — يبدأ Scanner Learning بعد 20 نتيجة تلقائية`;
   }catch{}
 }
 async function loadSignalHistorySessions(n=1){const r=await fetch(`/api/signal-history?sessions=${n}`,{cache:'no-store'});if(!r.ok)throw new Error('تعذر تحميل السجل');return r.json();}
@@ -491,19 +491,8 @@ function drawMarketProChart(d){
 function shortTime(v){const m=String(v||"").match(/[ T](\d{2}:\d{2})/);return m?m[1]:""}
 
 function initCompactUi(){
-  const today=$("tab-today"),ideas=$("top5Section"),hero=today?.querySelector(".hero-grid");if(today&&ideas&&hero)today.insertBefore(ideas,hero);
-  const buttons=[...document.querySelectorAll(".tab-button")],panels=[...document.querySelectorAll(".tab-panel")];
-  const valid=new Set(buttons.map(b=>b.dataset.tab));
-  function activate(name,scroll=false){
-    if(!valid.has(name))name="today";
-    buttons.forEach(b=>{const on=b.dataset.tab===name;b.classList.toggle("active",on);b.setAttribute("aria-selected",on?"true":"false");});
-    panels.forEach(p=>p.classList.toggle("active",p.dataset.panel===name));
-    storage.setItem("dynamic_trading_ui_tab_v35",name);
-    if(name==="pro"&&proData)requestAnimationFrame(()=>drawMarketProChart(proData));
-    if(scroll)window.scrollTo({top:0,behavior:"smooth"});
-  }
-  buttons.forEach(b=>b.addEventListener("click",()=>activate(b.dataset.tab,true)));
-  activate(storage.getItem("dynamic_trading_ui_tab_v35")||"today",false);
+  // 3.7 New Experience: tab-nav.js is the single owner of page navigation.
+  // Keep status text synchronization; do not restore a legacy saved tab.
   const syncTicker=()=>{const src=$("recommendationTiming"),dst=$("smartTickerText");if(src&&dst)dst.textContent=src.textContent;const dot=$("todayTabDot");if(dot)dot.hidden=!selectedTrade;};
   syncTicker();setInterval(syncTicker,1000);
 }
@@ -609,7 +598,7 @@ if(document.readyState==="loading") document.addEventListener("DOMContentLoaded"
 window.addEventListener("pageshow",()=>{const rows=visibleConfirmed();if(rows.length){for(const r of rows)if(r.signalId)sendTelemetry("APP_OPEN",{signalId:r.signalId,symbol:r.symbol,source:"pageshow",generatedAt:currentData?.generatedAt||""});}});
 
 
-// Dynamic Trading 3.6: evidence cards and research AI read from the same Netlify history
+// Dynamic Trading 3.7: evidence cards and research AI read from the same Netlify history
 // as the legacy Signal History / scanner. No new subscriptions or user accounts.
 const dt36Names={openingReturnPct:'ارتفاع أول 15 دقيقة %',openingMomentum5Pct:'زخم أول 5 دقائق %',
  openingDollarVolume:'القيمة الدولارية للافتتاح',openingVolRatio:'تسارع حجم الافتتاح',
@@ -659,7 +648,7 @@ async function refresh36Panels(force=false){
     '<details><summary>أسباب الرفض الأكثر شيوعاً وأهداف Shadow</summary>'+
      (d.blockers||[]).map(x=>`<div>${esc(x.reason)}: ${esc(x.count)}</div>`).join('')+
      (d.shadow||[]).map(x=>`<div>${esc(x.mode)}: ${esc(x.hitBeforeStop)}/${esc(x.observed)} قبل الوقف · ${esc(x.postExitHit)} بعد الخروج</div>`).join('')+'</details>';}
- }catch(error){if(el&&!el.childElementCount)el.textContent='تعذر تحميل سجل 3.6؛ سيتم المحاولة في التحديث التالي.';}
+ }catch(error){if(el&&!el.childElementCount)el.textContent='تعذر تحميل سجل الماسح؛ سيتم المحاولة في التحديث التالي.';}
  finally{dt36AuditPending=false;}
 }
 

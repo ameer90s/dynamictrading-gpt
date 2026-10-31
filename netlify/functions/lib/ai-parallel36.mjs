@@ -92,7 +92,7 @@ export function adaptiveAiPolicy(featureRows=[],historicalClosed=[],minute=585,o
 }
 function quoteGates(q,now,p){const bid=Number(q?.bid),ask=Number(q?.ask),bids=Number(q?.bidSize),asks=Number(q?.askSize);const ts=Date.parse(q?.timestamp||''),age=Number.isFinite(ts)?(now.getTime()-ts)/1000:null,spread=bid>0&&ask>=bid?1e4*(ask-bid)/((bid+ask)/2):null;
  const checks=[g('authentic_alpaca_quote',String(q?.source||'').startsWith('Alpaca')?1:0,'==',1,'MISSING_AUTHENTIC_QUOTE'),g('valid_level1_sizes',bid>0&&ask>=bid&&bids>0&&asks>0?1:0,'==',1,'INVALID_LEVEL1'),g('quote_age_min',age,'>=',0,'FUTURE_QUOTE'),g('quote_age_max',age,'<=',p.quoteAgeSec,'QUOTE_STALE'),g('spread_bps',spread,'<=',p.maxSpreadBps,'SPREAD_TOO_WIDE')];
- return {bid,ask,age:round(age),spreadBps:round(spread),checks,source:q?.source||null,timestamp:q?.timestamp||null};}
+ return {bid,ask,bidSize:bids,askSize:asks,age:round(age),spreadBps:round(spread),checks,source:q?.source||null,timestamp:q?.timestamp||null};}
 export function evaluateIndependentAi(symbol,candles,spy,quote,{now=new Date(),prior=null,policy=null,approved=false,allowHistorical=false}={}){
  const rows=completedSessionRows(candles,now,{allowHistorical});const bench=completedSessionRows(spy,now,{allowHistorical});const f=featureSet(rows,bench);
  const dynamic=policy||adaptiveAiPolicy(f?[f]:[],[],f?.minute??585);const p=dynamic.params;

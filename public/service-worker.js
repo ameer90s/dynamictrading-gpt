@@ -1,5 +1,5 @@
-const CACHE = "dynamic-trading-v3.6-research-r1";
-const ASSETS = ["/", "/index.html", "/styles.css?v=360", "/tab-nav.js?v=360", "/app.js?v=360", "/manifest.webmanifest", "/icon.svg"];
+const CACHE = "dynamic-trading-v3.7-new-experience-r5";
+const ASSETS = ["/", "/index.html", "/styles.css?v=3751", "/tab-nav.js?v=3751", "/app.js?v=3751", "/dt37-cockpit.js?v=3751", "/dt37-research-panel.js?v=3751", "/dt37-next.css?v=3751", "/dt37-next.js?v=3751", "/manifest.webmanifest", "/icon.svg"];
 self.addEventListener("install",e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)))});
 self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
 self.addEventListener("fetch",e=>{const u=new URL(e.request.url);if(u.pathname.startsWith("/api/"))return;e.respondWith(fetch(e.request).then(r=>{if(r&&r.ok){const cp=r.clone();caches.open(CACHE).then(c=>c.put(e.request,cp))}return r}).catch(()=>caches.match(e.request)))});

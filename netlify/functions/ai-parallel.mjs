@@ -15,7 +15,7 @@ export default async(req)=>{
    scannedSymbols:state?.cumulativeScanned?.length||0,aiPositions:Object.values(state?.records||{}).filter(x=>x.position).map(x=>({symbol:x.symbol,...x.position})),
    transitions:Object.values(state?.records||{}).filter(x=>['SMART','AI_PAPER_CONFIRMED'].includes(x.state)).map(x=>({symbol:x.symbol,state:x.state,reason:x.reason,features:x.latestFeatures,checks:x.latestChecks,quote:x.latestQuote,adaptiveParameters:x.latestPolicy?.params,confidence:x.latestConfidence})),
    recommendations:advice||null,llmReview:llmReview||{status:'DISABLED_OR_NOT_RUN',suggestions:[]}};}));
- return json({version:'3.6 + AI Research Parallel',mode:'BACKGROUND_INDEPENDENT_PAPER',model:'ADAPTIVE_STATISTICAL_RESEARCH_NOT_LLM',latest,days:reports,
+ return json({version:'3.7 + AI Research Parallel',mode:'BACKGROUND_INDEPENDENT_PAPER',model:'ADAPTIVE_STATISTICAL_RESEARCH_NOT_LLM',latest,days:reports,
   availableSessions:idx.days?.length||0,productionScannerUnchanged:true,noOrders:true});
 };
 export const config={path:'/api/ai-parallel'};

@@ -2,6 +2,7 @@ import {getStore} from '@netlify/blobs';
 import {recommendationWindow} from './lib/time.mjs';
 import {prepareEvidenceForModel,requestOptionalAiLlmReview} from './lib/ai-llm-review36.mjs';
 export default async()=>{
+ if(process.env.OPENAI_RESEARCH_ENABLED==='true')return new Response('Legacy LLM disabled: daily research enabled');
  if(process.env.AI_LLM_REVIEW_ENABLED!=='true')return new Response('Optional LLM review disabled');
  if(!process.env.OPENAI_RESEARCH_API_KEY||!process.env.OPENAI_RESEARCH_MODEL)return new Response('Optional LLM review not configured');
  const clock=recommendationWindow();if(!clock.isTradingDay||clock.session!=='REGULAR')return new Response('Outside market session');

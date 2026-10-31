@@ -30,6 +30,7 @@ const price=signal.pending.trigger+.002;const quote={bid:price-.009,ask:price,bi
 const candidate=evaluateIndependentAi('TEST',[...b580,nextBar],spy.slice(0,12),quote,{now:nowAt(581),prior:{pending:signal.pending},approved:true});
 console.log('candidate',candidate.state,candidate.reason,'gates',candidate.checks.execution.filter(x=>!x.passed).map(x=>[x.gate,x.observed,x.threshold]));
 check(candidate.position===null||candidate.position?.id,'candidate has either verified paper entry or explicitly no entry');
+check(candidate.quote?.bidSize===100&&candidate.quote?.askSize===100,'AI quote audit preserves bid and ask sizes');
 const missing=evaluateIndependentAi('TEST',[...b580,nextBar],spy.slice(0,12),null,{now:nowAt(581),prior:{pending:signal.pending},approved:true});
 check(missing.state!=='AI_PAPER_CONFIRMED'&&missing.reason!=='AI_INDEPENDENT_ENTRY','no confirmed without level1');
 const stale=evaluateIndependentAi('TEST',[...b580,nextBar],spy.slice(0,12),{...quote,timestamp:'2026-10-30T13:00:00Z'},{now:nowAt(581),prior:{pending:signal.pending},approved:true});

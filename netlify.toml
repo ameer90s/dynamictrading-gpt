@@ -24,7 +24,7 @@
   schedule = "* 13-21 * * 1-5"
 
 [functions."premarket-memory"]
-  # Measurement-only memory snapshots before the regular session. Does not alter Dynamic Trading 3.6 recommendation logic.
+  # Measurement-only memory snapshots before the regular session. Does not alter Dynamic Trading 3.7 recommendation logic.
   schedule = "0,15,30,45 12-13 * * 1-5"
 
 [functions."sharia-daily-refresh"]
@@ -37,6 +37,13 @@
   # inside the client/browser and never sends any broker order.
   schedule = "* 13-21 * * 1-5"
 
-[functions."ai-parallel-llm-review"]
-  # Optional paid LLM analysis, OFF by default. Never changes trading decisions.
-  schedule = "7,37 13-21 * * 1-5"
+# Legacy ai-parallel-llm-review is not scheduled.
+# Only research-openai37 schedules a single opt-in post-close review.
+
+# Browser-facing API alias for the existing functions. This does not create
+# a new scheduled job or modify any trading policy.
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+  force = true

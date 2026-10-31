@@ -1,11 +1,18 @@
 {
   "name": "Dynamic Trading",
-  "short_name": "Dynamic Trading",
+  "short_name": "DT 3.7",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#07101f",
-  "theme_color": "#0b1324",
+  "background_color": "#08111a",
+  "theme_color": "#0d1c25",
   "lang": "ar",
   "dir": "rtl",
-  "icons": [{"src":"/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
 }
