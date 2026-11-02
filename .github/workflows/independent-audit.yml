@@ -1,0 +1,113 @@
+# Independent, non-production audits. Never deploy from this workflow.
+name: Independent Audit — no production deploy
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: independent-audit-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  existing-regression-suite:
+    name: Existing project tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Run full existing regression suite
+        run: npm test
+
+  independent-release-contracts:
+    name: Release contracts — known 3.7 failures must show red
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Execute explicit source-to-UI regression contract checks
+        shell: bash
+        run: |
+          set -o pipefail
+          node --test scripts/independent-contract37.test.mjs 2>&1 | tee release-contract-results.txt
+      - name: Preserve failure evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-contract-results
+          path: release-contract-results.txt
+          if-no-files-found: warn
+
+  semgrep-independent-static-analysis:
+    name: Semgrep OSS — independent security and JavaScript analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Semgrep without account credentials
+        run: python -m pip install semgrep==1.168.0
+      - name: Run external static analysis rules (FAIL if scanner cannot run)
+        shell: bash
+        env:
+          SEMGREP_SEND_METRICS: 'off'
+        run: |
+          mkdir -p audit-reports
+          semgrep scan --config p/javascript --config p/security-audit --json --output audit-reports/semgrep.json .
+          python - <<'PY'
+          import json
+          d=json.load(open('audit-reports/semgrep.json'))
+          findings=d.get('results',[])
+          print('Semgrep findings:',len(findings))
+          for f in findings[:60]:
+              print(f.get('extra',{}).get('severity',''),f.get('check_id'),f.get('path'),f.get('start',{}).get('line'))
+          if any(f.get('extra',{}).get('severity')=='ERROR' for f in findings):
+              raise SystemExit('Semgrep high-severity findings: release BLOCKED')
+          PY
+      - name: Upload independent analysis report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: semgrep-report
+          path: audit-reports/semgrep.json
+          if-no-files-found: warn
+
+  codeql-independent-security-scan:
+    name: GitHub CodeQL — independent security analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: javascript-typescript
+          queries: security-extended
+      - uses: github/codeql-action/analyze@v4
+        with:
+          category: '/language:javascript-typescript'
