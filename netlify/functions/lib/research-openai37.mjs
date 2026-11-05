@@ -6,11 +6,12 @@
 import {createHash,randomUUID} from 'node:crypto';
 import {pairedDailyResearch,ledgerKey,researchHours,combineLedgerShards} from './research-ledger37.mjs';
 import {researchAgent37FromAudit} from './research-agent37.mjs';
+import {loadResearchLearningContext37,persistResearchLearning37,runLocalStrategyLearning37,strategyLearningKey37,finalizeDueResearchPeriods37} from './research-learning-runtime37.mjs';
 
 export const PILOT = Object.freeze({
   start:'2026-11-02', endExclusive:'2026-12-02', model:'gpt-6.1-sol',
-  maxOutputTokens:3000, maxInputChars:65000, budgetUsd:5,
-  reservePerCallUsd:0.18, maxCalls:25,
+  maxOutputTokens:3000, maxInputChars:65000, budgetUsd:3,
+  reservePerCallUsd:0.30, maxCalls:10,
 });
 const ALLOWED_AREAS=['DISCOVERY','CONFIRMATION','RETEST','COSTS_SPREAD','EXECUTION','EXIT_SHADOW','DATA_INGESTION','COVERAGE','RISK_GATES','AUDIT_RETENTION'];
 const SCHEMA={type:'object',additionalProperties:false,required:['summary_ar','observations','experiments','uncertainties_ar'],properties:{
@@ -158,7 +159,7 @@ export function verifyReview(parsed,evidence){
 }
 export function estimatedCostUsd(usage){
   // Standard un-cached short-context rate for GPT-6.1 Sol: $2 input/$10 output per 1M.
-  // The independent 18c reservation is more conservative and protects pilot spend.
+  // The 30c per-call reservation is an estimate, NOT a provider-enforced hard cap.
   const i=Math.max(0,safeNum(usage?.input_tokens)||0),o=Math.max(0,safeNum(usage?.output_tokens)||0);
   return Math.round((2*i/1e6+10*o/1e6)*1e6)/1e6;
 }
@@ -189,16 +190,79 @@ export async function callOpenAiResearch({evidence,apiKey,fetchFn=fetch,timeoutM
 }
 const budgetKey='dt37-openai37-budget-one-month-20261102';
 const runKey=day=>`dt37-openai37-review-${day}`;
+const recoveryKey=day=>`dt37-openai37-review-recovery-${day}`;
+// Daily paid review is blocked unless the primary claim and a distinct recovery
+// key BOTH complete durable read-after-write checks immediately before billing.
+// Netlify Blobs shares a failure domain, so this cannot promise survival of a
+// total storage outage *during* the remote API call.
+async function preflightPaidReportStorage(store,day,claimId,evidenceHash){
+ const checkpoint={status:'RECOVERY_READY',day,claimId,evidenceHash};
+ try{
+  await store.setJSON(recoveryKey(day),checkpoint);
+  const saved=await read(store,recoveryKey(day));
+  return saved?.status===checkpoint.status&&saved?.claimId===claimId&&
+    saved?.evidenceHash===evidenceHash;
+ }catch{return false;}
+}
+
+async function persistPaidReview(store,day,doc){
+ let lastError=null;
+ for(const key of [runKey(day),recoveryKey(day)]){
+  for(let attempt=0;attempt<2;attempt++){
+   try{
+    await store.setJSON(key,doc);
+    const saved=await read(store,key);
+    if(saved?.status===doc.status&&saved?.evidenceHash===doc.evidenceHash&&saved?.id===doc.id&&saved?.review?.summary_ar===doc.review?.summary_ar)
+     return {key,recovered:key===recoveryKey(day)};
+    lastError=new Error('REVIEW_WRITE_NOT_VERIFIED');
+   }catch(e){lastError=e;}
+  }
+ }
+ throw new Error('PAID_REVIEW_PERSISTENCE_FAILED_NO_API_RETRY: '+String(lastError?.message||'unknown').slice(0,90));
+}
 async function read(store,key){return store.get(key,{type:'json',consistency:'strong'});}
-export async function runScheduledResearch({store,env=process.env,now=new Date(),fetchFn=fetch}={}){
-  if(env.OPENAI_RESEARCH_ENABLED!=='true')return {status:'DISABLED'};
+async function runScheduledResearchCore({store,env=process.env,now=new Date(),fetchFn=fetch}={}){
   const day=newYorkDay(now);
-  if(day<PILOT.start||day>=PILOT.endExclusive)return {status:'OUTSIDE_TRIAL',day};
-  if(!env.OPENAI_RESEARCH_API_KEY)return {status:'NO_API_KEY',day};
+  const learningEnabled=env.DT37_RESEARCH_LEARNING_ENABLED==='true';
+  // Deterministic, post-close archive learning remains available when paid review is off,
+  // but must be explicitly opted in because each run adds Netlify Blob operations.
+  if(env.OPENAI_RESEARCH_ENABLED!=='true')return learningEnabled?runLocalStrategyLearning37({store,day,now}):{status:'DISABLED'};
+  if(day<PILOT.start||day>=PILOT.endExclusive)return learningEnabled?runLocalStrategyLearning37({store,day,now}):{status:'OUTSIDE_TRIAL',day};
+  if(!env.OPENAI_RESEARCH_API_KEY)return learningEnabled?runLocalStrategyLearning37({store,day,now}):{status:'NO_API_KEY',day};
   if(env.OPENAI_RESEARCH_MODEL&&env.OPENAI_RESEARCH_MODEL!==PILOT.model)return {status:'UNAPPROVED_MODEL',day};
   if(!store)throw Error('NO_PERSISTENT_STORE');
   // Persistent store failures fail closed; never assume failure means missing key.
-  if(await read(store,runKey(day)))return {status:'ALREADY_REVIEWED',day};
+  // Prefer the verified primary record. Read recovery only if the primary
+  // is incomplete/unavailable, so a damaged recovery key cannot hide an
+  // otherwise accessible paid report from the daily job.
+  let primaryReview=null,primaryReadError=null,recoveredReview=null,recoveryReadError=null;
+  try{primaryReview=await read(store,runKey(day));}catch(e){primaryReadError=e;}
+  if(primaryReview?.status!=='REVIEW_CREATED_NOT_APPLIED'){
+    try{recoveredReview=await read(store,recoveryKey(day));}catch(e){recoveryReadError=e;}
+  }
+  const existingReview=primaryReview?.status==='REVIEW_CREATED_NOT_APPLIED' ? primaryReview:
+    recoveredReview?.status==='REVIEW_CREATED_NOT_APPLIED'?recoveredReview:primaryReview;
+  // Do not create another billable request if storage cannot establish that a
+  // previous attempt is absent. Existing RESERVED/FAILED claims still fail closed.
+  if(primaryReadError&&!recoveredReview)throw primaryReadError;
+  if(recoveryReadError&&!existingReview)throw recoveryReadError;
+  if(existingReview){
+    if(existingReview.status==='REVIEW_CREATED_NOT_APPLIED'){
+      if(learningEnabled){
+        const saved=await read(store,strategyLearningKey37(day));
+        if(!saved?.openai?.included){
+          const ctx=await loadResearchLearningContext37({store,day});
+          if(ctx.status!=='READY')return {status:'REVIEW_EXISTS_LEARNING_NOT_READY',day,reason:ctx.status};
+          const repaired=await persistResearchLearning37({store,context:ctx,review:existingReview,now});
+          return {status:'ALREADY_REVIEWED',day,learningStatus:repaired.status};
+        }
+      }
+      return {status:'ALREADY_REVIEWED',day};
+    }
+    if(existingReview.status==='FAILED_NO_RETRY')return {status:'FAILED_PREVIOUS_ATTEMPT_NO_RETRY',day,error:existingReview.error||null};
+    if(existingReview.status==='RESERVED')return {status:'REVIEW_RESERVED_NOT_COMPLETED',day};
+    return {status:'PREVIOUS_REVIEW_STATE',day,previousStatus:existingReview.status||'UNKNOWN'};
+  }
   const [aiState,stats,scanner,stage3,ledgerOld]=await Promise.all([
     read(store,`ai-parallel-state-${day}`),read(store,`ai-parallel-recommendations-${day}`),
     read(store,`signal-history-${day}`),read(store,`research-agent-stage3-${day}`),read(store,budgetKey)]);
@@ -213,6 +277,14 @@ export async function runScheduledResearch({store,env=process.env,now=new Date()
   const aiLedger=combineLedgerShards('ai',day,aiParts);
   if(!scLedger||!aiLedger)return {status:'MISSING_RESEARCH_LEDGERS',day};
   const audit=pairedDailyResearch(scLedger,aiLedger);
+  let learningContext=null;
+  if(learningEnabled){
+    learningContext=await loadResearchLearningContext37({store,day,aiState,scannerHistory:scanner,audit});
+    if(learningContext.status!=='READY')return {status:'LEARNING_CONTEXT_UNAVAILABLE_NO_API_SPEND',day,reason:learningContext.status};
+    const preliminary=await persistResearchLearning37({store,context:learningContext,now});
+    if(!['LEARNED_FROM_ARCHIVES_ONLY','ALREADY_LEARNED'].includes(preliminary.status))
+      return {status:'LEARNING_WRITE_UNVERIFIED_NO_API_SPEND',day};
+  }
   const readiness=dailyEvidenceReadiness(audit);
   await store.setJSON(`dt37-research-evidence-quality-${day}`,{day,sourceDigest:audit.sourceDigest,
     recordedAt:now.toISOString(),readiness,streams:Object.fromEntries(Object.entries(audit.streams).map(([k,v])=>
@@ -221,7 +293,7 @@ export async function runScheduledResearch({store,env=process.env,now=new Date()
   if(!readiness.ok)return {status:'INSUFFICIENT_AUDIT',day,reason:readiness.reason};
   // Build the research digest locally; if any required source is absent,
   // fail closed before reserving or spending API budget.
-  const localResearch=researchAgent37FromAudit({day,audit:{...audit,comparison:{...audit.comparison,matchingBothBidAsk:0},
+  const localResearch=researchAgent37FromAudit({day,audit:{...audit,comparison:{...audit.comparison},
     streams:Object.fromEntries(Object.entries(audit.streams).map(([kind,v])=>[kind,{...v,
       readErrors:[],quote:{...v.quote,missing:v.quote.missing||0,invalidCrossed:v.quote.invalid||0,withSizes:v.quote.withSize||0},
       reasonCounts:v.reasonCounts,missingMinutes:v.missingMinutes}]))},generatedAt:now.toISOString()});
@@ -258,16 +330,33 @@ export async function runScheduledResearch({store,env=process.env,now=new Date()
   if(claim?.modified!==true||verifiedClaim?.claimId!==claimId||verifiedClaim?.evidenceHash!==evidenceHash)
     return {status:'CLAIM_NOT_VERIFIED_NO_API_SPEND',day};
   await store.setJSON(budgetKey,nextLedger);
+  // Fail closed when the durable reservation cannot be read back.
+  const verifiedBudget=await read(store,budgetKey);
+  if(!verifiedBudget||verifiedBudget.calls!==nextLedger.calls||
+     verifiedBudget.reservedUsd!==nextLedger.reservedUsd)
+    return {status:'BUDGET_WRITE_NOT_VERIFIED_NO_API_SPEND',day};
+  // The API MUST NOT be charged if a second report location cannot be verified.
+  // The claim and the reserved budget stay consumed on failed preflight: fail
+  // closed rather than risking duplicate paid attempts.
+  if(!await preflightPaidReportStorage(store,day,claimId,evidenceHash))
+    return {status:'REPORT_STORAGE_NOT_VERIFIED_NO_API_SPEND',day};
   let result;
   try{result=await callOpenAiResearch({evidence,apiKey:env.OPENAI_RESEARCH_API_KEY,fetchFn});}
   catch(e){const record={status:'FAILED_NO_RETRY',day,evidenceHash,error:s(e.message,100),reviewedAt:now.toISOString()};
     await store.setJSON(runKey(day),record);return {status:record.status,day,error:record.error};}
   const doc={status:'REVIEW_CREATED_NOT_APPLIED',day,evidenceHash,reviewedAt:now.toISOString(),
     ...result,archiveCoverage:{ai:audit.streams.ai.storedMinutes,scanner:audit.streams.scanner.storedMinutes,complete:audit.complete},remainingReservedUsd:Number((PILOT.budgetUsd-nextLedger.reservedUsd).toFixed(2))};
-  await store.setJSON(runKey(day),doc);
+  let persisted;
+  try{persisted=await persistPaidReview(store,day,doc);}
+  catch(e){
+    // A mid-request total Blob outage cannot be made atomic with a paid HTTP
+    // call. Preserve a short audit marker (no prompt, response, or API key).
+    console.error('DT37_PAID_REPORT_NOT_PERSISTED',day,'providerResponseId',s(result.id,80));
+    throw e;
+  }
   // Existing 3.7 AI panel already reads this key and displays `suggestions`.
   // Keep the old review job DISABLED to avoid overwriting this daily report.
-  await store.setJSON(`ai-parallel-llm-review-${day}`,{
+  try{await store.setJSON(`ai-parallel-llm-review-${day}`,{
     status:doc.status,model:doc.model,basedOn:aiState.updatedAt,sourceEvidenceId:evidence.sourceId,
     recordedAt:doc.reviewedAt,usage:doc.usage,
     suggestions:doc.review.experiments.map(x=>({
@@ -275,6 +364,25 @@ export async function runScheduledResearch({store,env=process.env,now=new Date()
       hypothesis_ar:x.hypothesis_ar,experiment_ar:x.test_ar,risk_ar:x.expected_risk_ar,
       evidence_ids:x.evidence_ids,confidence_qualitative:x.confidence,changeApproved:false,
     })),
-  });
-  return {status:doc.status,day,experiments:doc.review.experiments.length,usage:doc.usage,remainingReservedUsd:doc.remainingReservedUsd};
+  });}catch(e){console.warn('DT37_REVIEW_UI_MIRROR_FAILED',String(e?.message||e).slice(0,90));}
+  let learningStatus='DISABLED';
+  if(learningEnabled){
+    // The paid report is durably saved first. If a later Blob write fails, next
+    // daily invocation can finish the learning link WITHOUT billing OpenAI again.
+    try{const learned=await persistResearchLearning37({store,context:learningContext,review:doc,now});learningStatus=learned.status;}
+    catch{learningStatus='LEARNING_PERSIST_FAILED_RETRY_NEXT_RUN';}
+  }
+  return {status:doc.status,day,experiments:doc.review.experiments.length,usage:doc.usage,remainingReservedUsd:doc.remainingReservedUsd,learningStatus,recoveryKey:persisted.recovered?persisted.key:null};
+}
+
+/** The existing scheduled research invocation performs the weekly/monthly gate
+ * after completing the daily report. No extra cron job or paid call. */
+export async function runScheduledResearch(args={}){
+ const result=await runScheduledResearchCore(args);
+ if(args.env?.DT37_RESEARCH_LEARNING_ENABLED!=='true'&&
+    !(args.env==null&&process.env.DT37_RESEARCH_LEARNING_ENABLED==='true'))return result;
+ const day=newYorkDay(args.now||new Date());
+ try{const periodic=await finalizeDueResearchPeriods37({store:args.store,day,now:args.now||new Date()});
+  return {...result,periodicResearch:periodic};
+ }catch(e){return {...result,periodicResearch:{status:'FAILED_CLOSED',reason:String(e?.message||'unknown').slice(0,90)}}}
 }

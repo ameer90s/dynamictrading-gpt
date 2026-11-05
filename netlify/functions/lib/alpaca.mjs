@@ -36,9 +36,15 @@ function nyBarString(iso){
 // app analyse up to eight recommendation symbols without colliding with the
 // Twelve Data 8-credit/minute ceiling. The returned timestamps are normalized
 // to New York time so the existing session logic can be reused unchanged.
-export async function fetchIntradayBars(symbol,key,secret,{lookbackDays=12}={}){
-  const end=new Date();
+export async function fetchIntradayBars(symbol,key,secret,{lookbackDays=12,now=new Date()}={}){
+  const end=new Date(now);
   const start=new Date(end.getTime()-Math.max(7,Math.min(20,Number(lookbackDays)||12))*86400e3);
+  return fetchIntradayBarsRange(symbol,key,secret,{start,end});
+}
+// Same normalized Alpaca bars as fetchIntradayBars, with a caller-supplied
+// time range; used for fresh same-day bars after the immutable history snapshot.
+export async function fetchIntradayBarsRange(symbol,key,secret,{start,end}={}){
+  if(!(new Date(start).getTime()<new Date(end).getTime()))throw Error('INVALID_BAR_RANGE');
   const out=[];let token=null;let guard=0;
   do{
     const url=new URL(`https://data.alpaca.markets/v2/stocks/${encodeURIComponent(String(symbol).toUpperCase())}/bars`);

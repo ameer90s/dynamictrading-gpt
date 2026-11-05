@@ -11,7 +11,7 @@
     "web-push": "latest"
   },
   "scripts": {
-    "test": "npm run test:syntax && npm run test:functional && npm run test:regression && npm run test:improvements && npm run test:36 && npm run test:ai-parallel && npm run test:archive37 && npm run test:ui37 && npm run test:ui-next37 && npm run test:research-deep37 && npm run test:api-json37 && npm run test:routing37",
+    "test": "npm run test:syntax && npm run test:functional && npm run test:regression && npm run test:improvements && npm run test:36 && npm run test:ai-parallel && npm run test:archive37 && npm run test:ui37 && npm run test:ui-next37 && npm run test:research-deep37 && npm run test:api-json37 && npm run test:routing37 && npm run test:local-safety37 && npm run test:research-learning37 && npm run test:research-memory37 && npm run test:scalp37 && npm run test:experiments37 && npm run test:historical-replay37 && npm run test:cost37",
     "test:syntax": "find netlify public scripts -type f \\( -name '*.js' -o -name '*.mjs' \\) -print0 | xargs -0 -n1 node --check && node --check verify_35.mjs",
     "test:functional": "node verify_35.mjs && node scripts/test-sharia-local.mjs && node scripts/test-premarket-full-universe.mjs && node scripts/test-dynamic-full-universe.mjs && node scripts/test-delivery-stress.mjs && node scripts/test-sharia-daily.mjs",
     "test:regression": "python3 audit_30.py && node scripts/test-requirements-29.mjs && node scripts/audit-v35.mjs",
@@ -23,6 +23,13 @@
     "test:ui-next37": "node scripts/test-ui-next37.mjs",
     "test:research-deep37": "node scripts/test-research-ledger37.mjs",
     "test:api-json37": "node scripts/test-api-json37.mjs",
-    "test:routing37": "node scripts/test-netlify-routing37.mjs"
+    "test:routing37": "node scripts/test-netlify-routing37.mjs",
+    "test:local-safety37": "node scripts/test-execution-quote37.mjs && node scripts/test-credit-atomic37.mjs && node scripts/test-ai-exit-shadow37.mjs && node scripts/test-universe-recovery-integration37.mjs && node scripts/test-research-status-local37.mjs && node scripts/test-local-handler-paths37.mjs && node scripts/test-transition-history37.mjs",
+    "test:research-learning37": "node scripts/test-ai-research-feedback37.mjs && node scripts/test-research-strategy-cycle37.mjs && node scripts/test-research-learning-integration37.mjs && node scripts/test-research-integration-guard37.mjs",
+    "test:research-memory37": "node scripts/test-research-long-memory37.mjs",
+    "test:scalp37": "node scripts/test-ai-scalp-paper37.mjs && node scripts/test-ai-scalp-adversarial37.mjs && node scripts/test-ai-scalp-research37.mjs && node scripts/replay-ai-scalp-session37.mjs",
+    "test:experiments37": "node scripts/test-research-experiment-engine37.mjs",
+    "test:historical-replay37": "node scripts/test-research-historical-replay37.mjs",
+    "test:cost37": "node scripts/test-netlify-cost-optimization37.mjs"
   }
 }

@@ -1,0 +1,18 @@
+import assert from 'node:assert/strict';
+import {persistResearchLearning37,finalizeDueResearchPeriods37,strategyLearningKey37} from '../netlify/functions/lib/research-learning-runtime37.mjs';
+import {researchWeeklyKey37} from '../netlify/functions/lib/research-memory-cadence37.mjs';
+const m=new Map();const store={get:async k=>m.get(k)||null,setJSON:async(k,v,o={})=>{if(o.onlyIfNew&&m.has(k))return {modified:false};m.set(k,v);return {modified:true}}};
+const day='2026-11-06',ctx={status:'READY',day,audit:{sourceDigest:'new'},aiState:{},scannerHistory:{},pastAiStates:[],pastScannerHistories:[],previousCycles:[],memory:null,issues:[],historicalCoverage:{}};
+let n=0;const check=(cond,msg)=>{assert(cond,msg);console.log('PASS',msg);n++};
+m.set(strategyLearningKey37(day),{day,schemaVersion:'WRONG',sourceDigest:'new'});
+check((await persistResearchLearning37({store,context:ctx})).status==='EXISTING_LEARNING_CORRUPTED_FAIL_CLOSED','corrupt stored learning is not overwritten');
+m.set(strategyLearningKey37(day),{day,schemaVersion:'3.7-RESEARCH-STRATEGY-CYCLE-1',sourceDigest:'old'});
+check((await persistResearchLearning37({store,context:ctx})).status==='SOURCE_DIGEST_CHANGED_REQUIRES_REVIEW','changed source digest does not silently overwrite learning');
+check((await persistResearchLearning37({store,context:ctx,review:{day:'2026-11-05',status:'REVIEW_CREATED_NOT_APPLIED'}})).status==='SOURCE_DIGEST_CHANGED_REQUIRES_REVIEW','source mismatch blocks paid review incorporation');
+m.delete(strategyLearningKey37(day));
+check((await persistResearchLearning37({store,context:ctx,review:{day:'2026-11-05',status:'REVIEW_CREATED_NOT_APPLIED'}})).status==='OPENAI_REVIEW_DAY_OR_STATUS_MISMATCH','wrong-day paid review cannot contaminate research');
+for(const d of ['02','03'])m.set(strategyLearningKey37('2026-11-'+d),{day:'2026-11-'+d,recordedEvidenceComplete:true,historyReadIssues:[],proposals:[]});
+const result=await finalizeDueResearchPeriods37({store,day,now:new Date('2026-11-06T22:30:00Z')});
+check(result.reports.some(x=>x.status==='WAITING_FOR_COMPLETE_ARCHIVES'),'incomplete week defers consolidation');
+check(!m.has(researchWeeklyKey37(day)),'incomplete week never freezes immutable report');
+console.log('DT37_RESEARCH_INTEGRATION_GUARDS_PASS',n+'/'+n);

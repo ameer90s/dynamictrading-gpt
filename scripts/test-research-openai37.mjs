@@ -35,7 +35,7 @@ await check('out of trial never sends',async()=>{const s=store();evidence(s);ass
 await check('model allowlist',async()=>{const s=store();evidence(s);assert.equal((await runScheduledResearch({store:s,env:{OPENAI_RESEARCH_ENABLED:'true',OPENAI_RESEARCH_API_KEY:'test',OPENAI_RESEARCH_MODEL:'gpt-6-astra'},now:testDate,fetchFn:fakeFetch})).status,'UNAPPROVED_MODEL');assert.equal(sends,0)});
 await check('no data never spends',async()=>{const s=store();assert.equal((await runScheduledResearch({store:s,env:{OPENAI_RESEARCH_ENABLED:'true',OPENAI_RESEARCH_API_KEY:'test'},now:testDate,fetchFn:fakeFetch})).status,'NO_SESSION_EVIDENCE');assert.equal(sends,0)});
 await check('budget guard works',async()=>{const s=store();evidence(s);s.map.set('dt37-openai37-budget-one-month-20261102',{calls:25,reservedUsd:4.5});assert.equal((await runScheduledResearch({store:s,env:{OPENAI_RESEARCH_ENABLED:'true',OPENAI_RESEARCH_API_KEY:'test'},now:testDate,fetchFn:fakeFetch})).status,'BUDGET_GUARD');assert.equal(sends,0)});
-await check('research review recorded with checked evidence',async()=>{const s=store();evidence(s);const x=await runScheduledResearch({store:s,env:{OPENAI_RESEARCH_ENABLED:'true',OPENAI_RESEARCH_API_KEY:'test-secret',OPENAI_RESEARCH_MODEL:PILOT.model},now:testDate,fetchFn:fakeFetch});assert.equal(x.status,'REVIEW_CREATED_NOT_APPLIED');assert.equal(x.experiments,1);assert.equal(x.usage.estimatedUsd,0.0125);assert.equal(seenReq.model,PILOT.model);assert.equal(seenReq.store,false);assert.equal(seenReq.text.format.type,'json_schema');assert.equal(seenReq.reasoning.effort,'medium');assert.equal(s.map.get('dt37-openai37-budget-one-month-20261102').reservedUsd,0.18);assert.equal(s.map.get('dt37-openai37-review-2026-11-03').review.experiments[0].canApply,false);assert.equal(s.map.get('dt37-research-evidence-quality-2026-11-03').readiness.ok,true);assert.equal(s.map.get('dt37-openai37-review-2026-11-03').archiveCoverage.ai,390);assert.equal(s.map.get('ai-parallel-llm-review-2026-11-03').suggestions.length,1);assert.equal(s.map.get('ai-parallel-llm-review-2026-11-03').suggestions[0].changeApproved,false);assert(!JSON.stringify([...s.map]).includes('test-secret'));assert.equal((await runScheduledResearch({store:s,env:{OPENAI_RESEARCH_ENABLED:'true',OPENAI_RESEARCH_API_KEY:'test-secret'},now:testDate,fetchFn:fakeFetch})).status,'ALREADY_REVIEWED');assert.equal(sends,1)});
+await check('research review recorded with checked evidence',async()=>{const s=store();evidence(s);const x=await runScheduledResearch({store:s,env:{OPENAI_RESEARCH_ENABLED:'true',OPENAI_RESEARCH_API_KEY:'test-secret',OPENAI_RESEARCH_MODEL:PILOT.model},now:testDate,fetchFn:fakeFetch});assert.equal(x.status,'REVIEW_CREATED_NOT_APPLIED');assert.equal(x.experiments,1);assert.equal(x.usage.estimatedUsd,0.0125);assert.equal(seenReq.model,PILOT.model);assert.equal(seenReq.store,false);assert.equal(seenReq.text.format.type,'json_schema');assert.equal(seenReq.reasoning.effort,'medium');assert.equal(s.map.get('dt37-openai37-budget-one-month-20261102').reservedUsd,0.3);assert.equal(s.map.get('dt37-openai37-review-2026-11-03').review.experiments[0].canApply,false);assert.equal(s.map.get('dt37-research-evidence-quality-2026-11-03').readiness.ok,true);assert.equal(s.map.get('dt37-openai37-review-2026-11-03').archiveCoverage.ai,390);assert.equal(s.map.get('ai-parallel-llm-review-2026-11-03').suggestions.length,1);assert.equal(s.map.get('ai-parallel-llm-review-2026-11-03').suggestions[0].changeApproved,false);assert(!JSON.stringify([...s.map]).includes('test-secret'));assert.equal((await runScheduledResearch({store:s,env:{OPENAI_RESEARCH_ENABLED:'true',OPENAI_RESEARCH_API_KEY:'test-secret'},now:testDate,fetchFn:fakeFetch})).status,'ALREADY_REVIEWED');assert.equal(sends,1)});
 await check('concurrent post-close jobs cannot double-send OpenAI',async()=>{
  const s=store();evidence(s);let paid=0;
  const fetchOnce=async()=>{paid++;return {ok:true,status:200,json:async()=>({model:PILOT.model,usage:{input_tokens:100,output_tokens:100},output:[{content:[{type:'output_text',text:JSON.stringify(resultReview)}]}]})}};
@@ -45,8 +45,41 @@ await check('concurrent post-close jobs cannot double-send OpenAI',async()=>{
  assert.equal(results.filter(x=>x.status==='ALREADY_REVIEWED').length,1);
 });
 await check('bad evidence citations discarded',()=>{const e=buildEvidence({day:'2026-11-03',aiState:{updatedAt:'2026-11-03',records:{}}});const wrong={...resultReview,experiments:[{...resultReview.experiments[0],evidence_ids:['INVENTED']}],observations:[{...resultReview.observations[0],evidence_ids:['INVENTED']}]};const valid=verifyReview(wrong,e);assert.equal(valid.experiments.length,0);assert.equal(valid.observations.length,0)});
-await check('no retry after failed billed call',async()=>{const s=store();evidence(s);let attempts=0;const fail=async()=>{attempts++;return {ok:false,status:429}};const x=await runScheduledResearch({store:s,env:{OPENAI_RESEARCH_ENABLED:'true',OPENAI_RESEARCH_API_KEY:'test'},now:testDate,fetchFn:fail});assert.equal(x.status,'FAILED_NO_RETRY');assert.equal((await runScheduledResearch({store:s,env:{OPENAI_RESEARCH_ENABLED:'true',OPENAI_RESEARCH_API_KEY:'test'},now:testDate,fetchFn:fail})).status,'ALREADY_REVIEWED');assert.equal(attempts,1);assert.equal(s.map.get('dt37-openai37-budget-one-month-20261102').calls,1)});
+await check('no retry after failed billed call',async()=>{const s=store();evidence(s);let attempts=0;const fail=async()=>{attempts++;return {ok:false,status:429}};const x=await runScheduledResearch({store:s,env:{OPENAI_RESEARCH_ENABLED:'true',OPENAI_RESEARCH_API_KEY:'test'},now:testDate,fetchFn:fail});assert.equal(x.status,'FAILED_NO_RETRY');assert.equal((await runScheduledResearch({store:s,env:{OPENAI_RESEARCH_ENABLED:'true',OPENAI_RESEARCH_API_KEY:'test'},now:testDate,fetchFn:fail})).status,'FAILED_PREVIOUS_ATTEMPT_NO_RETRY');assert.equal(attempts,1);assert.equal(s.map.get('dt37-openai37-budget-one-month-20261102').calls,1)});
 await check('storage error fails before API call',async()=>{const st={get:async(k)=>k==='ai-parallel-state-2026-11-03'?{updatedAt:'2026-11-03',records:{}}:null,list:async()=>({blobs:[]}),setJSON:async()=>{throw Error('blob down')}};assert.equal((await runScheduledResearch({store:st,env:{OPENAI_RESEARCH_ENABLED:'true',OPENAI_RESEARCH_API_KEY:'test'},now:testDate,fetchFn:fakeFetch})).status,'MISSING_RESEARCH_LEDGERS');assert.equal(sends,1)});
+await check('primary saved report remains visible when recovery key read breaks',async()=>{
+ const s=store();evidence(s);
+ const args={store:s,env:{OPENAI_RESEARCH_ENABLED:'true',OPENAI_RESEARCH_API_KEY:'test'},
+   now:testDate,fetchFn:fakeFetch};
+ const first=await runScheduledResearch(args);
+ assert.equal(first.status,'REVIEW_CREATED_NOT_APPLIED');
+ const failsRecovery={...s,async get(k,o){
+   if(k==='dt37-openai37-review-recovery-2026-11-03')throw Error('BACKUP_READ_FAIL');
+   return s.get(k,o);
+ }};
+ const before=sends;
+ assert.equal((await runScheduledResearch({...args,store:failsRecovery})).status,'ALREADY_REVIEWED');
+ assert.equal(sends,before);
+});
+await check('unavailable recovery slot blocks paid OpenAI request',async()=>{
+ const s=store();evidence(s);let attempts=0;
+ const failingRecovery={
+   ...s,
+   async setJSON(k,v,o){
+     if(k==='dt37-openai37-review-recovery-2026-11-03')throw Error('RECOVERY_SLOT_DOWN');
+     return s.setJSON(k,v,o);
+   }
+ };
+ const result=await runScheduledResearch({store:failingRecovery,
+   env:{OPENAI_RESEARCH_ENABLED:'true',OPENAI_RESEARCH_API_KEY:'fake'},now:testDate,
+   fetchFn:async()=>{attempts++;throw Error('SHOULD_NOT_SPEND')}});
+ assert.equal(result.status,'REPORT_STORAGE_NOT_VERIFIED_NO_API_SPEND');
+ assert.equal(attempts,0);
+ assert.equal((await runScheduledResearch({store:failingRecovery,
+   env:{OPENAI_RESEARCH_ENABLED:'true',OPENAI_RESEARCH_API_KEY:'fake'},now:testDate,
+   fetchFn:async()=>{attempts++;throw Error('SHOULD_NOT_SPEND')}})).status,'REVIEW_RESERVED_NOT_COMPLETED');
+ assert.equal(attempts,0);
+});
 await check('Sol is pinned with accurate standard pricing',()=>{assert.equal(PILOT.model,'gpt-6.1-sol');assert.equal(estimatedCostUsd({input_tokens:1000000,output_tokens:1000000}),12);assert.equal(PILOT.maxCalls*PILOT.reservePerCallUsd<=PILOT.budgetUsd,true)});
 await check('OpenAI HTML response fails safely without leaking body',async()=>{
  const e=buildEvidence({day:'2026-11-03',aiState:{updatedAt:'2026-11-03',records:{}}});

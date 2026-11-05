@@ -16,7 +16,7 @@ ok('Scanner Learning v3.5 storage',learning.includes('scanner-learning-state-v35
 ok('UI Scanner Learning 3.7', index.includes('Scanner Learning 3.7')&&!index.includes('Scanner Learning v3.3'));
 ok('Scanner Health Monitor UI',index.includes('scannerHealthState')&&app.includes('renderScannerHealth'));
 ok('Force Refresh is manual only label',index.includes('تحديث يدوي / Force Refresh'));
-ok('Ask execution gate',selection.includes('ASK_ABOVE_ENTRY_RANGE')&&selection.includes('executableEntry'));
+ok('Ask execution gate',selection.includes('validateExecutionQuote37(')&&read('netlify/functions/lib/execution-quote37.mjs').includes('EXECUTION_ASK_ABOVE_ENTRY')&&selection.includes('executableEntry'));
 ok('Service worker 3.7 cache',sw.includes('dynamic-trading-v3.7')); 
 ok('No operational v3.3/v3.4 refs',[daily,market,index,app,sw].every(x=>!(/v3\.[34]/.test(x))));
 console.log(checks.map(([n])=>`PASS ${n}`).join('\n'));console.log(`AUDIT_PASS ${checks.length}/${checks.length}`);

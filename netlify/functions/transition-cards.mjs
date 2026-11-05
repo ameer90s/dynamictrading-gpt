@@ -1,5 +1,6 @@
 import {getStore} from '@netlify/blobs';
 import {recommendationWindow} from './lib/time.mjs';
+import {STRATEGY_VERSION} from './lib/version.mjs';
 export default async(req)=>{
   if(req.method!=='GET')return json({error:'method'},405);
   const store=getStore('dynamic-trading'),day=recommendationWindow().dateKey;
@@ -7,7 +8,7 @@ export default async(req)=>{
   const rows=[];
   for(const rec of Object.values(p?.signals||{})){
     for(const x of (rec.transitions||[])){
-      if(x.version!=='3.6'||!['SMART','CONFIRMED'].includes(x.state))continue;
+      if(!['3.6',STRATEGY_VERSION].includes(x.version)||!['SMART','CONFIRMED'].includes(x.state))continue;
       rows.push({symbol:rec.symbol,at:x.at,from:x.previousState,to:x.state,kind:x.event||'STATE_TRANSITION',
         reason:x.reason,qualityScore:x.qualityScore,confidenceProbability:null,confidenceStatus:'UNCALIBRATED',
         openingChecks:x.openingChecks,confirmationChecks:x.confirmationChecks,executionChecks:x.executionChecks,
@@ -16,7 +17,7 @@ export default async(req)=>{
     }
   }
   rows.sort((a,b)=>String(b.at).localeCompare(String(a.at)));
-  return json({version:'3.6',dateKey:day,cards:rows.slice(0,80),total:rows.length,
+  return json({version:STRATEGY_VERSION,dateKey:day,cards:rows.slice(0,80),total:rows.length,
     notes:'FACTUAL PROGRAM GATES; no claim of verified cause of market outcome'});
 };
 export const config={path:'/api/transition-cards'};

@@ -1,0 +1,9 @@
+{
+  "proposalId": "EXAMPLE_DO_NOT_USE_AS_RESEARCH_APPROVAL",
+  "family": "DT37_FAMILY_aaaaaaaaaaaaaaaaaaaaaaaa",
+  "engine": "SCANNER",
+  "parameter": "minClosePosition",
+  "direction": "INCREASE",
+  "delta": 0.1,
+  "lockedAt": "2026-09-01"
+}

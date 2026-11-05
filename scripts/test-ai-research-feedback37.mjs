@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {classifyMarket37,learnFromClosed37,discoverCandidateSetups37,researchAgentLearningLayer37} from '../netlify/functions/lib/ai-research-feedback37.mjs';
+const f={benchmarkMovePct:.7,atrPct:.4,momentum5Pct:.5,openingDollarVolume:500000,closePosition:.9,volumeRatio:2,price:102,vwap:101,priorClose:100,rsi14:30};
+assert.equal(classifyMarket37([f,f,f]).regime,'TREND_UP_NORMAL_VOL_LIQUID');
+assert.equal(classifyMarket37([]).regime,'UNKNOWN');
+assert.equal(discoverCandidateSetups37(f,classifyMarket37([f,f,f])).length,2);
+assert.equal(discoverCandidateSetups37(f,{regime:'UNKNOWN'}).length,0);
+const rows=[{id:'1',status:'CLOSED',closedAt:'2026-10-30',setupType:'EARLY',netUsd:3},{id:'1',status:'CLOSED',closedAt:'2026-10-30',setupType:'EARLY',netUsd:3},{id:'2',status:'CLOSED',closedAt:'2026-11-04',setupType:'EARLY',netUsd:-9}];
+assert.equal(learnFromClosed37(rows,'2026-11-04').uniqueClosed,1);
+assert.equal(learnFromClosed37(rows,'2026-11-04').byType.EARLY.eligibleForResearch,false);
+const p={id:'p1',setupType:'VWAP_RECLAIM',evidenceIds:['a']};
+let layer=researchAgentLearningLayer37({scannerOutcomes:rows,aiOutcomes:rows,asOfDay:'2026-11-04',proposals:[p]});
+assert.equal(layer.layer,'ABOVE_BOTH_SCANNERS');assert.equal(layer.recommendations[0].status,'UNTESTED');assert.equal(layer.appliesToTrading,false);
+layer=researchAgentLearningLayer37({asOfDay:'2026-11-04',proposals:[p],experiments:[{proposalId:'p1',outOfSample:true,independentAudit:true,netAfterCostsPositive:true,riskNotWorse:true,sampleSize:60}]});
+assert.equal(layer.recommendations[0].status,'ELIGIBLE_FOR_MANUAL_APPROVAL');assert.equal(layer.recommendations[0].productionApplied,false);
+console.log('AI_RESEARCH_FEEDBACK37_PASS 10/10');

@@ -1,0 +1,22 @@
+import assert from 'node:assert/strict';
+import {updateAiExitShadow37} from '../netlify/functions/lib/ai-paper-exit-shadow37.mjs';
+const entry='2026-11-03 09:41:00';
+const at='2026-11-03 09:42:00';
+const make=()=>({symbol:'ABC',position:{id:'paper-1',status:'OPEN',entry:100,stop:99,target:103,qty:2,feesUsd:0.2,openedBarTime:entry}});
+const bar=(datetime,high,low,close)=>({datetime,open:100,high,low,close});
+let n=0;const check=(name,fn)=>{fn();n++;console.log('PASS',name)};
+check('new shadow tracks no earlier candle',()=>{const r=updateAiExitShadow37(make(),[bar(entry,104,98,100)]);assert.equal(r.position.adaptiveExitShadow37.barCount,0);assert.equal(r.position.status,'OPEN');assert.equal(r.position.stop,99)});
+check('completed candle updates only shadow',()=>{const old=make();const r=updateAiExitShadow37(old,[bar(at,100.4,99.7,100.2)]);assert.equal(r.position.status,'OPEN');assert.equal(r.position.adaptiveExitShadow37.barCount,1);assert.equal(r.position.target,103);assert(!old.position.adaptiveExitShadow37)});
+check('duplicate candle not processed again',()=>{const r=updateAiExitShadow37(make(),[bar(at,100.4,99.7,100.2)]);const again=updateAiExitShadow37(r,[bar(at,100.4,99.7,100.2)]);assert.equal(again.position.adaptiveExitShadow37.barCount,1)});
+check('same bar stop and target uncertain',()=>{const r=updateAiExitShadow37(make(),[bar(at,103.2,98.7,100.1)]);assert.equal(r.position.adaptiveExitShadow37.netUsd,null);assert.equal(r.position.adaptiveExitShadow37.status,'AMBIGUOUS');assert.equal(r.position.status,'OPEN')});
+check('original stop and target remain invariant',()=>{const r=updateAiExitShadow37(make(),[bar(at,102.1,99.9,101)]);assert.equal(r.position.stop,99);assert.equal(r.position.target,103);assert.equal(r.position.qty,2)});
+check('invalid OHLC does not fabricate PNL',()=>{const r=updateAiExitShadow37(make(),[bar(at,98,100,99)]);assert.equal(r.position.adaptiveExitShadow37.netUsd,null);assert.equal(r.position.adaptiveExitShadow37.status,'INVALID_BAR_NO_PNL')});
+check('position already closed unchanged',()=>{const old=make();old.position.status='CLOSED';assert.equal(updateAiExitShadow37(old).position.status,'CLOSED')});
+check('EOD no post-entry bars remains unpriced',()=>{const r=updateAiExitShadow37(make(),[],{forceClose:true});assert.equal(r.position.adaptiveExitShadow37.netUsd,null);assert.equal(r.position.adaptiveExitShadow37.status,'UNPRICED_AT_CLOSE')});
+check('EOD uses last previously processed completed candle',()=>{
+  const first=updateAiExitShadow37(make(),[bar(at,100.4,99.7,100.25)]);
+  const closed=updateAiExitShadow37(first,[bar(at,100.4,99.7,100.25)],{forceClose:true});
+  assert.equal(closed.position.adaptiveExitShadow37.status,'CLOSED');
+  assert.equal(closed.position.adaptiveExitShadow37.netUsd,0.3);
+});
+console.log('DT37_AI_EXIT_SHADOW_PASS',n+'/'+n);

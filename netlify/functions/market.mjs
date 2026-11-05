@@ -1,5 +1,6 @@
 import { getStore } from "@netlify/blobs";
 import { analyzeUniverse, buildRecommendationDeck } from "./lib/trading.mjs";
+import { createPrimaryBarsLoader37 } from "./lib/primary-bars-cache37.mjs";
 import { recommendationWindow, nextTradingDateKey } from "./lib/time.mjs";
 import { normalizePool, discoveryBatches, mergeDiscovery, selectedUniverse } from "./lib/dynamic.mjs";
 import { getOrBuildSessionUniverse } from "./lib/session-universe.mjs";
@@ -19,6 +20,7 @@ export default async (req) => {
   try {
     const clock = recommendationWindow();
     const store = getStore("dynamic-trading");
+    const barsLoader=createPrimaryBarsLoader37(store);
     const existing = await store.get(`selection-${clock.dateKey}`, { type: "json", consistency: "strong" });
     // Dynamic Trading 3.6 keeps scanning after a trade is selected. The daily lock prevents a second
     // selection, but must not blind the scanner or Signal History.
@@ -55,8 +57,8 @@ export default async (req) => {
 
     if(clock.minuteOfDay < 610){
       const batches=discoveryBatches(eligiblePool,clock.minuteOfDay);let data=null;
-      for(const batch of batches){const micro=await loadMicrostructure(batch);const part=await analyzeUniverse(batch,apiKey,weights,savedCalibration,phase,mode,news.bySymbol||{},micro,symbolProfiles);discovery=mergeDiscovery(discovery,part,clock.minuteOfDay,eligiblePool,batch);await updateSmartWatch(store,clock.dateKey,part);data=part;}
-      data=data||await analyzeUniverse([],apiKey,weights,savedCalibration,phase,mode,news.bySymbol||{}, {},symbolProfiles);
+      for(const batch of batches){const micro=await loadMicrostructure(batch);const part=await analyzeUniverse(batch,apiKey,weights,savedCalibration,phase,mode,news.bySymbol||{},micro,symbolProfiles,{barsLoader});discovery=mergeDiscovery(discovery,part,clock.minuteOfDay,eligiblePool,batch);await updateSmartWatch(store,clock.dateKey,part);data=part;}
+      data=data||await analyzeUniverse([],apiKey,weights,savedCalibration,phase,mode,news.bySymbol||{}, {},symbolProfiles,{barsLoader});
       await store.setJSON(`dynamic-discovery-${clock.dateKey}`,discovery);
       data.tradeDate=clock.dateKey;data.appName="Dynamic Trading";data.strategyVersion="3.6";data.performanceCostPolicy={weeklyNetTargetPct:2.5,subscriptionCostUsd:10,subscriptionTreatment:"DEDUCT_FROM_WEEKLY_NET_TARGET_AND_RETURN"};data.shariaUniverseSource=sharia.source;data.shariaMethodology=sharia.methodology;data.shariaUniverseUpdatedAt=sharia.fetchedAt;data.shariaCacheStatus=sharia.cacheStatus;data.shariaUniverseCount=sharia.count;data.selectionLocked=false;data.candidateFrozen=false;data.scanMinuteNY=clock.minuteOfDay;data.evaluationPhase=phase;data.discoveryPhase=true;data.primarySymbols=primary;
       data.dynamicSelection={mode:"DISCOVERY",poolSize:eligiblePool.length,shariaPoolSize:searchPool.length,priceBands:sessionUniverse.priceBands,priceScreenCoveragePct:sessionUniverse.quoteCoveragePct,batch:batches.flat(),primary,scannedSymbols:discovery.scannedSymbols,leaders:discovery.leaders,note:"09:30–10:09: يتم تدوير الكون الشرعي ديناميكياً وتجميع أفضل المرشحين. SMART يبدأ من 09:45، CONFIRMED بعد 10:30."};
@@ -68,11 +70,11 @@ export default async (req) => {
 
     // Continue full-universe discovery after 10:10 as well; recommendations use the best scanned leaders while coverage keeps expanding.
     const discoveryBatchesNow=discoveryBatches(eligiblePool,clock.minuteOfDay,10);const cycleRows=[];
-    for(const discoveryBatchNow of discoveryBatchesNow){if(discoveryBatchNow.length){const discoveryMicro=await loadMicrostructure(discoveryBatchNow);let discoveryData=await analyzeUniverse(discoveryBatchNow,apiKey,weights,savedCalibration,phase,mode,news.bySymbol||{},discoveryMicro,symbolProfiles);discovery=mergeDiscovery(discovery,discoveryData,clock.minuteOfDay,eligiblePool,discoveryBatchNow);cycleRows.push(...(discoveryData.all||[]));await updateSmartWatch(store,clock.dateKey,discoveryData);discoveryData=buildRecommendationDeck(discoveryData,[],savedCalibration,phase,mode);await updateSignalHistory(store,discoveryData,clock.dateKey);}}
+    for(const discoveryBatchNow of discoveryBatchesNow){if(discoveryBatchNow.length){const discoveryMicro=await loadMicrostructure(discoveryBatchNow);let discoveryData=await analyzeUniverse(discoveryBatchNow,apiKey,weights,savedCalibration,phase,mode,news.bySymbol||{},discoveryMicro,symbolProfiles,{barsLoader});discovery=mergeDiscovery(discovery,discoveryData,clock.minuteOfDay,eligiblePool,discoveryBatchNow);cycleRows.push(...(discoveryData.all||[]));await updateSmartWatch(store,clock.dateKey,discoveryData);discoveryData=buildRecommendationDeck(discoveryData,[],savedCalibration,phase,mode);await updateSignalHistory(store,discoveryData,clock.dateKey);}}
     if(discoveryBatchesNow.length)await store.setJSON(`dynamic-discovery-${clock.dateKey}`,discovery);
     let watch=await getSmartWatch(store,clock.dateKey);const focusSelection=selectSmartFocus(watch,SMART_FOCUS_SIZE);await persistFocusRanks(store,clock.dateKey,watch,focusSelection.ranked);watch=await getSmartWatch(store,clock.dateKey);const universe=focusSelection.focus.map(x=>x.symbol);
     const micro=await loadMicrostructure(universe);
-    let data=await analyzeUniverse(universe,apiKey,weights,savedCalibration,phase,mode,news.bySymbol||{},micro,symbolProfiles);data=applyFocusMetadata(data,focusSelection.ranked);
+    let data=await analyzeUniverse(universe,apiKey,weights,savedCalibration,phase,mode,news.bySymbol||{},micro,symbolProfiles,{barsLoader});data=applyFocusMetadata(data,focusSelection.ranked);
     await updateSmartWatch(store,clock.dateKey,data);const merged=new Map();for(const r of cycleRows)if(r?.symbol&&(r.recommendationState==='SMART'||r.recommendationState==='CONFIRMED'))merged.set(r.symbol,r);for(const r of (data.all||[]))if(r?.symbol)merged.set(r.symbol,r);data.all=[...merged.values()];
     data=buildRecommendationDeck(data,primary,savedCalibration,phase,mode);
     const watchAfter=await getSmartWatch(store,clock.dateKey);data.smartFocus={size:SMART_FOCUS_SIZE,focusSymbols:universe,ranked:focusSelection.ranked.map(x=>({symbol:x.symbol,rank:x.focusRank,tier:x.focusTier,score:x.focusScore})),backgroundCount:focusSelection.background.length,rolling:true,persistentAll:true};data.confirmationDiagnostics=confirmationDiagnostics(watchAfter,data);

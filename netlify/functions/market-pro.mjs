@@ -7,14 +7,14 @@ export default async (req) => {
   if (req.method !== "GET") return json({ error: "Method not allowed" }, 405);
   const apiKey = process.env.TWELVE_DATA_API_KEY;
   const u=new URL(req.url); const symbol=String(u.searchParams.get('symbol')||'SPY').trim().toUpperCase().replace(/[^A-Z0-9.\-]/g,'').slice(0,16)||'SPY';
-  if (!apiKey) return json({ error: "TWELVE_DATA_API_KEY غير مضاف في Netlify" }, 500);
+  if (!apiKey) return json({ status:'DISABLED', feature:'MARKET_PRO', reason:'TWELVE_DATA_NOT_CONFIGURED', error:'Market Pro يحتاج مزود Twelve Data؛ لم يُرسل طلب بيانات.' }, 503);
 
   try {
     const store=getStore("dynamic-trading");
     const budget=await reserveApiMinute(store,"market-pro",1);
     if(!budget.allowed){
-      const cached=await store.get("market-pro-latest-v35",{type:"json",consistency:"strong"});
-      if(cached)return json({...cached,creditSmartReused:true,creditWaitSeconds:budget.waitSeconds},200,{"Cache-Control":"no-store"});
+      const cached=await store.get(`market-pro-latest-v35-${symbol}`,{type:"json",consistency:"strong"});
+      if(cached?.symbol===symbol)return json({...cached,creditSmartReused:true,cacheStale:!Number.isFinite(Date.parse(cached.generatedAt))||(Date.now()-Date.parse(cached.generatedAt))>180000,creditWaitSeconds:budget.waitSeconds},200,{"Cache-Control":"no-store"});
       return json({error:`تحديث السوق يستخدم حصة هذه الدقيقة. جرّب Market Pro بعد ${budget.waitSeconds} ثانية.`,creditWaitSeconds:budget.waitSeconds},429);
     }
     // الخطة المجانية لا توفر extended-hours لحظياً. نستخدم الجلسة العادية افتراضياً،
@@ -40,7 +40,7 @@ export default async (req) => {
     data.extendedHoursAvailable = extendedHoursAvailable;
     data.extendedHoursNote = extendedHoursNote;
     data.currentMarket = currentMarket;
-    await store.setJSON("market-pro-latest-v35",data);
+    await store.setJSON(`market-pro-latest-v35-${symbol}`,data);
     return json(data, 200, { "Cache-Control": "no-store" });
   } catch (error) {
     return json({ error: error.message || "تعذر تحديث لوحة Market Pro" }, 502);

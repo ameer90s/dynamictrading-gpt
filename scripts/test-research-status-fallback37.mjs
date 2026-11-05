@@ -1,0 +1,27 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+const file=new URL('../netlify/functions/research-status37.mjs',import.meta.url);
+let src=readFileSync(file,'utf8').replace(/^import .*;\n/gm,'');
+src=`const getStore=()=>globalThis.__dt37StatusStore;
+const newYorkDay=()=> '2026-11-03';
+const strategyLearningKey37=()=> 'learning';
+const recentResearchReportEnds37=()=>({weekly:'X',monthly:'Y'});
+const researchWeeklyKey37=()=> 'weekly';
+const researchMonthlyKey37=()=> 'monthly';
+const researchMemoryKey37='memory';
+const publicResearchSummary=({review,day})=>({day,status:review?.status||'NO_REVIEW',summary:review?.review?.summary_ar||null});\n`+src;
+const {default:handler}=await import(`data:text/javascript;base64,${Buffer.from(src).toString('base64')}`);
+const day='2026-11-03';
+const storedReview={status:'REVIEW_CREATED_NOT_APPLIED',review:{summary_ar:'RECOVERED_FULL_DAILY_REPORT'}};
+let primaryError=true,recoveryError=false;
+globalThis.__dt37StatusStore={async get(key){
+ if(key===`dt37-openai37-review-${day}`&&primaryError)throw Error('INJECTED_PRIMARY_READ_FAILURE');
+ if(key===`dt37-openai37-review-recovery-${day}`){if(recoveryError)throw Error('INJECTED_RECOVERY_READ_FAILURE');return storedReview;}
+ return null;
+}};
+const read=async()=>{const resp=await handler(new Request(`https://local.invalid/api/research-status?day=${day}`));return {status:resp.status,body:await resp.json()};};
+const available=await read();assert.equal(available.status,200);
+assert.equal(available.body.summary,'RECOVERED_FULL_DAILY_REPORT');
+recoveryError=true;
+const unavailable=await read();assert.equal(unavailable.status,503);assert.equal(unavailable.body.status,'ARCHIVE_UNAVAILABLE');
+console.log('DT37_RESEARCH_STATUS_FALLBACK_OFFLINE_PASS 2/2');

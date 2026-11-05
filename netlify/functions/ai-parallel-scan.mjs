@@ -10,6 +10,7 @@ import {fetchAiCycleData} from './lib/ai-parallel-data36.mjs';
 import {independentCycle} from './lib/ai-parallel-runner36.mjs';
 import {shariaSnapshotEvidence} from './lib/research-sharia37.mjs';
 import {recordResearchMinute} from './lib/research-ledger37.mjs';
+import {getPriorAiHistory37} from './lib/ai-prior-history-cache37.mjs';
 
 export default async()=>{
  const now=new Date(),clock=recommendationWindow(now);
@@ -29,15 +30,17 @@ export default async()=>{
  const cursor=existing.cursor||0;
  const batch=Array.from({length:Math.min(capacity,eligible.length)},(_,i)=>eligible[(cursor+i)%eligible.length]);
  // Always recheck active AI positions and SMART watches irrespective of rotation.
- const active=Object.values(existing.records||{}).filter(x=>x.state==='SMART'||x.state==='AI_PAPER_CONFIRMED'||x.pending||x.position?.status==='OPEN').map(x=>x.symbol);
- const symbols=[...new Set([...batch,...active])].filter(x=>allowed.has(x)&&eligible.includes(x));
- const feed=await fetchAiCycleData(symbols,now);
+ const active=[...Object.values(existing.records||{}).filter(x=>x.state==='SMART'||x.state==='AI_PAPER_CONFIRMED'||x.pending||x.position?.status==='OPEN').map(x=>x.symbol),
+  ...Object.values(existing.scalp37?.records||{}).filter(x=>x.position?.status==='OPEN'||x.pending).map(x=>x.symbol)];
+ const openSymbols=new Set([...Object.values(existing.records||{}).filter(x=>x.position?.status==='OPEN').map(x=>x.symbol),
+  ...Object.values(existing.scalp37?.records||{}).filter(x=>x.position?.status==='OPEN').map(x=>x.symbol)]);
+ const symbols=[...new Set([...batch,...active])].filter(x=>(allowed.has(x)&&eligible.includes(x))||openSymbols.has(x));
+ const feed=await fetchAiCycleData(symbols,now,process.env,store);
  if(!feed.bars.SPY?.length){await writeAiFailure(store,clock,'BENCHMARK_FEED_UNAVAILABLE',feed.errors,shariaEvidence,symbols);return new Response('AI-PARALLEL benchmark feed unavailable; fail closed',{status:503});}
  const decisionNow=new Date(),decisionMinute=recommendationWindow(decisionNow).minuteOfDay;
  if(existing?.lastMinuteProcessed===decisionMinute)return new Response("AI-PARALLEL same-minute duplicate skipped after data fetch");
  const oldIndex=await store.get('ai-parallel-session-index',{type:'json',consistency:'strong'}).catch(()=>null)||{days:[]};
- const priorSessions=await Promise.all((oldIndex.days||[]).filter(x=>x!==clock.dateKey).slice(0,30).map(x=>store.get(`ai-parallel-state-${x}`,{type:'json',consistency:'strong'}).catch(()=>null)));
- const historical=priorSessions.filter(Boolean).flatMap(x=>x.closedOutcomes||[]).filter(x=>x?.closedAt&&x?.netUsd!=null);
+ const historical=await getPriorAiHistory37(store,{day:clock.dateKey,index:oldIndex,now});
  const primary=await store.get(`signal-history-${clock.dateKey}`,{type:'json',consistency:'strong'}).catch(()=>null);
  const events=(primary?.events||[]).filter(x=>x.state==='CONFIRMED'||x.event==='CONFIRMED_CREATED');
  const primarySignals=Object.values(primary?.signals||{}).flatMap(x=>x.confirmedSignals||[]);
@@ -59,7 +62,7 @@ export default async()=>{
  await store.setJSON(stateKey,result.state);
  await store.setJSON(`ai-parallel-recommendations-${clock.dateKey}`,result.recommendations);
  await store.setJSON('ai-parallel-latest',{dateKey:clock.dateKey,minute:decisionMinute,at:decisionNow.toISOString(),coverage,
-  scanned:result.audit.snapshots.length,transitions:result.audit.transitions,closedNew:result.audit.closedNew,adaptivePolicy:result.audit.parameters,
+  scanned:result.audit.snapshots.length,transitions:result.audit.transitions,closedNew:result.audit.closedNew,adaptivePolicy:result.audit.parameters,scalp37:result.audit.scalp37?.summary||null,
   recommendations:result.recommendations.suggestions,serviceStatus:feed.errors.length?'DEGRADED':'ACTIVE_PAPER_ONLY',
   limits:['NO_BROKER_ORDERS','NO_CALIBRATED_PROFIT_PROBABILITY','IEX_FEED_NOT_FULL_SIP']});
  const days=[clock.dateKey,...(oldIndex.days||[]).filter(x=>x!==clock.dateKey)].slice(0,45);

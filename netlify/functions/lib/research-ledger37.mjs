@@ -89,6 +89,7 @@ export function summarizeMinuteAudit({kind,day,doc}={}){
   rowCount:rows.length,states,reasons,gatesFail,sources,features,quote,symbols,examples:selected,
   withChecks,withFeature,closed,netUsd,netCount,at:doc.at||doc.storedAt||null,
   failureReason:doc.cycleStatus==='FAILED'?sh(doc.reason,120):null,
+  errorItemsActual:(Array.isArray(doc.errors)?doc.errors.length:0)+(Array.isArray(doc.feedErrors)?doc.feedErrors.length:0),
   errors:[...(Array.isArray(doc.errors)?doc.errors:[]),...(Array.isArray(doc.feedErrors)?doc.feedErrors:[])].slice(0,20).map(e=>sh(typeof e==='string'?e:JSON.stringify(e),120)),
   sharia:doc.shariaEvidence?{source:doc.shariaEvidence.source||null,sourceUpdatedAt:doc.shariaEvidence.sourceUpdatedAt||null,
     snapshotSha256:doc.shariaEvidence.snapshotSha256||null,methodology:doc.shariaEvidence.methodology||null}:null,
@@ -130,10 +131,10 @@ export function summarizeDailyLedger(ledger){
  const byMinute=ledger.minutes||{},minutes=Object.values(byMinute).sort((a,b)=>a.minute-b.minute);
  const counted=new Set(minutes.map(x=>x.minute));const missing=Array.from({length:390},(_,i)=>570+i).filter(m=>!counted.has(m));
  const states={},reasons={},gatesFail={},sources={},quote={},symbols={},features={},cases=[];
- const seen=new Set();let records=0,checks=0,featureRows=0,closed=0,netUsd=0,netCount=0,transitions=0,failed=0,zero=0,errors=0;
+ const seen=new Set();let records=0,checks=0,featureRows=0,closed=0,netUsd=0,netCount=0,transitions=0,failed=0,zero=0,errors=0,truncatedErrors=0;
  const hours={};const sharia=new Map();
  for(const m of minutes){records+=m.rowCount;checks+=m.withChecks;featureRows+=m.withFeature;closed+=m.closed;
-  netUsd+=m.netUsd;netCount+=m.netCount;transitions+=m.transitions;errors+=m.errors.length;
+  netUsd+=m.netUsd;netCount+=m.netCount;transitions+=m.transitions;errors+=(m.errorItemsActual??m.errors.length);truncatedErrors+=Math.max(0,(m.errorItemsActual??m.errors.length)-m.errors.length);
   if(m.status==='FAILED')failed++;if(!m.rowCount&&m.status==='COMPLETED')zero++;
   mergeCounts(states,m.states);mergeCounts(reasons,m.reasons);mergeCounts(gatesFail,m.gatesFail);mergeCounts(sources,m.sources);mergeCounts(quote,m.quote);
   if(m.sharia?.snapshotSha256)sharia.set(m.sharia.snapshotSha256,m.sharia);
@@ -155,9 +156,12 @@ export function summarizeDailyLedger(ledger){
  return {kind:ledger.kind,day:ledger.day,expectedMinutes:390,storedMinutes:minutes.length,missingMinutes:missing,failedCycles:failed,
   zeroOpportunityMinutes:zero,attemptedRows:records,uniqueSymbols:seen.size,closedSnapshots:closed,
   // Count repeated CLOSED snapshots as observations, not as unique trades or P&L.
-  closedSnapshotNetUsdNotAdditive:netUsd,closedNetObservationCount:netCount,transitions,errors,
+  closedSnapshotNetUsdNotAdditive:netUsd,closedNetObservationCount:netCount,transitions,errors,truncatedErrorDetails:truncatedErrors,
   withChecks:checks,withFeature:featureRows,quote,features:avg,
   stateCounts:toTop(states,35),reasonCounts:toTop(reasons,35),failedGates:toTop(gatesFail,35),sources:toTop(sources,12),
+  // Full categorical counts for the deterministic learning layer; LLM receives only bounded summaries.
+  reasonCountsAll:Object.entries(reasons).map(([name,count])=>({name,count})),
+  failedGatesAll:Object.entries(gatesFail).map(([name,count])=>({name,count})),
   byHour:hours,topSymbols,shariaSnapshots:[...sharia.values()],cases:selectCases(cases),
   recordedMinutesDigest:hash(minutes.map(m=>[m.minute,m.archiveSha256]))};
 }

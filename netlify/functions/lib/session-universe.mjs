@@ -1,13 +1,14 @@
 import {normalizePool,PRICE_CAP,priceBucket} from './dynamic.mjs';
 import {collectPremarketQuotes} from './premarket-batch.mjs';
 import {fetchLatestQuotes,alpacaConfigured} from './alpaca.mjs';
+import {planRecovery,mergeRecovery} from './universe-recovery37.mjs';
 
 // Build once per US trading session. A symbol below $200 at session-universe build
 // remains eligible for the rest of that session even if it later rises above $200.
 // The next session rebuilds eligibility from fresh prices.
 export async function getOrBuildSessionUniverse(store,dateKey,shariaSymbols,{force=false}={}){
   const key=`session-universe-${dateKey}`;
-  if(!force){const saved=await store.get(key,{type:'json',consistency:'strong'});if(saved?.schemaVersion==='3.5'&&Array.isArray(saved.eligibleSymbols))return saved;}
+  if(!force){const saved=await store.get(key,{type:'json',consistency:'strong'});if(saved?.schemaVersion==='3.5'&&Array.isArray(saved.eligibleSymbols))return maybeRecoverUniverse37(store,key,saved);}
   const symbols=normalizePool(shariaSymbols);
   if(!symbols.length)return empty(dateKey);
   if(!alpacaConfigured())return { ...empty(dateKey), universeCount:symbols.length, error:'ALPACA_NOT_CONFIGURED' };
@@ -21,3 +22,28 @@ export function buildSessionUniverseFromScan(dateKey,symbolsInput,scan={}){
   return{schemaVersion:'3.5',dateKey,builtAt:new Date().toISOString(),universeCount:symbols.length,pricedSymbols:priced,quoteCoveragePct:symbols.length?Number((priced/symbols.length*100).toFixed(2)):0,eligibleCount:eligible.length,eligibleSymbols:eligible,priceBands:bands,batchCount:Number(scan.batchCount||0),batchErrors:Array.isArray(scan.errors)?scan.errors:[],retryLog:Array.isArray(scan.retryLog)?scan.retryLog:[],failedSymbols:Array.isArray(scan.failedSymbols)?scan.failedSymbols:[],successfulSymbols:Array.isArray(scan.successfulSymbols)?scan.successfulSymbols:[],coveragePct:Number(scan.coveragePct??(symbols.length?priced/symbols.length*100:100)),rows};
 }
 function empty(dateKey){return{schemaVersion:'3.5',dateKey,builtAt:new Date().toISOString(),universeCount:0,pricedSymbols:0,quoteCoveragePct:0,eligibleCount:0,eligibleSymbols:[],priceBands:{'0-4.99':0,'5-9.99':0,'10-200':0},batchCount:0,batchErrors:[],retryLog:[],failedSymbols:[],successfulSymbols:[],coveragePct:0,rows:[]};}
+
+/**
+ * OPTIONAL recovery for symbols that had no reliable quote during the initial
+ * universe build. OFF by default: it issues additional Alpaca requests and must
+ * not be enabled until Netlify cost, rate-limit and session coverage gates pass.
+ * Never replaces a previously priced symbol or bypasses the approved Sharia list.
+ */
+export async function maybeRecoverUniverse37(store,key,saved,{
+  enabled=process.env.DT37_UNIVERSE_RECOVERY_ENABLED==='true',
+  fetchQuotes=fetchLatestQuotes,now=new Date(),maxRounds=4,maxSymbols=50,gapMinutes=10
+}={}) {
+  if(!enabled||!alpacaConfigured())return saved;
+  const plan=planRecovery(saved,now.getTime(),{enabled:true,maxRounds,maxSymbols,gapMinutes});
+  if(!plan.allowed)return saved;
+  const round=Number(saved.recovery?.rounds||0)+1;
+  const claim=await store.setJSON(`dt37-universe-recovery-claim-${saved.dateKey}-${round}`,
+    {day:saved.dateKey,round,at:now.toISOString()}, {onlyIfNew:true});
+  if(claim?.modified!==true)return await store.get(key,{type:'json',consistency:'strong'})||saved;
+  const scan=await collectPremarketQuotes(plan.symbols,{fetchQuotes,
+    key:process.env.ALPACA_API_KEY_ID,secret:process.env.ALPACA_API_SECRET_KEY});
+  const latest=await store.get(key,{type:'json',consistency:'strong'})||saved;
+  const merged=mergeRecovery(latest,scan.quotes,now.toISOString(),{plan,errors:scan.errors});
+  await store.setJSON(key,merged);
+  return merged;
+}

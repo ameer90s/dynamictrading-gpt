@@ -2,6 +2,8 @@ import { getStore } from "@netlify/blobs";
 import { recommendationWindow, nextTradingDateKey, previousTradingDateKey } from "./lib/time.mjs";
 import { fetchLatestQuotes, alpacaConfigured } from "./lib/alpaca.mjs";
 import {STRATEGY_VERSION} from "./lib/version.mjs";
+import {validateExecutionQuote37} from "./lib/execution-quote37.mjs";
+import {randomUUID} from "node:crypto";
 
 export default async (req) => {
   const store = getStore("dynamic-trading");
@@ -29,6 +31,17 @@ export default async (req) => {
       const body = await req.json().catch(() => ({}));
       const result = String(body.result || "").toUpperCase();
       if (!["T1","T2","T3","SL"].includes(result)) return json({ error:"النتيجة يجب أن تكون T1 أو T2 أو T3 أو SL." }, 400);
+      // A persistent, atomic claim prevents concurrent settlement side effects.
+      // Retain the claim on failure: fail closed rather than risk a duplicate close.
+      const settlementKey=`${key}-settlement-claim`;
+      const settlementClaimId=randomUUID();
+      const claim=await store.setJSON(settlementKey,{
+        claimId:settlementClaimId,selectionClaimId:existing.selectionClaimId||null,
+        claimedAt:new Date().toISOString(),status:'CLAIMED'
+      },{onlyIfNew:true});
+      if(claim?.modified!==true)return json({error:'نتيجة الصفقة قيد التسجيل أو تم تسجيلها مسبقاً.',reason:'SETTLEMENT_ALREADY_CLAIMED'},409);
+      const confirmedClaim=await store.get(settlementKey,{type:'json',consistency:'strong'});
+      if(confirmedClaim?.claimId!==settlementClaimId)return json({error:'تعذر تأكيد حجز إغلاق الصفقة؛ راجع الحالة المحفوظة.',reason:'SETTLEMENT_CLAIM_NOT_VERIFIED'},503);
       const ep = existing.exitPlan || {};
       const R = result === "T1" ? Number(ep.t1R || 1) : result === "T2" ? Number(ep.t2R || 1.7) : result === "T3" ? Number(ep.t3R || 2.5) : -1;
       const updated = { ...existing, outcome:result, outcomeR:R, closedAt:new Date().toISOString() };
@@ -71,22 +84,17 @@ export default async (req) => {
     // immediately before locking the trade. A stale or wide spread can invalidate an otherwise
     // good technical setup.
     let latestQuote=null;
+    if(!trade.badTrade && !alpacaConfigured())return json({error:'تعذر اعتماد الصفقة: بيانات السعر التنفيذي المباشر غير مفعلة.',reason:'EXECUTION_QUOTE_PROVIDER_UNAVAILABLE'},503);
     if(alpacaConfigured() && !trade.badTrade){
       try{
         const q=await fetchLatestQuotes([symbol],process.env.ALPACA_API_KEY_ID,process.env.ALPACA_API_SECRET_KEY);
         latestQuote=q[symbol]||null;
-        const bps=Number(latestQuote?.spreadBps);
-        const maxBps=Number(trade.filters?.maxSpreadBps||trade.metrics?.maxSpreadBps||20);
-        const qt=latestQuote?.timestamp?Date.parse(latestQuote.timestamp):NaN;
-        const ageSec=Number.isFinite(qt)?Math.max(0,(Date.now()-qt)/1000):9999;
-        const mid=Number(latestQuote?.mid||0),ref=Number(trade.price||0);
-        const deviationPct=mid>0&&ref>0?Math.abs(mid-ref)/ref*100:999;
-        const quoteSane=ageSec<=90&&mid>0&&deviationPct<=2.0;
-        if(quoteSane&&Number.isFinite(bps)&&bps>maxBps)return json({error:`تم منع اعتماد الصفقة لأن الـSpread الحالي واسع (${bps.toFixed(1)} bps؛ الحد ${maxBps.toFixed(0)} bps). انتظر تحسن التنفيذ.`,quote:latestQuote},409);
-        if(!quoteSane)return json({error:`تم منع اعتماد الصفقة لأن Quote التنفيذ قديم أو غير منطقي (العمر ${Math.round(ageSec)}ث). انتظر تحديث البيانات.`,quote:{...latestQuote,validation:'STALE_OR_IMPLAUSIBLE',ageSec,deviationPct}},409);
-        const ask=Number(latestQuote?.ask||0),entryHigh=Number(trade.entryHigh||0);
-        if(ask>0&&entryHigh>0&&ask>entryHigh)return json({error:`تم منع الاعتماد لأن سعر Ask التنفيذي (${ask.toFixed(2)}) تجاوز نطاق الدخول (${Number(trade.entryLow||0).toFixed(2)}–${entryHigh.toFixed(2)}). انتظر Retest/إشارة جديدة.`,quote:{...latestQuote,validation:'ASK_ABOVE_ENTRY_RANGE'}},409);
-      }catch{}
+        const quoteGate=validateExecutionQuote37(latestQuote,trade);
+        if(!quoteGate.ok)return json({error:'تم منع اعتماد الصفقة: تعذر إثبات سعر تنفيذ حديث ومكتمل ضمن حدود المخاطرة.',reason:quoteGate.reason,
+          quoteValidation:{ageSec:quoteGate.ageSec??null,spreadBps:quoteGate.spreadBps??null,
+            maxBps:quoteGate.maxBps??null,deviationPct:quoteGate.deviationPct??null,ask:quoteGate.ask??null}},409);
+
+      }catch(error){return json({error:'تعذر التحقق من السعر التنفيذي مباشرة؛ تم إيقاف الاعتماد لحماية التداول.',reason:'EXECUTION_QUOTE_REVALIDATION_FAILED'},503);}
     }
 
     // Revalidate the currently displayed candidate against the freshest cached news/catalyst data
@@ -120,14 +128,20 @@ export default async (req) => {
       selectedAt: new Date().toISOString(),
       lockedUntilTradeDate: nextTradingDateKey(),
       selectionId: `${clock.dateKey}:${trade.symbol}`,
+      selectionClaimId: randomUUID(),
       badTrade: Boolean(trade.badTrade),
       paperOnly: Boolean(trade.badTrade),
       halalMode:true,
       ownershipRule:"CASH_LONG_ONLY",
     };
+    // Conditional claim guarantees at most one approved trade per session, even
+    // when two clients submit simultaneously. Do not increment risk on losers.
+    const receipt=await store.setJSON(key,selected,{onlyIfNew:true});
+    if(receipt?.modified!==true)return json({error:'تم اعتماد صفقة أخرى بالتزامن؛ اقرأ الصفقة المحفوظة قبل إعادة المحاولة.',reason:'SELECTION_ALREADY_CLAIMED'},409);
+    const stored=await store.get(key,{type:'json',consistency:'strong'});
+    if(stored?.selectionClaimId!==selected.selectionClaimId)return json({error:'تعذر التحقق من ملكية اعتماد الصفقة. افحص الحالة المحفوظة.',reason:'SELECTION_CLAIM_NOT_VERIFIED'},503);
     dailyRisk.trades = Number(dailyRisk.trades||0) + 1; dailyRisk.lastSelectedAt = selected.selectedAt;
     await store.setJSON(riskKey, dailyRisk);
-    await store.setJSON(key, selected);
     // Mark the matching scanner signal as approved without changing scanner statistics.
     try {
       const shKey=`signal-history-${clock.dateKey}`; const sh=await store.get(shKey,{type:"json",consistency:"strong"});

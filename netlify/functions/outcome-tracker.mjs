@@ -3,6 +3,7 @@ import { recommendationWindow } from './lib/time.mjs';
 import { alpacaConfigured } from './lib/alpaca.mjs';
 import { refreshScannerLearning } from './lib/learning.mjs';
 import {updateShadowSix} from './lib/shadow36.mjs';
+import {earliestOutcomeWindowBySymbol37} from './lib/outcome-fetch-plan37.mjs';
 const H={Accept:'application/json','APCA-API-KEY-ID':process.env.ALPACA_API_KEY_ID||'','APCA-API-SECRET-KEY':process.env.ALPACA_API_SECRET_KEY||''};
 async function barsSince(symbol,iso){const start=new Date(Math.max(Date.parse(iso||new Date().toISOString()),Date.now()-8*3600e3));const u=new URL(`https://data.alpaca.markets/v2/stocks/${encodeURIComponent(symbol)}/bars`);u.searchParams.set('timeframe','1Min');u.searchParams.set('start',start.toISOString());u.searchParams.set('end',new Date().toISOString());u.searchParams.set('adjustment','raw');u.searchParams.set('feed','iex');u.searchParams.set('sort','asc');u.searchParams.set('limit','1000');const r=await fetch(u,{headers:H});const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.message||`Alpaca ${r.status}`);return (d.bars||[]).map(b=>({t:b.t,o:+b.o,h:+b.h,l:+b.l,c:+b.c}));}
 function highestHit(sig){return ['T3','T2','T1'].find(x=>sig.hits.includes(x))||null;}
@@ -18,9 +19,19 @@ export default async()=>{
  const clock=recommendationWindow();if(!clock.isTradingDay||clock.session!=='REGULAR'||clock.minuteOfDay<590||clock.minuteOfDay>960)return new Response('Skipped');if(!alpacaConfigured())return new Response('Skipped: Alpaca required');
  const store=getStore('dynamic-trading'),key=`signal-history-${clock.dateKey}`,p=await store.get(key,{type:'json',consistency:'strong'});if(!p?.signals)return new Response('No signals');
  let changed=false;const now=new Date().toISOString();
+ // Fetch once per symbol for the earliest pending signal. Every signal still
+ // applies its own lastBarAt and first-full-minute gates below, unchanged.
+ // A failed symbol fetch skips only that symbol, as before.
+ const pendingBySymbol=earliestOutcomeWindowBySymbol37(p.signals);
+ const barsBySymbol=new Map();
+ for(const [symbol,since] of pendingBySymbol){
+   try{barsBySymbol.set(symbol,await barsSince(symbol,since));}
+   catch{barsBySymbol.set(symbol,null);}
+ }
  for(const rec of Object.values(p.signals))for(const sig of (rec.confirmedSignals||[])){
    if(!sig.active&&!sig.followAfterStop&&!sig.followAfterT3)continue;
-   let bars=[];try{bars=await barsSince(rec.symbol,sig.lastBarAt||sig.confirmedAt);}catch{continue;}
+   const bars=barsBySymbol.get(String(rec.symbol||'').toUpperCase());
+   if(!bars)continue;
    const safeStart=firstFullMinuteAfter(sig.confirmedAt);
    for(const b of bars){if(Date.parse(b.t)<safeStart)continue;if(sig.lastBarAt&&Date.parse(b.t)<=Date.parse(sig.lastBarAt))continue;sig.lastBarAt=b.t;changed=updateShadowSix(sig,b)||changed;sig.maxPrice=Math.max(+sig.maxPrice||0,b.h);sig.minPrice=Math.min(Number.isFinite(+sig.minPrice)?+sig.minPrice:b.l,b.l);sig.mfePct=Number(((sig.maxPrice/sig.entry-1)*100).toFixed(3));sig.maePct=Number(((sig.minPrice/sig.entry-1)*100).toFixed(3));sig.entryDrawdownPct=sig.maePct;sig.entryDrawdownPrice=Number((sig.entry-sig.minPrice).toFixed(4));if(!sig.hits?.some(x=>['T1','T2','T3'].includes(x))&&(!Number.isFinite(+sig.lowestBeforeRally)||b.l<+sig.lowestBeforeRally)){sig.lowestBeforeRally=b.l;sig.lowestBeforeRallyAt=b.t;sig.timeToLowSec=Math.max(0,(Date.parse(b.t)-Date.parse(sig.confirmedAt))/1000);}if(sig.lowestBeforeRallyAt&&!sig.recoveryAt&&b.h>=sig.entry){sig.recoveryAt=b.t;sig.recoveryTimeSec=Math.max(0,(Date.parse(b.t)-Date.parse(sig.lowestBeforeRallyAt))/1000);}
      if(sig.active){const fresh=[];if(b.h>=sig.t1&&!sig.hits.includes('T1'))fresh.push('T1');if(b.h>=sig.t2&&!sig.hits.includes('T2'))fresh.push('T2');if(b.h>=sig.t3&&!sig.hits.includes('T3'))fresh.push('T3');const slNow=b.l<=sig.sl&&!sig.hits.includes('SL');
