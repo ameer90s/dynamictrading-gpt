@@ -42,7 +42,17 @@ function aiTrades(states,day,now){
  return rows;
 }
 /** The independent scalp paper book is never silently mixed into baseline AI wins. */
-export function scalpResearchHistory37(states=[],day,now){
+export function scalpResearchHistory37(states=[],day,now,standaloneStates=[]){
+ // Standalone per-day books are authoritative; an embedded legacy scalp book
+ // can fill gaps for older dates, but must never double-count the same day.
+ const standaloneByDay=new Map(standaloneStates.filter(x=>x?.day&&x?.book).map(x=>[x.day,x]));
+ const normalized=[...standaloneByDay.values()].map(x=>({dateKey:x.day,scalp37:{
+  schemaVersion:'3.7-SCALP-PAPER-1',closedOutcomes:x.book.closedOutcomes||[],
+  entryRejections:x.gateCounts||{}}}));
+ const legacy=states.filter(x=>!standaloneByDay.has(x?.dateKey||x?.day));
+ states=[...normalized,...legacy];
+ // Preserve the daily counter even when older books are later in the collection.
+ const today=states.find(x=>(x.dateKey||x.day)===day)||states[0];
  const seen=new Set(),closed=[];
  const rejects={};
  for(const state of states){
@@ -56,7 +66,7 @@ export function scalpResearchHistory37(states=[],day,now){
     strategyVariantId:id(p.strategyVariantId),outcome:id(p.outcome)});
   }
   // Report today's concrete scalp rejection reasons without summing rolling snapshots.
-  if(state===states[0])for(const [reason,n] of Object.entries(book.entryRejections||{})){
+  if(state===today)for(const [reason,n] of Object.entries(book.entryRejections||{})){
    if(integer(n)>0)rejects[id(reason)]=n;
   }
  }
@@ -70,7 +80,7 @@ export function scalpResearchHistory37(states=[],day,now){
    readyForDescriptiveStudy:priced.filter(x=>x.setupType===t).length>=60}])),
   distinctTradeDeduplication:true,actualBrokerFillsVerified:false,causalImprovementVerified:false};
 }
-export function observedMistakes37(audit,day){
+export function observedMistakes37(audit,day,{expectedMinutes=390}={}){
  if(!/^20\d{2}-\d\d-\d\d$/.test(day||'')||audit?.dateKey!==day||!audit?.streams?.scanner||!audit?.streams?.ai)
   throw Error('LEARNING_AUDIT_IDENTITY_MISMATCH');
  const engines={};
@@ -79,11 +89,11 @@ export function observedMistakes37(audit,day){
   // reasonCountsAll/failedGatesAll are built from EVERY row in the seven minute-ledger shards.
   const reasons=totals(a.reasonCountsAll||a.reasonCounts);
   const gates=totals(a.failedGatesAll||a.failedGates);
-  const missing=integer(a.missingMinutes?.length), failed=integer(a.failedCycles);
+  const missing=integer((a.missingMinutes||[]).filter(m=>m>=570&&m<570+expectedMinutes).length), failed=integer(a.failedCycles);
   const invalid=integer(a.quote?.invalid),stale=integer(a.quote?.stale);
   const wide=integer(a.quote?.wide),unavailable=integer(a.quote?.missing);
   engines[engine]={observedRows:integer(a.attemptedRows),observedMinutes:integer(a.storedMinutes),
-   expectedMinutes:390,missingMinutes:missing,failedCycles:failed,recordedErrorItems:integer(a.errors),errorDetailsTruncated:integer(a.truncatedErrorDetails),
+   expectedMinutes,missingMinutes:missing,failedCycles:failed,recordedErrorItems:integer(a.errors),errorDetailsTruncated:integer(a.truncatedErrorDetails),
    reasons,gates,unclassifiedReasons:Object.keys(reasons).filter(k=>!/(WAIT|CONFIRMED|PAPER|SMART|TARGET|HIT|RETEST|OPEN|MOMENTUM|SPREAD|QUOTE|CANDLE|BAR|LIQUID|VOLUME|SHARIA|NO_|UNAPPROVED|WEAK|PRICE|HOD|ATR|RISK|EXPIRED|STALE|DATA|FEED|TIME|EARLY|REGULAR|PENDING|STOP|EXIT|BEFORE|AFTER|ERROR|RANGE|MARKET)/i.test(k)),
    quote:{unavailable,invalid,stale,wide},
    lossProxy:countMatches(reasons,/\bSTOP\b|\bSL\b/i),
@@ -153,8 +163,8 @@ function deterministicHypotheses(learn,day,policy){
 function validateOpenAi(review,day){
  return review?.status==='REVIEW_CREATED_NOT_APPLIED'&&review?.day===day&&Array.isArray(review?.review?.experiments);
 }
-export function generateStrategyLearningCycle37({day,audit,aiState={},scannerHistory={},pastAiStates=[],pastScannerHistories=[],previousCycles=[],openaiReview=null,now=null}={}){
- const mistakes=observedMistakes37(audit,day);
+export function generateStrategyLearningCycle37({day,audit,aiState={},scannerHistory={},pastAiStates=[],pastScannerHistories=[],previousCycles=[],standaloneScalpStates=[],openaiReview=null,now=null,expectedMinutes=390}={}){
+ const mistakes=observedMistakes37(audit,day,{expectedMinutes});
  const priorAi=aiTrades([aiState,...pastAiStates],day,now),priorScanner=[scannerHistory,...pastScannerHistories].flatMap(x=>scannerTrades(x,day,now));
  const historical={ai:{closedUnique:priorAi.length,withNetUsd:priorAi.filter(p=>p.netUsd!=null).length,
    netPaperUsd:round(priorAi.reduce((a,p)=>a+(p.netUsd||0),0)),
@@ -162,15 +172,15 @@ export function generateStrategyLearningCycle37({day,audit,aiState={},scannerHis
    perSetup:Object.fromEntries([...new Set(priorAi.map(p=>p.setupType))].sort().filter(Boolean).map(k=>[k,{count:priorAi.filter(x=>x.setupType===k).length,meanNetUsd:round(priorAi.filter(x=>x.setupType===k).reduce((a,p)=>a+(p.netUsd||0),0)/priorAi.filter(x=>x.setupType===k).length)}]))},
   scanner:{closedUnique:priorScanner.length,outcomes:Object.fromEntries([...new Set(priorScanner.map(p=>p.outcome))].sort().map(k=>[k,priorScanner.filter(x=>x.outcome===k).length])),
    realFillPnLAvailable:false},source:'CLOSED_AS_OF_POSTCLOSE_REPORT_TIME_NO_FUTURE_OUTCOMES',historyDepth:{aiSessions:1+pastAiStates.length,scannerSessions:1+pastScannerHistories.length}};
- const scalp=scalpResearchHistory37([aiState,...pastAiStates],day,now);
+ const scalp=scalpResearchHistory37([aiState,...pastAiStates],day,now,standaloneScalpStates);
  historical.scalp=scalp;
  let proposals=deterministicHypotheses(mistakes,day,aiState?.lastPolicy);
  // Daily scalp mistakes are research hypotheses only; do not rewrite the live strategy.
  const scalpSpread=Object.entries(scalp.rejectionsToday).reduce((a,[k,v])=>a+(k.includes('SPREAD')||k.includes('QUOTE')?v:0),0);
- if(scalpSpread>0)proposals.push(makeProposal({day,area:'COSTS_SPREAD',engine:'AI',source:'SCALP_PAPER_RECORDS',
+ if(scalpSpread>0)proposals.push(makeProposal({day,area:'COSTS_SPREAD',engine:'SCALP',source:'SCALP_PAPER_RECORDS',
   sourceIds:[`ai-scalp:${day}:${scalpSpread}`],policy:aiState?.lastPolicy,
   observed:`Scalp paper recorded ${scalpSpread} quote/spread rejections, not evidence of profitable missed trades.`,variantKey:'SCALP_QUOTE_COSTS_V1'}));
- if(scalp.losses>0)proposals.push(makeProposal({day,area:'RISK_GATES',engine:'AI',source:'SCALP_PAPER_RECORDS',
+ if(scalp.losses>0)proposals.push(makeProposal({day,area:'RISK_GATES',engine:'SCALP',source:'SCALP_PAPER_RECORDS',
   sourceIds:[`ai-scalp:${day}:modeled-losses:${scalp.losses}`],policy:aiState?.lastPolicy,
   observed:`Scalp paper recorded ${scalp.losses} modeled losing exits in past closed trades; causality is not established.`,variantKey:'SCALP_RISK_V1'}));
  if(validateOpenAi(openaiReview,day)){
@@ -218,7 +228,7 @@ export function generateStrategyLearningCycle37({day,audit,aiState={},scannerHis
    missingMinutes:(p.missingMinutes||0)+q.missingMinutes,
    failedCycles:(p.failedCycles||0)+q.failedCycles,reasons,gates};
  }
- const coverageOk=audit.complete===true&&Object.values(mistakes.engines).every(x=>x.missingMinutes===0&&x.failedCycles===0);
+ const coverageOk=Object.values(mistakes.engines).every(x=>x.missingMinutes===0&&x.failedCycles===0&&x.observedMinutes>=expectedMinutes);
  const cycle={schemaVersion:'3.7-RESEARCH-STRATEGY-CYCLE-1',day,generatedAt:now,
   sourceDigest:audit.sourceDigest,recordedEvidenceComplete:coverageOk,cumulative,
   scannerMistakes:mistakes.engines.scanner,aiMistakes:mistakes.engines.ai,

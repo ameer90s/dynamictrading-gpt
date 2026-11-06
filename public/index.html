@@ -82,11 +82,7 @@
 <details><summary>⚙️ جميع الباراميترز الديناميكية وأسباب اختيارها</summary><div class="dt36-feature-grid" id="aiParallelPolicy"></div></details>
 <details open=""><summary>🔎 اكتشافات AI وتوصيات تحسين البرنامج بالكامل</summary><div class="dt36-insights" id="aiParallelRecommendations"></div></details>
 <details><summary>📊 مقارنة AI بالماسح الأساسي</summary><div id="aiParallelCompare"></div></details>
-<details><summary>⚡ السكالب الذكي — حساب ورقي مستقل (غير مفعل افتراضياً)</summary>
-<div class="calibration-note" id="aiScalp37Summary">لم تتوفر بيانات سكالب موثقة.</div>
-<div class="dt36-transitions" id="aiScalp37Trades"></div>
-<div class="calibration-note">النتائج تقديرات من شموع مكتملة وسبريد وعمولات وانزلاق افتراضي؛ لا أوامر وسيط ولا ضمان أرباح. تفعيل السكالب يحتاج الموافقة والاختبارات.</div>
-</details>
+<div class="muted">⚡ السكالب الورقي المستقل موجود في تبويب «الباحث» تحت Research Agent، وليس ضمن ماسح AI.</div>
 <div class="muted">تحليل إحصائي متكيف؛ ليس نموذج LLM ولا احتمال ربح معايراً. يشترط عروض أسعار حقيقية حديثة لإشارة AI مؤكدة. لا يرسل أوامر تداول.</div>
 </section></details><details class="dt37-detail-fold dt37-extra-market"><summary>تحليل السوق والإعدادات المتقدمة</summary><section class="hero-grid intelligence-grid">
 <details class="card"><summary>🧭 الاختيار الديناميكي <span class="sample-badge" id="dynamicStatus">بانتظار المسح</span></summary><div class="section-title"><div><span class="tag">DYNAMIC</span><h2>الاختيار الديناميكي</h2><p class="muted">يمسح قائمتك الأساسية أولاً، ثم يبحث في المجموعة الأوسع عن بدائل للأسهم الضعيفة. SPY/QQQ للقياس فقط.</p></div></div><div class="dynamic-leaders" id="dynamicLeaders"><div class="empty-state">تظهر قائمة المرشحين بعد بدء نافذة السوق.</div></div></details>
@@ -149,6 +145,18 @@
 <div class="desk-research-stats"><article><span>حالة المراجعة</span><strong id="researchStatusValue">بانتظار الأرشيف</strong></article><article><span>سلامة الأدلة</span><strong id="researchEvidenceValue">غير متحققة</strong></article><article><span>تجارب مقترحة</span><strong id="researchHypothesesValue">—</strong></article><article><span>استخدام OpenAI</span><strong id="researchBudgetValue">—</strong><small>سقف تجريبي: $5 / شهر</small></article></div>
 <section aria-label="نتيجة التحليل" class="card desk-research-section"><div class="section-title"><div><span class="tag">EVIDENCE REVIEW</span><h2>الملخص والتحليل</h2><p class="muted" id="researchLastRun">لم تُسجّل مراجعة بحثية بعد</p></div></div><div class="desk-research-summary" id="researchSummary">بانتظار جلسة مكتملة وأرشيف كافٍ. لا تُعرض نتائج تخمينية.</div><div class="desk-evidence-warn" id="researchEvidenceWarning">الدقائق المفقودة تُصنف MISSING، ولا تعتبر صفراً من الفرص.</div></section>
 <section aria-label="التوصيات البحثية" class="card desk-research-section"><div class="section-title"><div><span class="tag">PROPOSED · NOT APPLIED</span><h2>فرضيات وتحسينات مقترحة</h2><p class="muted">كل توصية مرتبطة بدليل وتجربة قبول، ولا تُطبق تلقائياً.</p></div></div><div class="desk-research-list" id="researchHypotheses"><div class="empty-state">لا توجد فرضيات محفوظة لهذا اليوم بعد.</div></div></section>
+<section aria-label="السكالب المستقل والتحليل البحثي" class="card desk-research-section" id="dt37StandaloneScalpSection">
+<div class="section-title"><div><span class="tag">INDEPENDENT SCALP · PAPER ONLY</span><h2>⚡ السكالب الذكي — محرك مستقل تحت Research Agent</h2>
+<p class="muted">12 نمطاً من شموع دقيقة مكتملة. صفقات ورقية منفصلة عن ماسح AI؛ نتائج بعد الرسوم والانزلاق المفترض، وليست أوامر حقيقية.</p></div>
+<button class="secondary" id="dt37ScalpRefresh" type="button">تحديث سجل السكالب</button></div>
+<div class="desk-research-stats"><article><span>الحالة</span><strong id="dt37ScalpStatus">بانتظار بيانات السكالب المستقل</strong></article>
+<article><span>دخول / إغلاق</span><strong id="dt37ScalpCount">—</strong></article>
+<article><span>الصافي الورقي المتوقع</span><strong id="dt37ScalpNet">—</strong></article>
+<article><span>الأنماط المرصودة</span><strong id="dt37ScalpPatterns">—</strong></article></div>
+<h3>سجل الصفقات الورقية</h3><div class="dt36-transitions" id="dt37ScalpPositions"><div class="empty-state">لا توجد صفقات محفوظة.</div></div>
+<h3>تقرير Research Agent عن السكالب</h3><div class="desk-research-list" id="dt37ScalpAnalysis"><div class="empty-state">لم يُحفظ تحليل سكالب بعد.</div></div>
+<p class="muted">لا يقارن نتائج السكالب مع صفقات AI إلا بعد توحيد نمذجة التكاليف والتحقق المستقل. لا تعديل تلقائي للاستراتيجية.</p>
+</section>
 <section aria-label="متطلبات الإثبات" class="card desk-research-section"><div class="section-title"><div><span class="tag">DATA QUALITY</span><h2>البيانات التي يعتمد عليها الباحث</h2></div></div><div class="desk-data-checks"><div><span>01</span>كل قرار لكل سهم ودقيقة وأسباب الرفض</div><div><span>02</span>Bid/Ask والكمية والعمر والسبريد أو سبب غيابها</div><div><span>03</span>المصدر والتاريخ الشرعي ونتائج Paper وMFE/MAE</div><div><span>04</span>أخطاء الدورة، الدقائق المفقودة، ومقارنة المحركين</div></div><p class="muted">واجهة قراءة فقط. البيانات المعروضة من Netlify Blobs عند توافرها؛ لا توجد صفقات افتراضية في عرض التشغيل.</p></section>
 </section><section class="tab-panel" data-panel="performance" id="tab-performance" role="tabpanel"><section class="dt37-section-intro"><p class="dt37-kicker">PERFORMANCE</p><h1>نتائج قابلة للقياس</h1><p>الأرقام الموثقة أولاً. التفاصيل التاريخية داخل الأقسام.</p></section><section class="stats-grid performance-stats">
 <article class="stat"><span>الصفقات المغلقة</span><strong id="statTotal">0</strong></article>
@@ -185,6 +193,7 @@
 <script src="/tab-nav.js?v=3752"></script>
 <script defer="" src="/dt37-cockpit.js?v=3752"></script>
 <script defer="" src="/dt37-research-panel.js?v=3752"></script>
+<script defer="" src="/dt37-scalp-panel37.js?v=1"></script>
 <script src="/ui-backtest-market37.js?v=3752"></script>
 <script src="/ui-presentation37.js?v=3752"></script>
 <script src="/app.js?v=3752"></script>

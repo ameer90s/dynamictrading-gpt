@@ -1,5 +1,5 @@
 import fs from 'node:fs';import zlib from 'node:zlib';import assert from 'node:assert/strict';
-import {evaluateLiveResearch36} from '../netlify/functions/lib/research-live36.mjs';
+import {evaluateLiveResearch36,inspectResearchCandidates36} from '../netlify/functions/lib/research-live36.mjs';
 const fixture=JSON.parse(zlib.gunzipSync(fs.readFileSync(new URL('../tests/fixtures/alpaca_40_sessions_research_events.json.gz',import.meta.url))));
 const log=fs.readFileSync(new URL('../tests/fixtures/reference_9_trades.csv',import.meta.url),'utf8').trim().split(/\r?\n/);const fields=log.shift().split(',');
 const reference=log.map(row=>Object.fromEntries(row.split(',').map((v,i)=>[fields[i],v])));
@@ -8,8 +8,8 @@ const info=[];for(const r of reference){const day=r.date,sym=r.symbol,t=+r.valid
  const stock=bars(fixture.bars[`${day}|${sym}`],day,t),spy=bars(fixture.bars[`${day}|SPY`],day,t);
  const now=new Date(`${day}T15:00:00Z`); // quote omitted: only test candidate detector (historical clock minutes set via allowHistorical)
  const result=evaluateLiveResearch36(sym,stock,spy,null,{now,allowHistorical:true,shariaApproved:true});
- const matched=(result.pendingCandidate?.minute===t && result.pendingCandidate?.retestModel===r.retest_model);
- info.push({day,sym,validation:t,expected:r.retest_model,pending:result.pendingCandidate?.minute,model:result.pendingCandidate?.retestModel,state:result.state,reason:result.reason,matched,
+ const seen=inspectResearchCandidates36(stock,now,{allowHistorical:true});const matched=seen.found.some(x=>x.minute===t&&x.retestModel===r.retest_model);
+ info.push({day,sym,validation:t,expected:r.retest_model,pending:seen.found.at(-1)?.minute,model:seen.found.at(-1)?.retestModel,state:result.state,reason:result.reason,matched,
   openingGates:result.openingChecks.filter(x=>!x.passed).map(x=>x.reason),discovery:result.recentDiscoveredSetups?.length});
 }
 assert.equal(info.length,9);
@@ -33,4 +33,4 @@ const noLookahead=evaluateLiveResearch36(ref.symbol,[...stock,future],spy,quote,
 assert.equal(noLookahead.pendingCandidate?.minute,accepted.pendingCandidate?.minute,'future candle changed as-of setup');
 assert.equal(noLookahead.state,accepted.state);
 assert.ok(accepted.features.openingRankVerification==='NOT_FULLY_VERIFIED');
-console.log('LIVE_RESEARCH36_PASS 9/9 as-of retest + 6 paper quote/safety checks');
+console.log('LIVE_RESEARCH36_PASS 9/9 historical retest discovery + execution-time fresh quote and safety checks');

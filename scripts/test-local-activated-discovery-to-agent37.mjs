@@ -105,7 +105,7 @@ try{
  await st.setJSON(`ai-parallel-recommendations-${DAY}`,{outcomes:{},topBlockers:[],comparison:{}});
  await st.setJSON('ai-parallel-session-index',{days:[DAY]});
  const testReview={summary_ar:'اختبار تكامل اصطناعي وليس تقرير سوق حقيقي',
-  observations:[{fact_ar:'تم قبول سجلات اصطناعية كاملة لأجل تجربة مسار التقرير',
+  observations:[{fact_ar:'تم قبول سجلات اصطناعية كاملة لأجل تجربة مسار التقرير',metric_ref:'NONE',
     evidence_ids:[`DT37_${DAY}`],limitation_ar:'لا يمثل فحصاً حيّاً أو بيانات حقيقية'}],
   experiments:[{area:'AUDIT_RETENTION',hypothesis_ar:'فحص اكتمال الأرشيف الحقيقي مستقلاً',
     evidence_ids:[`DT37_${DAY}`],test_ar:'مقارنة الأرشيف مع المصدر الأصلي',

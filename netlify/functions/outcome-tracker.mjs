@@ -1,9 +1,11 @@
 import { getStore } from '@netlify/blobs';
 import { recommendationWindow } from './lib/time.mjs';
+import {sessionPlan37} from './lib/trading-session-plan37.mjs';
 import { alpacaConfigured } from './lib/alpaca.mjs';
 import { refreshScannerLearning } from './lib/learning.mjs';
 import {updateShadowSix} from './lib/shadow36.mjs';
 import {earliestOutcomeWindowBySymbol37} from './lib/outcome-fetch-plan37.mjs';
+import {trackPostT3Bar37} from './lib/post-t3-followup37.mjs';
 const H={Accept:'application/json','APCA-API-KEY-ID':process.env.ALPACA_API_KEY_ID||'','APCA-API-SECRET-KEY':process.env.ALPACA_API_SECRET_KEY||''};
 async function barsSince(symbol,iso){const start=new Date(Math.max(Date.parse(iso||new Date().toISOString()),Date.now()-8*3600e3));const u=new URL(`https://data.alpaca.markets/v2/stocks/${encodeURIComponent(symbol)}/bars`);u.searchParams.set('timeframe','1Min');u.searchParams.set('start',start.toISOString());u.searchParams.set('end',new Date().toISOString());u.searchParams.set('adjustment','raw');u.searchParams.set('feed','iex');u.searchParams.set('sort','asc');u.searchParams.set('limit','1000');const r=await fetch(u,{headers:H});const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.message||`Alpaca ${r.status}`);return (d.bars||[]).map(b=>({t:b.t,o:+b.o,h:+b.h,l:+b.l,c:+b.c}));}
 function highestHit(sig){return ['T3','T2','T1'].find(x=>sig.hits.includes(x))||null;}
@@ -16,7 +18,10 @@ function shadowAccuracy(sig){
 }
 function firstFullMinuteAfter(iso){const d=new Date(iso);d.setUTCSeconds(0,0);d.setUTCMinutes(d.getUTCMinutes()+1);return d.getTime();}
 export default async()=>{
- const clock=recommendationWindow();if(!clock.isTradingDay||clock.session!=='REGULAR'||clock.minuteOfDay<590||clock.minuteOfDay>960)return new Response('Skipped');if(!alpacaConfigured())return new Response('Skipped: Alpaca required');
+ const clock=recommendationWindow(),plan=sessionPlan37(clock);
+ // Minute by minute during discovery, then five-minute follow-ups + close.
+ if(!clock.isTradingDay||clock.minuteOfDay<590||(!plan.discovery&&!plan.followupDue))return new Response('Skipped: outside tracker window');
+ if(!alpacaConfigured())return new Response('Skipped: Alpaca required');
  const store=getStore('dynamic-trading'),key=`signal-history-${clock.dateKey}`,p=await store.get(key,{type:'json',consistency:'strong'});if(!p?.signals)return new Response('No signals');
  let changed=false;const now=new Date().toISOString();
  // Fetch once per symbol for the earliest pending signal. Every signal still
@@ -37,15 +42,15 @@ export default async()=>{
      if(sig.active){const fresh=[];if(b.h>=sig.t1&&!sig.hits.includes('T1'))fresh.push('T1');if(b.h>=sig.t2&&!sig.hits.includes('T2'))fresh.push('T2');if(b.h>=sig.t3&&!sig.hits.includes('T3'))fresh.push('T3');const slNow=b.l<=sig.sl&&!sig.hits.includes('SL');
        if(slNow&&fresh.length){sig.ambiguous=true;sig.ambiguousAt=b.t;sig.active=false;sig.finalOutcome='AMBIGUOUS';sig.closedAt=b.t;sig.followAfterStop=true;p.events.push({at:now,symbol:rec.symbol,event:'AMBIGUOUS_TARGET_SL_SAME_MINUTE',signalId:sig.signalId,signalAt:sig.confirmedAt});changed=true;break;}
        for(const x of fresh){sig.hits.push(x);p.events.push({at:now,symbol:rec.symbol,event:x,signalId:sig.signalId,signalAt:sig.confirmedAt});if(x==='T2'){sig.preT3Continuation={mode:'SHADOW_MEASUREMENT',status:preT3Status(sig,b),armedAt:b.t,price:b.h,t3:sig.t3,score:preT3Score(sig,b)};}changed=true;}
-       if(sig.hits.includes('T3')){sig.finalOutcome='T3';sig.active=false;sig.closedAt=b.t;if(sig.preT3Continuation)sig.preT3Continuation={...sig.preT3Continuation,result:'T3_REACHED',resolvedAt:b.t};sig.shadowAccuracy=shadowAccuracy(sig);sig.followAfterT3=true;sig.postT3Peak=sig.t3;sig.postT3PeakAt=b.t;changed=true;continue;}
+       if(sig.hits.includes('T3')){sig.finalOutcome='T3';sig.active=false;sig.closedAt=b.t;if(sig.preT3Continuation)sig.preT3Continuation={...sig.preT3Continuation,result:'T3_REACHED',resolvedAt:b.t};sig.shadowAccuracy=shadowAccuracy(sig);sig.followAfterT3=true;sig.postT3Peak=sig.t3;sig.postT3PeakAt=b.t;trackPostT3Bar37(sig,b);changed=true;continue;}
        if(slNow){sig.hits.push('SL');if(sig.preT3Continuation?.armedAt)sig.preT3Continuation={...sig.preT3Continuation,result:'FAILED_BEFORE_T3',resolvedAt:b.t};const best=highestHit(sig);sig.finalOutcome=best||'SL';sig.active=false;sig.closedAt=b.t;sig.stoppedAfterTarget=Boolean(best);sig.shadowAccuracy=shadowAccuracy(sig);sig.followAfterStop=true;sig.postSlPeak=sig.sl; // 3.6 research shadow continues after official exit
 p.events.push({at:now,symbol:rec.symbol,event:best?`CLOSED_${best}_BEFORE_SL`:'SL',signalId:sig.signalId,signalAt:sig.confirmedAt});changed=true;continue;}
      }
      if(sig.followAfterStop){sig.postSlPeak=Math.max(Number(sig.postSlPeak||sig.sl),b.h);sig.postSlMfePct=Number(((sig.postSlPeak/sig.entry-1)*100).toFixed(3));for(const [name,val] of [['POST_SL_T1',sig.t1],['POST_SL_T2',sig.t2],['POST_SL_T3',sig.t3]])if(b.h>=val&&!sig.hits.includes(name)){sig.hits.push(name);p.events.push({at:now,symbol:rec.symbol,event:name,signalId:sig.signalId,signalAt:sig.confirmedAt});changed=true;}} // keep watching other shadow targets until session end
-     if(sig.followAfterT3){if(b.h>Number(sig.postT3Peak||sig.t3)){sig.postT3Peak=b.h;sig.postT3PeakAt=b.t;changed=true;}sig.postT3MfePct=Number(((Number(sig.postT3Peak||sig.t3)/sig.t3-1)*100).toFixed(3));sig.postT3GivebackPct=Number(((Number(sig.postT3Peak||sig.t3)-b.c)/Number(sig.postT3Peak||sig.t3)*100).toFixed(3));}
+     if(sig.followAfterT3)changed=trackPostT3Bar37(sig,b)||changed;
    }
-   if(sig.active&&clock.minuteOfDay>=959){const best=highestHit(sig);sig.finalOutcome=best||'EXPIRED';sig.active=false;sig.closedAt=now;sig.shadowAccuracy=shadowAccuracy(sig);p.events.push({at:now,symbol:rec.symbol,event:`SESSION_${sig.finalOutcome}`,signalId:sig.signalId,signalAt:sig.confirmedAt});changed=true;}
-   if(clock.minuteOfDay>=959){sig.followAfterStop=false;sig.followAfterT3=false;for(const x of Object.values(sig.shadowTargets||{})){if(x.status==='TRACKING')x.status='EXPIRED';x.closedAt=now;}}
+   if(sig.active&&clock.minuteOfDay>=plan.close){const best=highestHit(sig);sig.finalOutcome=best||'EXPIRED';sig.active=false;sig.closedAt=now;sig.shadowAccuracy=shadowAccuracy(sig);p.events.push({at:now,symbol:rec.symbol,event:`SESSION_${sig.finalOutcome}`,signalId:sig.signalId,signalAt:sig.confirmedAt});changed=true;}
+   if(clock.minuteOfDay>=plan.close){if(sig.followAfterStop||sig.followAfterT3){sig.followAfterStop=false;sig.followAfterT3=false;changed=true;}for(const x of Object.values(sig.shadowTargets||{})){if(x.status==='TRACKING'){x.status='EXPIRED';x.closedAt=now;changed=true;}}}
  }
  if(changed){p.updatedAt=now;p.events=p.events.slice(-2500);await store.setJSON(key,p);await store.setJSON('signal-history-latest',p);await refreshScannerLearning(store,p);}return new Response(changed?'Outcomes updated':'No changes');
 };

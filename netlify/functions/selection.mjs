@@ -1,5 +1,6 @@
 import { getStore } from "@netlify/blobs";
 import { recommendationWindow, nextTradingDateKey, previousTradingDateKey } from "./lib/time.mjs";
+import {sessionPlan37} from "./lib/trading-session-plan37.mjs";
 import { fetchLatestQuotes, alpacaConfigured } from "./lib/alpaca.mjs";
 import {STRATEGY_VERSION} from "./lib/version.mjs";
 import {validateExecutionQuote37} from "./lib/execution-quote37.mjs";
@@ -55,6 +56,7 @@ export default async (req) => {
       return json({ selected:false, trade:updated, result, R, dailyStop, slCount:dailyRisk.slCount, nextTradeDate:dailyStop?nextTradingDateKey():clock.dateKey }, 200, { "Cache-Control":"no-store" });
     }
     if (req.method !== "POST") return json({ error:"Method not allowed" }, 405);
+    if(!sessionPlan37(clock).discovery)return json({error:'انتهت فترة اعتماد فرص جديدة قبل إغلاق السوق بساعة؛ تستمر متابعة الصفقة المعتمدة فقط.',reason:'PRE_CLOSE_NO_NEW_APPROVALS'},409);
 
     const existing = await store.get(key, { type:"json", consistency:"strong" });
     const dailyRisk = await store.get(riskKey, { type:"json", consistency:"strong" }) || { slCount:0, trades:0 };

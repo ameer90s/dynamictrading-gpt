@@ -239,11 +239,18 @@ export function summarizePeriodTrades37({period,states=[]}={}){
 }
 /** Scalp is reported SEPARATELY from the primary AI's EARLY/RETEST results.
  * Only final per-day state snapshots count. Never sum rolling daily reports. */
-export function summarizePeriodScalp37({period,states=[]}={}){
- const scalpStates=states.map(s=>({records:{},closedOutcomes:s?.scalp37?.closedOutcomes||[]}));
+export function summarizePeriodScalp37({period,states=[],standaloneStates=[]}={}){
+ // Standalone state is authoritative. Use old embedded scalp ONLY for days without it.
+ const byDay=new Map(standaloneStates.filter(s=>s?.day&&s?.book).map(s=>[s.day,s]));
+ const scalpStates=[...byDay.values()].map(s=>({records:s.book.records||{},closedOutcomes:s.book.closedOutcomes||[]}));
+ for(const state of states){const day=state?.dateKey||state?.day;
+  if(day&&byDay.has(day))continue;
+  if(state?.scalp37?.schemaVersion==='3.7-SCALP-PAPER-1')scalpStates.push({records:state.scalp37.records||{},closedOutcomes:state.scalp37.closedOutcomes||[]});
+ }
  const summary=summarizePeriodTrades37({period,states:scalpStates});
  return {...summary,book:'INDEPENDENT_SCALP_PAPER37',
-  status:states.some(s=>s?.scalp37?.schemaVersion==='3.7-SCALP-PAPER-1')?'RECORDED_SCALP_PAPER_ONLY':'NOT_RECORDED',
+  standaloneDays:byDay.size,sourceMode:byDay.size?'STANDALONE_SCALP_AUTHORITATIVE':'LEGACY_ONLY_OR_NOT_RECORDED',
+  status:scalpStates.length?'RECORDED_SCALP_PAPER_ONLY':'NOT_RECORDED',
   actualBrokerFillsVerified:false,independentWalkForwardVerified:false,
   limitations:[...summary.limitations,'Scalp profits are modeled on bars and adverse-slippage assumptions, not an executable quote at exit']};
 }

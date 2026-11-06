@@ -1,15 +1,51 @@
 import {STRATEGY_VERSION,STRATEGY_ID,SCHEMA_VERSION,HISTORY_INDEX_KEY} from './version.mjs';
 import {buildAiShadow} from './ai-shadow.mjs';
+import {claimFirstConfirmation37} from './confirm-lock37.mjs';
 // v3.6: use a stable setup fingerprint; never use a changing Ask price in the ID.
 // An active same-model signal keeps its ID, while a genuinely new setup after
 // closure receives a fresh sequence suffix, keeping push notifications deduped.
 function setupFingerprint(r,dateKey){const family=String(r?.metrics?.setupFamily||'SETUP');return `${dateKey}:${r.symbol}:${family}`;}
+// First CONFIRMED for a symbol/session is immutable. Later market observations
+// remain auditable, but do not create a new trade, entry, target, stop or push ID.
+export function restoreFirstConfirmed37(row,signal){
+ if(!row||!signal)return row;
+ const age=Date.now()-Date.parse(signal.confirmedAt||'');
+ const eligible=Number.isFinite(age)&&age>=0&&age<=180000&&!signal.approvedAt&&!signal.finalOutcome;
+ Object.assign(row,{recommendationState:'CONFIRMED',side:'LONG',tradeable:eligible,
+  confirmationLocked:!eligible,previousConfirmedReference:true,
+  stateReason:'CONFIRMED_ALREADY_RECORDED_LOCKED',signalId:signal.signalId,
+  confirmedAt:signal.confirmedAt,price:signal.entry,entryLow:signal.entryLow,
+  entryHigh:signal.entryHigh,target1:signal.t1,target2:signal.t2,target3:signal.t3,
+  stopLoss:signal.sl,recommendedTarget:signal.recommendedTarget,
+  entryCostModel:signal.netPaperCapacity||null,
+  exitPlan:signal.originalExitPlan||row.exitPlan,
+  shadowTargets:signal.originalShadowTargets||row.shadowTargets,
+  profitPotentialScore:signal.profitPotentialScore??row.profitPotentialScore,
+  repeatClass:'SAME_SYMBOL_SESSION_LOCKED',
+  signalAgeSec:Math.max(0,age/1000)});
+ return row;
+}
 function snapshot(r){return {confidence:Number(r.confidence||0),setupFamily:r.metrics?.setupFamily||null,setupQuality:Number(r.metrics?.setupQuality||0),retestQuality:Number(r.metrics?.retestQuality||0),mtfAlignment:Number(r.metrics?.mtfAlignment||0),relativeVolume:Number(r.metrics?.relativeVolume||0),relativeStrengthPct:Number(r.metrics?.relativeStrengthPct||0),benchmarkChangePct:Number(r.metrics?.benchmarkChangePct||0),marketRegime:r.filters?.marketRegime||null,indexAlignment:r.filters?.marketRegime==='TREND_UP'?'ALIGNED':r.filters?.marketRegime==='TREND_DOWN'?'NON_ALIGNED':'MIXED',sectorAlignment:'UNAVAILABLE',roomR:Number(r.metrics?.roomR||0),chaseDistanceAtr:Number(r.metrics?.chaseDistanceAtr||0),distanceFromSessionHighPct:Number(r.metrics?.distanceFromSessionHighPct||0),sessionChangePct:Number(r.metrics?.sessionChangePct||0),bid:Number(r.metrics?.bid||0),ask:Number(r.metrics?.ask||0),last:Number(r.price||0),spreadBps:Number(r.metrics?.spreadBps||0),quoteAgeSec:Number(r.metrics?.quoteAgeSec||0),quoteFresh:r.metrics?.quoteFresh===true,newsRisk:Number(r.news?.riskScore||0),newsSentiment:Number(r.news?.sentimentScore||0),targetConfidence:r.targetConfidence||null,recommendedTarget:r.recommendedTarget||null,priceBucket:Number(r.price||0)<5?'0-4.99':Number(r.price||0)<10?'5-9.99':'10-200',recordClass:'ACTUAL_PROGRAM_SIGNAL',strategyVersion:STRATEGY_VERSION,focusRank:r.focusRank||null,focusTier:r.focusTier||null,focusScore:Number(r.focusScore||0)};}
 async function indexSession(store,dateKey,updatedAt){const current=await store.get(HISTORY_INDEX_KEY,{type:'json',consistency:'strong'})||{schemaVersion:SCHEMA_VERSION,sessions:[]};const map=new Map((current.sessions||[]).map(x=>[x.dateKey,x]));map.set(dateKey,{dateKey,key:`signal-history-${dateKey}`,updatedAt,version:STRATEGY_VERSION});current.schemaVersion=SCHEMA_VERSION;current.updatedAt=updatedAt;current.sessions=[...map.values()].sort((a,b)=>b.dateKey.localeCompare(a.dateKey)).slice(0,60);await store.setJSON(HISTORY_INDEX_KEY,current);}
 export async function updateSignalHistory(store,data,dateKey){
  if(!store||!data||!dateKey)return;const key=`signal-history-${dateKey}`;const payload=await store.get(key,{type:'json',consistency:'strong'})||{dateKey,strategyVersion:STRATEGY_ID,version:STRATEGY_VERSION,signals:{},events:[]};payload.strategyVersion=STRATEGY_ID;payload.version=STRATEGY_VERSION;payload.schemaVersion=SCHEMA_VERSION;const now=data.generatedAt||new Date().toISOString();
  const rowsToRecord=[...new Map([...(data.all||[]),...(data.display8||[])].filter(r=>r?.symbol&&r.recommendationState).map(r=>[r.symbol,r])).values()];
- for(const r of rowsToRecord){if(!r?.symbol||!r.recommendationState)continue;const s=r.symbol,state=r.recommendationState;const rec=payload.signals[s]||{symbol:s,firstSeenAt:now,transitions:[],confirmedSignals:[]};const last=rec.transitions.at(-1);const trace=r.research36||null;
+ for(const r of rowsToRecord){if(!r?.symbol||!r.recommendationState)continue;const s=r.symbol;const rec=payload.signals[s]||{symbol:s,firstSeenAt:now,transitions:[],confirmedSignals:[]};
+  // Absolute invariant: at most one confirmation for any symbol on this date,
+  // regardless of setup family, retest minute, closure or later price changes.
+  const first=(rec.confirmedSignals||[])[0]||null;
+  let firstClaim=null;
+  if(!first&&r.recommendationState==='CONFIRMED'){
+    firstClaim=await claimFirstConfirmation37(store,dateKey,s,r,now);
+    if(!firstClaim.created)restoreFirstConfirmed37(r,firstClaim.signal);
+  }
+  if(first){restoreFirstConfirmed37(r,first);for(const group of [data.all,data.display8,data.top5])for(const other of (group||[]))if(other.symbol===s&&other!==r)restoreFirstConfirmed37(other,first);}
+  if(firstClaim&&!firstClaim.created)for(const group of [data.all,data.display8,data.top5])for(const other of (group||[]))if(other.symbol===s&&other!==r)restoreFirstConfirmed37(other,firstClaim.signal);
+  // Keep the original signal visible for the normal 3-minute selection window,
+  // without manufacturing another confirmation or changing its fixed levels.
+  if(first&&r.tradeable&&Array.isArray(data.display8)&&!data.display8.some(x=>x.symbol===s))
+    data.display8=[r,...data.display8].slice(0,8);
+  const state=r.recommendationState;const last=rec.transitions.at(-1);const trace=r.research36||null;
   const moved=!last||last.state!==state;
   // Every change of *blocking reason* is also audited (not mistaken for a new state).
   const blockerChanged=rec.lastGateReason!==r.stateReason;
@@ -24,6 +60,17 @@ export async function updateSignalHistory(store,data,dateKey){
     if(moved)rec.transitions.push(ev);else{rec.gateChanges=(rec.gateChanges||[]).slice(-89);rec.gateChanges.push(ev);}
     payload.events.push({at:ev.at,symbol:s,state,event:ev.event,previousState:ev.previousState,reason:ev.reason,version:ev.version});}
   rec.lastGateReason=r.stateReason||null;
+  // Record pending creation, expiry and replacement as independent events;
+  // neither constitutes a new CONFIRMED or another phone notification.
+  if(trace){const pendingId=trace.pendingId||null,previousPendingId=rec.lastPendingId||null;
+   if(pendingId!==previousPendingId){const event=previousPendingId&&pendingId?'PENDING_REPLACED':pendingId?'PENDING_CREATED':'PENDING_EXPIRED';
+    const audit={at:now,event,from:previousPendingId,to:pendingId,reason:trace.reason,
+      barAt:trace.features?.completedBarAt||null,quote:trace.quote||null,
+      pendingCandidate:trace.pendingCandidate||null,checks:trace.checks||[]};
+    (rec.pendingEvents??=[]).push(audit);rec.pendingEvents=rec.pendingEvents.slice(-160);
+    payload.events.push({at:now,symbol:s,event,previousPendingId,nextPendingId:pendingId,
+      reason:trace.reason,version:STRATEGY_VERSION});}
+   rec.lastPendingId=pendingId;}
   if(trace?.features){rec.lastDecision={at:now,state,reason:trace.reason,features:trace.features,checks:trace.checks,quote:trace.quote,
     qualityScore:trace.qualityScore,confidenceProbability:null,confidenceStatus:'UNCALIBRATED',retestModel:trace.retestModel};}
   // Retain periodic as-of SMART snapshots for analysis without exploding the Blob size.
@@ -32,15 +79,22 @@ export async function updateSignalHistory(store,data,dateKey){
     rec.smartObservations.push({at:now,completedBarAt:key,state,reason:trace.reason,features:trace.features,
       gates:trace.checks,quote:trace.quote,qualityScore:trace.qualityScore});rec.lastSampleBar=key;}}
   rec.transitions=rec.transitions.slice(-120);
-  if(state==='CONFIRMED'){const base=setupFingerprint(r,dateKey);let sig=(last?.state==='CONFIRMED')?rec.confirmedSignals.find(x=>x.active&&!x.finalOutcome&&x.setupKey===base):null;if(!sig){const seq=rec.confirmedSignals.filter(x=>String(x.signalId||'').startsWith(base)).length+1;const priorSame=rec.confirmedSignals.filter(x=>x.setupKey===base).length;sig={signalId:`${base}:${seq}`,setupKey:base,setupOccurrence:priorSame+1,repeatClass:priorSame?'REPEAT_SAME_SETUP':'NEW_SETUP',active:true,confirmedAt:now,entry:Number(r.price||0),entryLow:Number(r.entryLow||0),entryHigh:Number(r.entryHigh||0),t1:Number(r.target1||0),t2:Number(r.target2||0),t3:Number(r.target3||0),sl:Number(r.stopLoss||0),maxPrice:Number(r.price||0),minPrice:Number(r.price||0),hits:[],features:snapshot(r),recommendedTarget:r.recommendedTarget||null,targetConfidence:r.targetConfidence||null,outcomeBasis:'IEX_1M_AFTER_CONFIRMATION',version:STRATEGY_VERSION,strategyVersion:STRATEGY_ID,lowestBeforeRally:null,lowestBeforeRallyAt:null,timeToLowSec:null,recoveryAt:null,recoveryTimeSec:null,maePct:null,mfePct:null,preT3Continuation:{mode:'SHADOW_MEASUREMENT',status:'PENDING'},shadow:{mode:'MEASUREMENT',startedAt:null,approvedAt:null},aiShadow:buildAiShadow(r),
+  if(state==='CONFIRMED'){const base=setupFingerprint(r,dateKey);let sig=(rec.confirmedSignals||[])[0]||null;if(!sig){const seq=rec.confirmedSignals.filter(x=>String(x.signalId||'').startsWith(base)).length+1;const priorSame=0;sig={signalId:firstClaim?.signal?.signalId||`${base}:${seq}`,setupKey:base,setupOccurrence:priorSame+1,repeatClass:priorSame?'REPEAT_SAME_SETUP':'NEW_SETUP',active:true,confirmedAt:firstClaim?.signal?.confirmedAt||now,entry:Number(r.price||0),entryLow:Number(r.entryLow||0),entryHigh:Number(r.entryHigh||0),t1:Number(r.target1||0),t2:Number(r.target2||0),t3:Number(r.target3||0),sl:Number(r.stopLoss||0),maxPrice:Number(r.price||0),minPrice:Number(r.price||0),hits:[],features:snapshot(r),recommendedTarget:r.recommendedTarget||null,targetConfidence:r.targetConfidence||null,outcomeBasis:'IEX_1M_AFTER_CONFIRMATION',version:STRATEGY_VERSION,strategyVersion:STRATEGY_ID,lowestBeforeRally:null,lowestBeforeRallyAt:null,timeToLowSec:null,recoveryAt:null,recoveryTimeSec:null,maePct:null,mfePct:null,preT3Continuation:{mode:'SHADOW_MEASUREMENT',status:'PENDING'},shadow:{mode:'MEASUREMENT',startedAt:null,approvedAt:null},aiShadow:buildAiShadow(r),
     profitPotentialScore:r.profitPotentialScore??null,confidenceProbability:null,confidenceStatus:'UNCALIBRATED',
-    netPaperCapacity:r.entryCostModel||null,livePaperOnly:true,
+    netPaperCapacity:r.entryCostModel||null,originalExitPlan:r.exitPlan||null,originalShadowTargets:r.shadowTargets||null,livePaperOnly:true,
     researchDecision:r.research36?{features:r.research36.features,checks:r.research36.checks,quote:r.research36.quote,
       reason:r.research36.reason,retestModel:r.research36.retestModel,trigger:r.research36.trigger}:null,
     shadowTargets:Object.fromEntries(Object.entries(r.shadowTargets||{}).map(([mode,target])=>[mode,{mode,target,
       firstHitAt:null,stopFirstAt:null,postExitHitAt:null,status:'TRACKING',maxPrice:r.price,minPrice:r.price}])),
     delivery:{generatedAt:now,savedAt:now,status:'SAVED'}};const smartTransition=[...rec.transitions].reverse().find(x=>x.state==='SMART');if(smartTransition?.at){sig.firstSmartAt=smartTransition.at;sig.smartToConfirmedSec=Math.max(0,(Date.parse(now)-Date.parse(smartTransition.at))/1000);}rec.confirmedSignals.push(sig);payload.events.push({at:now,symbol:s,event:'CONFIRMED_CREATED',signalId:sig.signalId,signalAt:now,firstSmartAt:sig.firstSmartAt||null,smartToConfirmedSec:sig.smartToConfirmedSec??null,repeatClass:sig.repeatClass,version:STRATEGY_VERSION});}
    r.signalId=sig.signalId;r.confirmedAt=sig.confirmedAt;r.signalAgeSec=Math.max(0,(Date.parse(now)-Date.parse(sig.confirmedAt))/1000);r.aiShadow=sig.aiShadow;r.repeatClass=sig.repeatClass;sig.lastConfirmedSeenAt=now;sig.staleMeasurement={mode:'MEASUREMENT_ONLY',signalAgeSec:r.signalAgeSec,bucket:r.signalAgeSec<=120?'<=2m':r.signalAgeSec<=300?'2-5m':'>5m',over5m:r.signalAgeSec>300};}
+  // The history recorder chooses display8 over all when both contain a symbol.
+  // Synchronize its immutable confirmation back to every representation so
+  // selection/API/UI never see a different entry or an absent signalId.
+  if(state==='CONFIRMED'&&r.signalId){const keys=['recommendationState','side','tradeable','confirmationLocked','previousConfirmedReference','stateReason',
+    'price','entryLow','entryHigh','target1','target2','target3','stopLoss','signalId','confirmedAt','signalAgeSec','recommendedTarget','repeatClass','entryCostModel','exitPlan','shadowTargets','profitPotentialScore'];
+   for(const group of [data.all,data.display8,data.top5])for(const other of (group||[]))if(other?.symbol===s&&other!==r)
+    for(const k of keys)other[k]=r[k];}
   rec.lastSeenAt=now;rec.lastState=state;rec.lastPrice=Number(r.price||0);payload.signals[s]=rec;}
  payload.events=payload.events.slice(-4000);payload.updatedAt=now;await store.setJSON(key,payload);await store.setJSON('signal-history-latest',payload);await indexSession(store,dateKey,now);
 }

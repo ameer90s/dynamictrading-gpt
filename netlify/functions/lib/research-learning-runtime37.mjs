@@ -3,9 +3,11 @@
  * and 3 prior learning digests. No network or OpenAI request here.
  */
 import {randomUUID} from 'node:crypto';
+import {researchExpectedMinutes37} from './daily-research-diagnostic37.mjs';
 import {pairedDailyResearch,ledgerKey,researchHours,combineLedgerShards} from './research-ledger37.mjs';
 import {generateStrategyLearningCycle37} from './research-strategy-cycle37.mjs';
 import {HISTORY_INDEX_KEY} from './version.mjs';
+import {scalpStateKey37} from './scalp-standalone37.mjs';
 import {annotateDailyProposals37,consolidateResearchPeriod37,dueResearchPeriods37,
  researchMemoryKey37,researchWeeklyKey37,researchMonthlyKey37,
  memoryFromPeriod37,summarizePeriodTrades37,summarizePeriodScalp37} from './research-memory-cadence37.mjs';
@@ -34,20 +36,21 @@ export async function loadResearchLearningContext37({store,day,aiState=null,scan
  // No source => evidence is incomplete; don't fabricate zero-error performance.
  if(!state?.updatedAt||!scanner?.signals)return {status:'MISSING_SESSION_STATES',day};
  const aiDays=safeDays(aiIndex,day,'ai'),scDays=safeDays(scannerIndex,day,'scanner');
- const [pastAiStates,pastScannerHistories,previousCycles]=await Promise.all([
+ const [pastAiStates,pastScannerHistories,previousCycles,standaloneScalpStates]=await Promise.all([
   Promise.all(aiDays.map(d=>optionalRead(store,`ai-parallel-state-${d}`,issues))),
   Promise.all(scDays.map(d=>optionalRead(store,`signal-history-${d}`,issues))),
-  Promise.all([...new Set([...aiDays,...scDays])].sort().reverse().slice(0,3).map(d=>optionalRead(store,strategyLearningKey37(d),issues)))
+  Promise.all([...new Set([...aiDays,...scDays])].sort().reverse().slice(0,3).map(d=>optionalRead(store,strategyLearningKey37(d),issues))),
+  Promise.all([day,...aiDays].map(d=>optionalRead(store,scalpStateKey37(d),issues)))
  ]);
  return {status:'READY',day,audit,aiState:state,scannerHistory:scanner,
   pastAiStates:pastAiStates.filter(Boolean),pastScannerHistories:pastScannerHistories.filter(Boolean),
-  previousCycles:previousCycles.filter(Boolean),memory:memory||null,issues,
+  previousCycles:previousCycles.filter(Boolean),standaloneScalpStates:standaloneScalpStates.filter(Boolean),memory:memory||null,issues,
   historicalCoverage:{aiDays,scannerDays:scDays,aiStatesFound:pastAiStates.filter(Boolean).length,
    scannerStatesFound:pastScannerHistories.filter(Boolean).length}};
 }
-export async function persistResearchLearning37({store,context,review=null,now=new Date()}={}){
+export async function persistResearchLearning37({store,context,review=null,now=new Date(),env=process.env}={}){
  if(!context||context.status!=='READY')return {status:context?.status||'MISSING_CONTEXT',day:context?.day};
- const {day,audit,aiState,scannerHistory,pastAiStates,pastScannerHistories,previousCycles,memory,issues,historicalCoverage}=context;
+ const {day,audit,aiState,scannerHistory,pastAiStates,pastScannerHistories,previousCycles,standaloneScalpStates=[],memory,issues,historicalCoverage}=context;
  const key=strategyLearningKey37(day),existing=await read(store,key);
  if(existing&&(existing.day!==day||existing.schemaVersion!=='3.7-RESEARCH-STRATEGY-CYCLE-1'))
   return {status:'EXISTING_LEARNING_CORRUPTED_FAIL_CLOSED',day};
@@ -58,7 +61,8 @@ export async function persistResearchLearning37({store,context,review=null,now=n
  // Once a checked LLM review has been incorporated, late local-only retries cannot replace it.
  if(existing?.openai?.included&&review==null)return {status:'ALREADY_LEARNED',day,cycle:existing};
  const cycle=annotateDailyProposals37(generateStrategyLearningCycle37({day,audit,aiState,scannerHistory,pastAiStates,pastScannerHistories,
-  previousCycles,openaiReview:review,now:now.toISOString()}),memory);
+  previousCycles,standaloneScalpStates,openaiReview:review,now:now.toISOString(),
+  expectedMinutes:researchExpectedMinutes37(env,day)}),memory);
  cycle.historyReadIssues=issues;cycle.historicalCoverage=historicalCoverage;
  cycle.sourceTrust=issues?.length?'DEGRADED_HISTORICAL_READS':'RECORDED_EVIDENCE_WITH_LIMITATIONS';
  if(existing?.digest===cycle.digest&&existing?.openai?.included===cycle.openai.included)
@@ -74,10 +78,10 @@ export async function persistResearchLearning37({store,context,review=null,now=n
   return {status:'CLAIM_NOT_VERIFIED',day};
  return {status:cycle.openai.included?'LEARNED_WITH_OPENAI_REVIEW':'LEARNED_FROM_ARCHIVES_ONLY',day,cycle:checked};
 }
-export async function runLocalStrategyLearning37({store,day,now=new Date()}={}){
+export async function runLocalStrategyLearning37({store,day,now=new Date(),env=process.env}={}){
  const context=await loadResearchLearningContext37({store,day});
  if(context.status!=='READY')return {status:context.status,day};
- const result=await persistResearchLearning37({store,context,now});
+ const result=await persistResearchLearning37({store,context,now,env});
  return {status:result.status,day,proposals:result.cycle?.proposals?.length||0,
   historicalCoverage:context.historicalCoverage,sourceTrust:result.cycle?.sourceTrust||'UNVERIFIED',
   mode:'OFFLINE_RESEARCH_NO_PAID_API'};
@@ -120,7 +124,10 @@ export async function finalizeDueResearchPeriods37({store,day,now=new Date()}={}
     completeDays:full.length,minimum});continue;}
   const states=(await Promise.all(dates.map(x=>read(store,`ai-parallel-state-${x}`)))).filter(Boolean);
   const outcomes=summarizePeriodTrades37({period,states});
-  const scalpOutcomes=summarizePeriodScalp37({period,states});
+  // Per-period standalone scalp snapshots are read only at week/month boundaries.
+  // Legacy embedded scalp is a fallback for dates before independent activation.
+  const standaloneStates=(await Promise.all(dates.map(x=>read(store,scalpStateKey37(x)).catch(()=>null)))).filter(Boolean);
+  const scalpOutcomes=summarizePeriodScalp37({period,states,standaloneStates});
   const report=consolidateResearchPeriod37({period,cycles,memory,outcomes,scalpOutcomes,now:now.toISOString()});
   const result=await store.setJSON(key,report,{onlyIfNew:true});
   const actual=await read(store,key);

@@ -1,5 +1,5 @@
 /** Safe read-only public dashboard projection, no credentials or raw minute records. */
-export function publicResearchSummary({day,review,local,evidence,budget,learning,weekly,monthly,memory}={}){
+export function publicResearchSummary({day,review,local,evidence,budget,learning,weekly,monthly,memory,daily,budgetLimitUsd=3}={}){
   const period=x=>x?{kind:x.kind,end:x.end,status:x.status,
    sessionsObserved:x.sessionsObserved,sessionsWithFullEvidence:x.sessionsWithFullEvidence,
    minimumFullEvidenceSessions:x.minimumFullEvidenceSessions,
@@ -9,16 +9,23 @@ export function publicResearchSummary({day,review,local,evidence,budget,learning
     observedSessions:p.observedSessions,status:p.status,suppressed:p.suppressed,
     historicalVerdict:p.historicalVerdict,sourceKinds:p.sourceKinds,
     hypothesis:p.hypotheses?.[0]||null,eligibleForApproval:false}))}:null;
-  const status=review?.status||(local?.hypotheses?.length?'LOCAL_RESEARCH_ONLY':'NO_REVIEW');
-  return {day,status,mode:'PAPER_ONLY',updatedAt:review?.reviewedAt||local?.generatedAt||null,
-      openaiModel:review?.model||null,summary:review?.review?.summary_ar||null,
+  const paid=review?.status==='REVIEW_CREATED_NOT_APPLIED';
+  const status=paid?'REVIEW_CREATED_NOT_APPLIED':daily?'LOCAL_DAILY_REPORT':
+    (review?.status|| (local?.hypotheses?.length?'LOCAL_RESEARCH_ONLY':'NO_REVIEW'));
+  return {day,status,mode:'PAPER_ONLY',updatedAt:paid?review.reviewedAt:daily?.generatedAt||local?.generatedAt||null,
+      paidStatus:review?.status||'NOT_RUN',daily:daily?{status:daily.status,generatedAt:daily.generatedAt,
+        summary:daily.summary_ar,engines:daily.engines,observations:daily.observations,
+        recommendations:daily.recommendations,readFailures:daily.readFailures}:null,
+      reviewMeaningExternallyVerified:false,
+      openaiModel:paid?review?.model||null:null,summary:paid?review?.review?.summary_ar:daily?.summary_ar||null,
       usage:review?.usage?{estimatedUsd:review.usage.estimatedUsd,inputTokens:review.usage.input_tokens,outputTokens:review.usage.output_tokens}:null,
-      budget:budget?{calls:budget.calls||0,reservedUsd:budget.reservedUsd||0,limitUsd:3}:null,
+      budget:budget?{calls:budget.calls||0,reservedUsd:budget.reservedUsd||0,limitUsd:budgetLimitUsd}:
+        {calls:0,reservedUsd:0,limitUsd:budgetLimitUsd,status:'NO_PAID_USAGE_RECORDED'},
       evidence:evidence?{status:evidence.readiness?.ok?'READY':(evidence.readiness?.reason||'INCOMPLETE'),
         aiMinutes:evidence.streams?.ai?.storedMinutes??null,scannerMinutes:evidence.streams?.scanner?.storedMinutes??null,
         missingMinutes:(evidence.streams?.ai?.missingMinutes||0)+(evidence.streams?.scanner?.missingMinutes||0)}:null,
-      localHypotheses:(local?.hypotheses||[]).slice(0,5).map(x=>({id:x.id,status:x.status,observedFact:x.observedFact,
-        hypothesis:x.hypothesis,experiment:x.experiment,acceptanceMetric:x.acceptanceMetric,limitation:x.limitation})),
+      localHypotheses:(local?.hypotheses?.length?local.hypotheses:daily?.recommendations||[]).slice(0,5).map(x=>({id:x.id||x.area,status:x.status,observedFact:x.observedFact||x.evidence,
+        hypothesis:x.hypothesis||x.hypothesis_ar,experiment:x.experiment||x.test_ar,acceptanceMetric:x.acceptanceMetric||x.acceptance_metric_ar,limitation:x.limitation||'PROPOSED_UNTESTED_NOT_CAUSALLY_VERIFIED'})),
       experiments:(review?.review?.experiments||[]).slice(0,5).map(x=>({area:x.area,hypothesis_ar:x.hypothesis_ar,
         test_ar:x.test_ar,acceptance_metric_ar:x.acceptance_metric_ar,status:x.status,confidence:x.confidence})),
       learning:learning?{status:learning.openai?.included?'OPENAI_CONNECTED_TO_STRATEGY_LEARNING':'ARCHIVE_LEARNING_ONLY',

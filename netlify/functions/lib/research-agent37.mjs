@@ -3,7 +3,7 @@
  */
 import {createHash} from 'node:crypto';
 const total=(list,name)=>(list||[]).filter(x=>x.name===name).reduce((a,x)=>a+x.count,0);
-export function researchAgent37FromAudit({day,audit,generatedAt=null}={}){
+export function researchAgent37FromAudit({day,audit,generatedAt=null,expectedMinutes=390}={}){
  if(!audit?.streams?.scanner||!audit?.streams?.ai||!day)throw Error('MISSING_RESEARCH_EVIDENCE');
  const sc=audit.streams.scanner,ai=audit.streams.ai,why=[],sum={};
  const base=`DT37_${day}`;
@@ -11,7 +11,8 @@ export function researchAgent37FromAudit({day,audit,generatedAt=null}={}){
    why.push({id,status:'PROPOSED_UNTESTED',evidenceId:base,observedFact,hypothesis,experiment,
      acceptanceMetric:metric,limitation,canApply:false});
  };
- const missing=(sc.missingMinutes?.length||0)+(ai.missingMinutes?.length||0);
+ const missing=(sc.missingMinutes||[]).filter(n=>n<570+expectedMinutes).length+
+  (ai.missingMinutes||[]).filter(n=>n<570+expectedMinutes).length;
  if(missing||sc.readErrors.length||ai.readErrors.length) add('ARCHIVE_COVERAGE',
    `الأرشيف حفظ ${sc.storedMinutes}/390 دقيقة للماسح و${ai.storedMinutes}/390 للـAI، والدقائق المفقودة ${missing}.`,
    'قد تؤدي فجوات التشغيل أو الحفظ إلى فقد إشارات ومقارنات أداء.',

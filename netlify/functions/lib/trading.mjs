@@ -146,7 +146,7 @@ export async function analyzeUniverse(symbols, apiKey, weights = BASE_WEIGHTS, c
       catch(err){errors.push(`Legacy diagnostics only (${row.symbol}) failed: ${err?.message||err}`);}}
     // IMPORTANT: even if old diagnostics fail, research36 execution still runs.
     const decision = evaluateLiveResearch36(row.symbol,candlesBySymbol.get(row.symbol),spyCandles,
-      liveResearchQuotes[row.symbol]||null,{now:researchNow,shariaApproved:true,allowHistorical:!!researchOptions.replayBars});
+      liveResearchQuotes[row.symbol]||null,{now:researchNow,shariaApproved:true,modeConfig:symbolCfg,allowHistorical:!!researchOptions.replayBars});
     const confirmed = decision.state === 'CONFIRMED' && !!decision.risk;
     const risk = decision.risk;
     // Profit-potential score combines signal quality with net reward potential;
@@ -166,7 +166,7 @@ export async function analyzeUniverse(symbols, apiKey, weights = BASE_WEIGHTS, c
       price:confirmed?risk.entry:legacy.price,
       side:confirmed?'LONG':'WAIT',tradeable:confirmed,
       recommendationState:decision.state,hiddenV32:false,badTrade:false,conditionalTrade:decision.state==='SMART',
-      stateReason:decision.reason,quality:confirmed?'CONFIRMED PAPER — V3.6 Research':'3.6 Research — '+decision.reason,
+      stateReason:decision.reason,quality:confirmed?'CONFIRMED PAPER — V3.7 Active Research':'3.7 Research — '+decision.reason,
       confidence:score,profitPotentialScore:score,setupQualityScore:decision.qualityScore??null,
       confidenceProbability:null,confidenceStatus:'UNCALIBRATED',
       shadowTargets:confirmed?risk.shadow:null,
@@ -179,7 +179,7 @@ export async function analyzeUniverse(symbols, apiKey, weights = BASE_WEIGHTS, c
       research36:{...decision,originalV35State:legacy.recommendationState,originalV35Confidence:legacy.confidence,legacyDiagnosticOnly:true},
       recommendedTarget:confirmed?'BLEND_DYNAMIC':'WAIT',targetConfidence:null,
       metrics:{...legacy.metrics,setupFamily:decision.retestModel||'OPENING_RESEARCH',setupFamilyLabel:decision.retestModel?`3.6 ${decision.retestModel} Retest`:'3.6 Opening Watch',
-        setupState:confirmed?'CONFIRMED':decision.state==='SMART'?'WAIT_RETEST':'WAIT_OPENING',
+        setupState:confirmed?'CONFIRMED':decision.smartStage==='PENDING_VALID'?'PENDING_VALID':decision.smartStage==='EXPIRED'?'EXPIRED':decision.smartStage==='OPENING_WATCH'?'OPENING_WATCH':'WAIT_OPENING',
         setupQuality:decision.qualityScore??0,atr:decision.features?.atr14??null,
         relativeStrengthPct:decision.features?.relativeStrengthPct??null,
         relativeVolume:decision.features?.openingVolRatio??null,

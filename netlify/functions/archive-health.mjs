@@ -1,12 +1,16 @@
 /** Read-only Netlify Blobs archive health. No keys or sensitive content returned. */
-import {recommendationWindow} from './lib/time.mjs';
+import {recommendationWindow,marketSession} from './lib/time.mjs';
+import {sessionPlan37} from './lib/trading-session-plan37.mjs';
 export async function archiveHealth(req,injectedStore){
  const store=injectedStore||(await import('@netlify/blobs')).getStore('dynamic-trading');
  if(req.method!=='GET')return Response.json({error:'METHOD_NOT_ALLOWED'},{status:405});
  const u=new URL(req.url),day=u.searchParams.get('day')||recommendationWindow().dateKey;
  if(!/^20\d\d-\d\d-\d\d$/.test(day))return Response.json({error:'INVALID_DATE'},{status:400});
- const end=Math.max(570,Math.min(959,Number(u.searchParams.get('until')||959)));
- const count=Math.max(1,Math.min(390,Number(u.searchParams.get('minutes')||390)));
+ const dayClock=marketSession(new Date(`${day}T17:00:00Z`));
+ const phase=sessionPlan37({...dayClock,minuteOfDay:570,session:'REGULAR',startMinute:570});
+ const expected=phase.expectedDiscoveryMinutes||330;
+ const end=Math.max(570,Math.min(959,Number(u.searchParams.get('until')??(phase.discoveryCutoff-1))));
+ const count=Math.max(1,Math.min(390,Number(u.searchParams.get('minutes')??expected)));
  const out={version:'3.7',dateKey:day,checkedAt:new Date().toISOString(),window:{until:end,minutes:count},streams:{}};
  for(const [name,prefix] of [['scanner','scanner-audit'],['ai','ai-parallel-audit']]){
   let found=0,records=0,zeroCandidateMinutes=0,errors=0;const missing=[];let lastStoredAt=null;

@@ -7,11 +7,11 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@netlify/blobs": "latest",
-    "web-push": "latest"
+    "@netlify/blobs": "11.1.7",
+    "web-push": "3.6.7"
   },
   "scripts": {
-    "test": "npm run test:syntax && npm run test:functional && npm run test:regression && npm run test:improvements && npm run test:36 && npm run test:ai-parallel && npm run test:archive37 && npm run test:ui37 && npm run test:ui-next37 && npm run test:research-deep37 && npm run test:api-json37 && npm run test:routing37 && npm run test:local-safety37 && npm run test:research-learning37 && npm run test:research-memory37 && npm run test:scalp37 && npm run test:experiments37 && npm run test:historical-replay37 && npm run test:cost37",
+    "test": "npm run test:syntax && npm run test:functional && npm run test:regression && npm run test:improvements && npm run test:36 && npm run test:ai-parallel && npm run test:archive37 && npm run test:ui37 && npm run test:ui-next37 && npm run test:research-deep37 && npm run test:api-json37 && npm run test:routing37 && npm run test:local-safety37 && npm run test:research-learning37 && npm run test:research-memory37 && npm run test:scalp37 && npm run test:experiments37 && npm run test:historical-replay37 && npm run test:cost37 && npm run test:dynamic-ai-local37 && npm run test:dynamic-ai-adversarial37 && npm run test:research-patterns37 && npm run test:scalp-standalone37 && npm run test:confirmation37 && npm run test:research-daily37 && npm run test:unified-session37 && npm run test:post-t3-release37 && npm run test:dependency-pins37",
     "test:syntax": "find netlify public scripts -type f \\( -name '*.js' -o -name '*.mjs' \\) -print0 | xargs -0 -n1 node --check && node --check verify_35.mjs",
     "test:functional": "node verify_35.mjs && node scripts/test-sharia-local.mjs && node scripts/test-premarket-full-universe.mjs && node scripts/test-dynamic-full-universe.mjs && node scripts/test-delivery-stress.mjs && node scripts/test-sharia-daily.mjs",
     "test:regression": "python3 audit_30.py && node scripts/test-requirements-29.mjs && node scripts/audit-v35.mjs",
@@ -30,6 +30,15 @@
     "test:scalp37": "node scripts/test-ai-scalp-paper37.mjs && node scripts/test-ai-scalp-adversarial37.mjs && node scripts/test-ai-scalp-research37.mjs && node scripts/replay-ai-scalp-session37.mjs",
     "test:experiments37": "node scripts/test-research-experiment-engine37.mjs",
     "test:historical-replay37": "node scripts/test-research-historical-replay37.mjs",
-    "test:cost37": "node scripts/test-netlify-cost-optimization37.mjs"
+    "test:cost37": "node scripts/test-netlify-cost-optimization37.mjs",
+    "test:dynamic-ai-local37": "node scripts/test-dynamic-ai-complete37.mjs",
+    "test:dynamic-ai-adversarial37": "node scripts/test-dynamic-ai-adversarial-local37.mjs",
+    "test:research-patterns37": "node scripts/test-ai-pattern-expansion-local37.mjs && node scripts/test-ai-pattern-coverage37.mjs",
+    "test:scalp-standalone37": "node scripts/test-standalone-scalp37.mjs",
+    "test:confirmation37": "node scripts/test-confirmed-once37.mjs && node scripts/test-push-confirmed-only37.mjs",
+    "test:research-daily37": "node scripts/test-research-daily-hardening37.mjs",
+    "test:unified-session37": "node scripts/test-unified-session37.mjs",
+    "test:post-t3-release37": "node scripts/test-post-t3-release37.mjs",
+    "test:dependency-pins37": "node scripts/test-dependency-pins37.mjs"
   }
 }

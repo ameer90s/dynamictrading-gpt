@@ -4,6 +4,9 @@ const file=new URL('../netlify/functions/research-status37.mjs',import.meta.url)
 let src=readFileSync(file,'utf8').replace(/^import .*;\n/gm,'');
 src=`const getStore=()=>globalThis.__dt37StatusStore;
 const newYorkDay=()=> '2026-11-03';
+const researchBudgetKey37=()=> 'budget';
+const dailyResearchKey37=()=> 'daily';
+const PILOT={budgetUsd:3};
 const strategyLearningKey37=()=> 'learning';
 const recentResearchReportEnds37=()=>({weekly:'X',monthly:'Y'});
 const researchWeeklyKey37=()=> 'weekly';

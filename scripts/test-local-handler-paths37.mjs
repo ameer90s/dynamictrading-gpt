@@ -10,7 +10,7 @@ const day='2026-11-03',good={symbol:'ABC',side:'LONG',tradeable:true,price:99.99
 const fresh={bid:99.98,ask:100,bidSize:40,askSize:25,timestamp:new Date().toISOString(),source:'Alpaca IEX latest quote'};
 const makeStore=()=>{const m=new Map([[`candidate-${day}-active`,{generatedAt:new Date().toISOString(),all:[good],display8:[good]}]]);return {m,get:async k=>m.get(k)||null,setJSON:async(k,v,o={})=>{if(o.onlyIfNew&&m.has(k))return{modified:false};m.set(k,v);return{modified:true}},delete:async k=>{m.delete(k)}}};
 const args={recommendationWindow:()=>({dateKey:day,isTradingDay:true,startMinute:570,minuteOfDay:800}),nextTradingDateKey:()=>day,previousTradingDateKey:()=>day,
- STRATEGY_VERSION:'3.7',validateExecutionQuote37,randomUUID,Response,URL};
+ STRATEGY_VERSION:'3.7',sessionPlan37:()=>({discovery:true}),validateExecutionQuote37,randomUUID,Response,URL};
 function selection(store,configured,fetchFn){return loadHandler('netlify/functions/selection.mjs',{...args,getStore:()=>store,alpacaConfigured:()=>configured,fetchLatestQuotes:fetchFn})}
 const req={method:'POST',json:async()=>({symbol:'ABC',mode:'active'})};
 let n=0;async function test(name,fn){await fn();n++;console.log('PASS',name)}

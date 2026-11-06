@@ -7,6 +7,13 @@
   # UTC range covers both EDT and EST; the function gates on America/New_York time.
   schedule = "* 13-21 * * 1-5"
 
+# LOCAL RELEASE CANDIDATE ONLY: independent PAPER scalp is scheduled every minute
+# during US session UTC coverage, gated to [09:30, 15:00) NY discovery and
+# five-minute follow-ups to the regular close. DO NOT DEPLOY until the extra
+# scheduled invocation + market-data cost is approved explicitly.
+[functions."scalp-paper-scan37"]
+  schedule = "* 13-21 * * 1-5"
+
 [functions."news-scan"]
   # Broader news/catalyst refresh every 15 minutes through the regular-session schedule window, offset from price scans by the function credit guard.
   schedule = "2,17,32,47 13-21 * * 1-5"

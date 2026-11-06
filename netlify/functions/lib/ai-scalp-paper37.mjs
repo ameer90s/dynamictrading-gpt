@@ -5,6 +5,7 @@
  * No network I/O, account permissions, learning-policy writes, or brokerage orders.
  */
 import {completedSessionRows} from './research36.mjs';
+import {detectIndependentScalpPatterns37} from './scalp-pattern-engine37.mjs';
 const round=(x,d=5)=>Number.isFinite(x)?Number(x.toFixed(d)):null;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const finite=x=>typeof x==='number'&&Number.isFinite(x);
@@ -49,7 +50,14 @@ export function scalpFreshQuote37(quote,now,policy){
   timestamp:quote?.timestamp||null,checks,passed:!failed(checks)};
 }
 /** Explicitly limited, deterministic setup detectors. Discovery is not a trained model. */
-export function detectScalpSetup37(features,market,policy){
+export function detectScalpSetup37(features,market,policy,rows=[]){
+ if(rows.length){
+  const found=detectIndependentScalpPatterns37({features,rows,market,policy});
+  const best=found.patterns[0];
+  return {type:best?.type||null,allPatterns:found.patterns.map(x=>({type:x.type,score:x.score,evidence:x.evidence})),
+    reason:found.reason,checks:found.checks,trigger:features?.high!=null?round(features.high+Math.max((features.atr||0)*.04,(features.price||0)*.0001)):null,
+    signalBarTime:features?.barTime,signalMinute:features?.minute,atr:features?.atr,signalPrice:features?.price};
+ }
  if(!features)return {type:null,reason:'NO_COMPLETED_FEATURES',checks:[]};
  const reg=String(market?.regime||'UNKNOWN');
  const common=[
@@ -141,9 +149,14 @@ function explainEntry37(symbol,f,pending,quote,now,policy,day,globalState,approv
  const expectedNet=finite(qty)&&finite(expectedExit)?qty*(expectedExit-entry)-policy.roundTripFeesUsd:null;
  const estimatedWorstLoss=finite(qty)&&finite(stop)?qty*(entry-stop*(1-policy.exitSlippageBps/10000))+policy.roundTripFeesUsd:null;
  const stopPct=finite(risk)&&entry>0?risk/entry*100:null;
+ const recoveryTypes=['VWAP_RECLAIM_SCALP','FAILED_BREAKDOWN_RECOVERY_SCALP','RANGE_RECOVERY_SCALP'];
+ const downtrend=String(market?.regime||'UNKNOWN').startsWith('TREND_DOWN');
+ const recoveryAllowed=downtrend&&recoveryTypes.includes(pending?.type)&&f?.momentum3Pct>=.20&&f?.price>f?.vwap&&market?.confidence>=.4;
+ const marketAllowed=market?.regime!=='UNKNOWN'&&!String(market?.regime).includes('THIN_LIQUIDITY')&&
+  market?.confidence>=.2&&(!downtrend||recoveryAllowed);
  const checks=[
   check('SCALP_SHARIA_REVERIFIED',approved),
-  check('SCALP_MARKET_STILL_ALLOWED',market?.regime!=='UNKNOWN'&&!String(market.regime).startsWith('TREND_DOWN')&&!String(market.regime).includes('THIN_LIQUIDITY')&&market?.confidence>=.2),
+  check('SCALP_MARKET_STILL_ALLOWED',marketAllowed),
   check('SCALP_DAY_MATCHES',pending?.day===day,pending?.day,day),
   check('SCALP_SIGNAL_NOT_SAME_BAR',finite(f?.minute)&&f.minute>pending?.signalMinute),
   check('SCALP_PENDING_NOT_EXPIRED',finite(f?.minute)&&f.minute<=pending?.validUntil),
@@ -165,8 +178,8 @@ function explainEntry37(symbol,f,pending,quote,now,policy,day,globalState,approv
  return {symbol,quote:q,entry,stop,target,qty,expectedNet,estimatedWorstLoss,checks,reason:failed(checks)};
 }
 /** Inputs are already-fetched market data. A symbol cannot re-enter after any position today. */
-export function scalpCycle37({day,now,minute,candidates=[],barMap={},quotes={},features={},approved=[],market={},baselinePolicy=null,previous=null,sessionEndMinute=959,enabled=false}={}){
- const p=scalpPolicy37(market,baselinePolicy),state=hasValidToday(previous,day)?structuredClone(previous):newState(day);
+export function scalpCycle37({day,now,minute,candidates=[],barMap={},quotes={},features={},approved=[],market={},baselinePolicy=null,previous=null,sessionEndMinute=959,newEntryCutoffMinute=Infinity,enabled=false,patternMode='LEGACY'}={}){
+ const p={...scalpPolicy37(market,baselinePolicy),entryMaxMinute:Math.min(SCALP37_DEFAULTS.entryMaxMinute,sessionEndMinute-15,newEntryCutoffMinute)},state=hasValidToday(previous,day)?structuredClone(previous):newState(day);
  const approvedSymbols=new Set(approved.map(x=>String(x).toUpperCase()));
  const events=[],closedNew=[];
  if(enabled&&previous?.day===day&&!hasValidToday(previous,day))return {state:{...state,status:'INVALID_PREVIOUS_STATE_FAIL_CLOSED'},events,closedNew,summary:scalpSummary37(state),policy:p};
@@ -197,6 +210,7 @@ export function scalpCycle37({day,now,minute,candidates=[],barMap={},quotes={},f
    }
   }else if(!prior.position){
    if(!enabled)next={...next,pending:null,status:'DISABLED_NO_NEW_ENTRIES',reason:'SCALP_DISABLED_DRAINING_ONLY'};
+   else if(minute>p.entryMaxMinute)next={...next,pending:null,status:'WINDOW_CLOSED_NO_NEW_ENTRIES',reason:'SCALP_PRE_CLOSE_NO_NEW_ENTRIES'};
    else if(!approvedSymbols.has(symbol))next={...next,status:'REJECTED',reason:'SCALP_SHARIA_NOT_APPROVED',pending:null};
    else if(!rows.length||!f||f.barTime!==last.datetime)next={...next,status:'OBSERVING',reason:'SCALP_BAR_DATA_UNAVAILABLE_OR_STALE'};
    else{
@@ -219,15 +233,32 @@ export function scalpCycle37({day,now,minute,candidates=[],barMap={},quotes={},f
      }
     }else if(old){next={...next,pending:old,status:'PENDING',reason:'SCALP_WAIT_NEXT_COMPLETED_BAR'};}
     else{
-     const detected=detectScalpSetup37(f,market,p);
+     const detected=detectScalpSetup37(f,market,p,patternMode==='STANDALONE'?rows:[]);
      const pending=detected.type?{day,type:detected.type,signalMinute:detected.signalMinute,signalBarTime:detected.signalBarTime,
-      validUntil:detected.signalMinute+p.signalTtlMinutes,signalPrice:detected.signalPrice,atr:detected.atr,trigger:detected.trigger}:null;
+      validUntil:detected.signalMinute+p.signalTtlMinutes,signalPrice:detected.signalPrice,atr:detected.atr,trigger:detected.trigger,allPatterns:detected.allPatterns||[]}:null;
      next={...next,pending,status:pending?'PENDING':'OBSERVING',reason:detected.reason,signalChecks:detected.checks};
     }
    }
   }else{next={...next,status:'CLOSED',pending:null,reason:'SCALP_NO_REENTRY_SAME_DAY'};}
   state.records[symbol]=next;
-  events.push({symbol,status:next.status,reason:next.reason,setupType:next.position?.setupType||next.pending?.type||null,
+  const pendingChanged=(prior.pending?.type!==next.pending?.type)||(prior.pending?.signalMinute!==next.pending?.signalMinute);
+  const positionEntered=!prior.position&&next.position?.status==='OPEN';
+  const positionClosed=prior.position?.status==='OPEN'&&next.position?.status!=='OPEN';
+  const positionManaged=prior.position?.status==='OPEN'&&next.position?.status==='OPEN'&&
+   (prior.position.stop!==next.position.stop||prior.position.partialTaken!==next.position.partialTaken||
+    prior.position.remainingQty!==next.position.remainingQty);
+  const lifecycle=positionEntered?'PAPER_ENTRY':positionClosed?'PAPER_EXIT':positionManaged?'POSITION_MANAGEMENT':pendingChanged?
+   (prior.pending&&next.pending?'PENDING_REPLACED':prior.pending?'PENDING_CLEARED':'PENDING_CREATED'):
+   prior.status!==next.status?'STATE_TRANSITION':prior.reason!==next.reason?'GATE_UPDATE':'OBSERVATION';
+  events.push({symbol,from:prior.status||'OBSERVING',to:next.status,status:next.status,
+   lifecycle,previousPending:pendingChanged?prior.pending||null:null,
+   eventType:prior.status!==next.status?'STATE_TRANSITION':prior.reason!==next.reason?'GATE_UPDATE':'OBSERVATION',
+   at:now.toISOString(),reason:next.reason,allPatterns:next.pending?.allPatterns||[],pending:next.pending||null,
+   signalChecks:next.signalChecks||[],entryChecks:next.entryChecks||[],marketRegime:market?.regime||'UNKNOWN',
+   position:next.position?(lifecycle==='OBSERVATION'?{id:next.position.id,status:next.position.status,
+    lastEvaluatedBarTime:next.position.lastEvaluatedBarTime,mfePct:next.position.mfePct,
+    maePct:next.position.maePct}:structuredClone(next.position)):null,featureSnapshot:f?{barTime:f.barTime,price:f.price,momentum3Pct:f.momentum3Pct,volumeRatio:f.volumeRatio,atr:f.atr}:null,
+   setupType:next.position?.setupType||next.pending?.type||null,
    positionId:next.position?.id||null,entry:next.position?.entry||null,netUsd:next.position?.netUsd??null,
    quoteStatus:next.entryChecks?.find(c=>c.gate==='SCALP_QUOTE_FRESH')?.passed??null,
    lastCompletedBarAt:last?.datetime||null});

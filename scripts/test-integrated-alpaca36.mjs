@@ -15,7 +15,7 @@ for(const r of ref){const d=r.date,s=r.symbol,t=+r.validation_minute,next=t+1;
  assert.ok(decision,`${d} ${s}: no decision`);
  const matches=decision.research36?.pendingCandidate?.minute===t&&decision.research36?.retestModel===r.retest_model;
  assert.ok(matches,`${d} ${s}: mismatch candidate / legacy filter still active`);
- assert.equal(decision.research36?.researchPolicy,'FROZEN_LATE_BREAKOUT_V36_WITH_LIVE_QUOTE_GATES');
+ assert.equal(decision.research36?.researchPolicy,'ACTIVE_FLEXIBLE_LIVE_QUOTE_GATES_V37');
  assert.equal(decision.confidenceProbability,null);
  if(decision.recommendationState==='CONFIRMED')confirmations++;
  if(decision.recommendationState==='SMART')smart++;

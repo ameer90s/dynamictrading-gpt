@@ -29,7 +29,7 @@ function fixture(store){
  store.m.set('signal-history-2026-11-02',{signals:{XYZ:{confirmedSignals:[
   {signalId:'oldSIG',finalOutcome:'SL',closedAt:'2026-11-02T20:30Z'}]}}});
 }
-let calls=0;const parsed={summary_ar:'اختبر السبريد',observations:[{fact_ar:'رفض بسبب السبريد',evidence_ids:[`DT37_${DAY}`],limitation_ar:'ليس دليلاً ربحياً'}],
+let calls=0;const parsed={summary_ar:'اختبر السبريد',observations:[{fact_ar:'رفض بسبب السبريد',metric_ref:'NONE',evidence_ids:[`DT37_${DAY}`],limitation_ar:'ليس دليلاً ربحياً'}],
  experiments:[{area:'COSTS_SPREAD',hypothesis_ar:'ضبط حد السبريد قبل فتح الصفقة',
   evidence_ids:[`DT37_${DAY}`],test_ar:'قارن نفس الأسعار بنظام ورقي خارج العينة',expected_risk_ar:'قد يفقد فرصاً',
   acceptance_metric_ar:'صافي الربح بعد التكاليف',confidence:'LOW'}],uncertainties_ar:[]};

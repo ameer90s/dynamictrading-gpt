@@ -1,5 +1,6 @@
 import { getStore } from "@netlify/blobs";
 import { recommendationWindow } from "./lib/time.mjs";
+import {sessionPlan37} from "./lib/trading-session-plan37.mjs";
 import { fetchPressReleases, summarizeCompositeNews, emptyNews } from "./lib/news.mjs";
 import { fetchNews, alpacaConfigured } from "./lib/alpaca.mjs";
 import { selectedUniverse } from "./lib/dynamic.mjs";
@@ -9,7 +10,7 @@ import { getSmartWatch, smartWatchSymbols } from "./lib/smart-watch.mjs";
 
 export default async () => {
   const clock=recommendationWindow();
-  if(!clock.isTradingDay || clock.session!=="REGULAR" || clock.minuteOfDay<585 || clock.minuteOfDay>clock.endMinute) return new Response("Skipped: outside news window",{status:200});
+  if(!sessionPlan37(clock).discovery||clock.minuteOfDay<585) return new Response("Skipped: outside news window",{status:200});
   const tdKey=process.env.TWELVE_DATA_API_KEY;const alpacaOk=alpacaConfigured();if(!tdKey&&!alpacaOk)throw new Error("لا يوجد مزود أخبار مفعّل");
   const store=getStore("dynamic-trading");
   const discovery=await store.get(`dynamic-discovery-${clock.dateKey}`,{type:"json",consistency:"strong"});

@@ -9,26 +9,30 @@ const example={status:'REVIEW_CREATED_NOT_APPLIED',day:'2026-11-02',updatedAt:'2
  summary:'مثال توضيحي: الماسح الأساسي التزم ببوابات Retest. ماسح AI احتفظ بمرشحين للمتابعة. تُفحص حالة الأسعار قبل اقتراح تغيير الشروط.',
  evidence:{status:'READY',scannerMinutes:385,aiMinutes:385,missingMinutes:10},
  experiments:[{area:'QUOTE_COMPLETENESS',hypothesis_ar:'مثال: بعض المرشحين فقدوا السعر الصالح وقت القرار',test_ar:'تتبّع عمر Quote في الدقائق المطابقة وقياس أثره بعد التكاليف',status:'PROPOSED_UNTESTED',confidence:'LOW'},
- {area:'RETEST',hypothesis_ar:'مثال: تأخير الدخول إلى Retest قد يخفض المطاردة',test_ar:'مقارنة عينات منفصلة تحت نفس تكاليف التنفيذ',status:'PROPOSED_UNTESTED',confidence:'LOW'}],budget:{calls:1,reservedUsd:0.18,limitUsd:5},usage:{estimatedUsd:0.032}};
+ {area:'RETEST',hypothesis_ar:'مثال: تأخير الدخول إلى Retest قد يخفض المطاردة',test_ar:'مقارنة عينات منفصلة تحت نفس تكاليف التنفيذ',status:'PROPOSED_UNTESTED',confidence:'LOW'}],budget:{calls:1,reservedUsd:0.18,limitUsd:3},usage:{estimatedUsd:0.032}};
 const fmtDate=t=>{try{return new Date(t).toLocaleString('ar-AE',{timeZone:'Asia/Dubai',dateStyle:'medium',timeStyle:'short'})}catch{return '—'}};
 function render(data){
  if(data?.weekly||data?.monthly){periodCache={weekly:data.weekly,monthly:data.monthly}}
  else if(periodCache)data={...data,weekly:periodCache.weekly,monthly:periodCache.monthly};
  const status=data?.status||'NO_REVIEW',r=document.querySelector('.desk-research-list');
  const hasLocal=Array.isArray(data?.localHypotheses)&&data.localHypotheses.length>0;
- const available=status==='REVIEW_CREATED_NOT_APPLIED'||status==='REVIEW_CREATED_NOT_VALIDATED'||status==='LOCAL_RESEARCH_ONLY'||hasLocal;
- const statusLabel=({REVIEW_CREATED_NOT_APPLIED:'مراجعة مكتملة',LOCAL_RESEARCH_ONLY:'تحليل محلي فقط',NO_REVIEW:'لا توجد مراجعة محفوظة لهذه الجلسة',DISABLED:'التحليل غير مفعل',RESERVED:'قيد التحليل',FAILED_NO_RETRY:'فشلت المراجعة',ARCHIVE_UNAVAILABLE:'أرشيف غير متاح'})[status]||status.replaceAll('_',' ');
+ const available=status==='REVIEW_CREATED_NOT_APPLIED'||status==='REVIEW_CREATED_NOT_VALIDATED'||status==='LOCAL_DAILY_REPORT'||status==='LOCAL_RESEARCH_ONLY'||hasLocal;
+ const statusLabel=({REVIEW_CREATED_NOT_APPLIED:'مراجعة OpenAI محفوظة (التوصيات فرضيات)',LOCAL_DAILY_REPORT:'تقرير يومي محلي محفوظ',LOCAL_RESEARCH_ONLY:'تحليل محلي فقط',NO_REVIEW:'لا توجد مراجعة محفوظة لهذه الجلسة',DISABLED:'التحليل غير مفعل',RESERVED:'قيد التحليل',FAILED_NO_RETRY:'فشلت المراجعة',ARCHIVE_UNAVAILABLE:'أرشيف غير متاح'})[status]||status.replaceAll('_',' ');
  put('dt37ResearchState',demo?'مثال: مراجعة محفوظة':statusLabel);
- put('dt37ResearchDetail',data.updatedAt?`آخر مراجعة: ${fmtDate(data.updatedAt)}`:'لا توجد مراجعة مسجلة حتى الآن');
+ put('dt37ResearchDetail',data.updatedAt?`آخر تقرير محفوظ: ${fmtDate(data.updatedAt)} · OpenAI: ${data.paidStatus||'غير متحقق'}`:'لا توجد مراجعة مسجلة حتى الآن');
  put('researchStatusValue',statusLabel);
- put('researchLastRun',data.updatedAt?`آخر مراجعة: ${fmtDate(data.updatedAt)} · ${data.openaiModel||'محرك محلي'}`:'لم تُسجّل مراجعة؛ تحقق من أرشيف الجلسة وحالة التشغيل');
+ put('researchLastRun',data.updatedAt?`آخر تقرير: ${fmtDate(data.updatedAt)} · ${data.openaiModel||'محرك محلي'} · إيصال التشغيل: ${data.delivery?.status||'غير متاح'}`:'لم يُسجّل تقرير؛ تحقق من جدولة الأرشيف وحالة التشغيل');
  const evidence=data.evidence;
- put('researchEvidenceValue',evidence?(evidence.status==='READY'?'بيانات مقبولة':'غير مكتملة'):'غير متحقق');
- put('researchEvidenceWarning',evidence?`دقائق محفوظة: الأساسي ${evidence.scannerMinutes??'—'}/390 · AI ${evidence.aiMinutes??'—'}/390 · دقائق مفقودة ${evidence.missingMinutes??'—'}. المفقود لا يعتبر صفراً من الفرص.`:'سلامة أرشيف Netlify لم تُثبت لهذه الجلسة؛ لا يمكن الاعتماد على نتائج غير محفوظة.');
+ put('researchEvidenceValue',evidence?(evidence.status==='READY'?'بيانات مقبولة':'غير مكتملة'):(data.daily?('تقرير تشخيصي: '+data.daily.status):'غير متحقق'));
+ const engines=data.daily?.engines;
+ put('researchEvidenceWarning',evidence?`دقائق محفوظة: الأساسي ${evidence.scannerMinutes??'—'} · AI ${evidence.aiMinutes??'—'}؛ المفقود لا يعتبر صفراً من الفرص.`:
+  engines?`الأساسي ${engines.scanner.storedMinutes??'غير متاح'}/${engines.scanner.expectedMinutes}، AI ${engines.ai.storedMinutes??'غير متاح'}/${engines.ai.expectedMinutes}؛ السكالب المستقل: ${engines.independentScalp.status}؛ الدقائق غير المسجلة ليست فرصاً صفراً.`:'سلامة أرشيف Netlify لم تُثبت لهذه الجلسة؛ لا يمكن الاعتماد على نتائج غير محفوظة.');
  const experiments=Array.isArray(data.experiments)&&data.experiments.length?data.experiments:(data.localHypotheses||[]);
  put('researchHypothesesValue',experiments.length);put('dt37ResearchRuns',available?'1':'0');
- put('researchBudgetValue',data.budget?`$${Number(data.budget.reservedUsd||0).toFixed(2)} / $5`:'—');
- put('researchSummary',data.summary||(hasLocal?'تقرير OpenAI غير مكتمل؛ توجد فرضيات محلية محفوظة من بيانات الجلسة، وهي غير مطبقة وغير مثبتة خارج العينة.':'لا يوجد تحليل لغوي أو فرضيات محلية محفوظة لهذه الجلسة.'));
+ put('researchBudgetValue',data.budget?`حجز تقديري $${Number(data.budget.reservedUsd||0).toFixed(2)} / $${Number(data.budget.limitUsd||0).toFixed(2)}`:'—');
+ put('researchSummary',(data.summary||(hasLocal?'توجد فرضيات محلية محفوظة غير مطبقة وغير مثبتة خارج العينة.':'لا يوجد تحليل محفوظ لهذه الجلسة.'))+
+  (data.paidStatus&&data.paidStatus!=='REVIEW_CREATED_NOT_APPLIED'?` · المراجعة المدفوعة: ${data.paidStatus}. التقرير المحلي لا يتطلب OpenAI.`:'')+
+  (data.periodWarnings?.length?` · تنبيه أرشيف الفترات: ${data.periodWarnings.join(', ')}`:''));
  const learning=data?.learning;
  if(learning){
   const note=`طبقة التعلم للماسحين: الأساسي ${learning.scanner.observedRows} سجل، AI ${learning.ai.observedRows} سجل؛ ${learning.proposals.length} تحسينات مرشحة. `+
@@ -77,7 +81,7 @@ async function refresh(forcePeriods=false){if(inflight)return;inflight=true;put(
 }
 function start(){$('dt37ResearchRefresh')?.addEventListener('click',()=>refresh(true));
  window.addEventListener('dynamic-trading:tabchange',e=>{if(e.detail?.tab==='research'&&!loaded)refresh()});
- refresh();setInterval(()=>{if(!document.hidden&&document.querySelector('#tab-research.active'))refresh()},60000)}
+ refresh();setInterval(()=>{if(!document.hidden&&document.querySelector('#tab-research.active'))refresh()},300000)}
  window.DT37ResearchPanel={refresh};
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();

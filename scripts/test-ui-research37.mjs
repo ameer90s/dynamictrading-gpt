@@ -13,7 +13,7 @@ assert(!/Dynamic Trading 3\.6/i.test(page),'Old 3.6 label in visible UI');
 assert(css.includes('desk-agent-research'));
 assert(ctrl.includes('!demo')&&panel.includes('textContent'),'Preview and safe literal rendering');
 const noData=publicResearchSummary({day:'2026-11-02'});
-assert.equal(noData.status,'NO_REVIEW');assert.equal(noData.budget,null);assert.equal(noData.canTrade,false);
+assert.equal(noData.status,'NO_REVIEW');assert.equal(noData.budget.limitUsd,3);assert.equal(noData.canTrade,false);
 const result=publicResearchSummary({day:'2026-11-02',review:{status:'REVIEW_CREATED_NOT_APPLIED',reviewedAt:'2026-11-02T22:30:00Z',review:{summary_ar:'Sample',experiments:[{area:'SPREAD',hypothesis_ar:'Check spread'}]},apiKey:'SECRET_DONT_SHOW',usage:{estimatedUsd:0.01,input_tokens:120,output_tokens:500}},local:{hypotheses:[{id:'a',hypothesis:'Research'}]},evidence:{readiness:{ok:false,reason:'MISSING_MINUTES'},streams:{ai:{storedMinutes:12,missingMinutes:378},scanner:{storedMinutes:10,missingMinutes:380}}},budget:{calls:1,reservedUsd:0.18,apiKey:'SECRET_2'}});
 assert.equal(result.evidence.missingMinutes,758);
 assert.equal(result.budget.reservedUsd,0.18);

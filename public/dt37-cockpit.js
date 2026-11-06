@@ -16,7 +16,7 @@ async function refresh(){if(busy)return;busy=true;
  if(demo){
   put('dt37ScannerState','مثال: قيد المتابعة');put('dt37ScannerDetail','مثال: 385 دقيقة محفوظة · 0 أخطاء');
   put('dt37AiState','مثال: قيد التقييم');put('dt37AiDetail','مثال: 17 مرشحاً · 0 صفقات مؤكدة');
-  put('dt37Coverage','96.4%');put('dt37AiTrades','0');put('dt37ArchiveMinutes','385 / 390');
+  put('dt37Coverage','96.4%');put('dt37AiTrades','0');put('dt37ArchiveMinutes','315 / 330');
   put('dt37LiveStatus','PREVIEW · قيم توضيحية فقط، ليست اتصالاً بالسوق');put('dt37LastUpdate','DEMO');
   busy=false;return;
  }
@@ -33,7 +33,7 @@ async function refresh(){if(busy)return;busy=true;
    const r=arch.value?.streams?.scanner;const count=Number(r?.foundMinutes);
    put('dt37ScannerState',Number.isFinite(count)&&count>0?'أرشيف متوفر':'لا توجد دقائق موثقة');
    put('dt37ScannerDetail',r?`${count||0} دقيقة مسجلة · ${(Number(r?.readErrors)||0)} أخطاء قراءة`:'لا يوجد تقرير تغطية موثّق');
-   put('dt37ArchiveMinutes',Number.isFinite(count)?count+' / 390':'—');
+   put('dt37ArchiveMinutes',Number.isFinite(count)?count+' / '+(Number(arch.value?.window?.minutes)||330):'—');
  }else{put('dt37ScannerState','غير متحقق');put('dt37ScannerDetail','تعذر قراءة أرشيف الماسح');put('dt37ArchiveMinutes','—')}
  put('dt37LiveStatus',ai.status==='fulfilled'&&arch.status==='fulfilled'?'بيانات آخر دورة محفوظة · تداول ورقي فقط':'بعض الخدمات غير متاحة — لا نعرض بيانات مختلقة');
  put('dt37LastUpdate',new Date().toLocaleTimeString('ar-AE',{timeZone:'Asia/Dubai'}));busy=false;
