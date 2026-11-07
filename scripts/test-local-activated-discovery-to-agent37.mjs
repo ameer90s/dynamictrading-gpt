@@ -23,9 +23,14 @@ const oldFlags=Object.fromEntries(Object.keys(profile.flags).map(k=>[k,process.e
 for(const [k,v] of Object.entries(profile.flags))process.env[k]=v;
 const originalFetch=globalThis.fetch;
 globalThis.fetch=async()=>{throw Error('NETWORK_BLOCKED_IN_LOCAL_TEST');};
-const store=()=>{const map=new Map();return {map,
+const store=()=>{const map=new Map(),versions=new Map();return {map,
   async get(k){return map.has(k)?structuredClone(map.get(k)):null},
-  async setJSON(k,v,o={}){if(o.onlyIfNew&&map.has(k))return {modified:false};map.set(k,structuredClone(v));return {modified:true};},
+  async getWithMetadata(k){return map.has(k)?{data:structuredClone(map.get(k)),etag:versions.get(k)}:null},
+  async setJSON(k,v,o={}){
+   if(o.onlyIfNew&&map.has(k))return {modified:false};
+   if(o.onlyIfMatch&&versions.get(k)!==o.onlyIfMatch)return {modified:false};
+   const etag='\"'+((Number(versions.get(k)?.replaceAll('\"',''))||0)+1)+'\"';
+   map.set(k,structuredClone(v));versions.set(k,etag);return {modified:true,etag};},
   async list({prefix=''}={}){return {blobs:[...map.keys()].filter(k=>k.startsWith(prefix)).map(key=>({key}))}}}};
 const st=store(),checks=[];
 function pass(name,details){checks.push({name,status:'PASS',details});console.log('PASS',name,details||'');}

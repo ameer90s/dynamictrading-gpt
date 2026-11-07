@@ -102,15 +102,35 @@ export const researchHours=Object.freeze([9,10,11,12,13,14,15]);
 export const ledgerKey=(kind,day,minute)=>`dt37-research-ledger-${kind}-${day}-${String(Math.floor(minute/60)).padStart(2,'0')}`;
 export async function recordResearchMinute({store,kind,day,doc}={}){
  const summary=summarizeMinuteAudit({kind,day,doc});const key=ledgerKey(kind,day,summary.minute);
- const prior=await store.get(key,{type:'json',consistency:'strong'});
- if(prior&&prior.kind!==kind)throw Error('LEDGER_KIND_MISMATCH');
- const minutes={...(prior?.minutes||{})};const k=String(summary.minute).padStart(4,'0');
- if(minutes[k]?.archiveSha256===summary.archiveSha256)return {status:'DUPLICATE',minute:summary.minute};
- minutes[k]=summary;
- const updated={schemaVersion:'3.7-RESEARCH-LEDGER-1',kind,day,hour:Math.floor(summary.minute/60),updatedAt:new Date().toISOString(),minutes};
- await store.setJSON(key,updated);
- return {status:'RECORDED',minute:summary.minute,recordCount:summary.rowCount};
+ // A shared hourly Blob can be updated by overlapping scheduled minutes.
+ // Never replace a newer shard using a stale read: use the provider ETag and
+ // retry a genuine precondition conflict. A normal minute still uses exactly
+ // one Blob read and one write (the same number as before this correction).
+ if(typeof store?.getWithMetadata!=='function')throw Error('LEDGER_VERSIONED_READ_REQUIRED');
+ const k=String(summary.minute).padStart(4,'0');
+ for(let attempt=0;attempt<4;attempt++){
+  const current=await store.getWithMetadata(key,{type:'json',consistency:'strong'});
+  if(current&&!current.etag)throw Error('LEDGER_READ_ETAG_MISSING');
+  const prior=current?.data||null;
+  if(prior&&(prior.kind!==kind||prior.day!==day||prior.hour!==Math.floor(summary.minute/60)))
+   throw Error('LEDGER_IDENTITY_MISMATCH');
+  const minutes={...(prior?.minutes||{})};
+  if(minutes[k]?.archiveSha256===summary.archiveSha256)return {status:'DUPLICATE',minute:summary.minute};
+  minutes[k]=summary;
+  const updated={schemaVersion:'3.7-RESEARCH-LEDGER-1',kind,day,hour:Math.floor(summary.minute/60),
+   updatedAt:new Date().toISOString(),minutes};
+  const receipt=await store.setJSON(key,updated,current?{onlyIfMatch:current.etag}:{onlyIfNew:true});
+  // A conditional Blob SDK write can falsely report modified=true on a
+  // provider failure with an empty ETag. Do not call that a successful save.
+  if(receipt?.modified===true){
+   if(!receipt.etag)throw Error('LEDGER_WRITE_ETAG_UNVERIFIED');
+   return {status:'RECORDED',minute:summary.minute,recordCount:summary.rowCount};
+  }
+  if(receipt?.modified!==false)throw Error('LEDGER_WRITE_UNVERIFIED');
+ }
+ throw Error('LEDGER_CONCURRENT_WRITE_RETRY_EXHAUSTED');
 }
+
 const toTop=(o,max=20)=>Object.entries(o).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,max).map(([name,count])=>({name,count}));
 const mergeCounts=(dst,src)=>{for(const [k,v] of Object.entries(src||{}))dst[k]=(dst[k]||0)+v};
 function selectCases(rows,max=20){

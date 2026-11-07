@@ -1,7 +1,16 @@
 import assert from 'node:assert/strict';
 import {writeScannerAudit36} from '../netlify/functions/lib/scanner-audit36.mjs';
-const records=new Map();
-const store={async setJSON(k,v){records.set(k,structuredClone(v));},async get(k){return structuredClone(records.get(k)??null)}};
+const records=new Map(),versions=new Map();
+const store={
+ async get(k){return structuredClone(records.get(k)??null)},
+ async getWithMetadata(k){return records.has(k)?{data:structuredClone(records.get(k)),etag:versions.get(k)}:null},
+ async setJSON(k,v,o={}){
+  if(o.onlyIfNew&&records.has(k))return {modified:false};
+  if(o.onlyIfMatch&&o.onlyIfMatch!==versions.get(k))return {modified:false};
+  const etag='"'+((Number(versions.get(k)?.replaceAll('"',''))||0)+1)+'"';
+  records.set(k,structuredClone(v));versions.set(k,etag);return {modified:true,etag};
+ }
+};
 const day='2026-10-30';
 const zero=await writeScannerAudit36(store,day,570,[],{eligibleCount:100,attempted:[],errors:[]});
 assert.equal(zero.records.length,0);assert.equal(zero.minute,570);

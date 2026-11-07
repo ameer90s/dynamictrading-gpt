@@ -1,8 +1,17 @@
 import assert from 'node:assert/strict';
 import {serveAudit} from '../netlify/functions/ai-parallel-audit.mjs';
 import {writeScannerAudit36} from '../netlify/functions/lib/scanner-audit36.mjs';
-const saved=new Map();
-const store={async setJSON(k,v){saved.set(k,structuredClone(v))},async get(k){return structuredClone(saved.get(k)??null)}};
+const saved=new Map(),versions=new Map();
+const store={
+ async get(k){return structuredClone(saved.get(k)??null)},
+ async getWithMetadata(k){return saved.has(k)?{data:structuredClone(saved.get(k)),etag:versions.get(k)}:null},
+ async setJSON(k,v,o={}){
+  if(o.onlyIfNew&&saved.has(k))return {modified:false};
+  if(o.onlyIfMatch&&o.onlyIfMatch!==versions.get(k))return {modified:false};
+  const etag='"'+((Number(versions.get(k)?.replaceAll('"',''))||0)+1)+'"';
+  saved.set(k,structuredClone(v));versions.set(k,etag);return {modified:true,etag};
+ }
+};
 const day='2026-10-30';
 await writeScannerAudit36(store,day,570,[],{eligibleCount:40,attempted:[],errors:[]});
 await writeScannerAudit36(store,day,571,[],{eligibleCount:40,attempted:['AAA'],errors:['feed_timeout']});

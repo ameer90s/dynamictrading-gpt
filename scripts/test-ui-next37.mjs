@@ -12,7 +12,7 @@ assert.equal(count(page,'class="desk-agent '),3);
 assert(page.indexOf('id="tab-market"')<page.indexOf('id="top5Section"'),'opportunity list belongs to opportunities page');
 assert(page.indexOf('id="tab-market"')<page.indexOf('id="dt36AuditSection"'),'decision audit under opportunities');
 assert(page.indexOf('id="tab-research"')<page.indexOf('id="researchStatusValue"'),'research hooks under research page');
-assert(page.includes('id="dailyBtn"')&&page.includes('Force Refresh'),'manual scan remains labelled');
+assert(page.includes('id="dailyBtn"')&&page.includes('تحديث يدوي فوري'),'manual scan remains labelled');
 assert(page.includes('dt37-next.css')&&page.includes('dt37-next.js'));
 assert(css.includes('@media(max-width:630px)'),'mobile UI');
 assert(script.includes('DynamicTradingTabNav'),'tab navigation linked to single nav');

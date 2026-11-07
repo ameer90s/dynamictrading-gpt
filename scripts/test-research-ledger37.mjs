@@ -4,9 +4,14 @@ import {buildEvidence,dailyEvidenceReadiness,PILOT} from '../netlify/functions/l
 import {writeScannerAudit36} from '../netlify/functions/lib/scanner-audit36.mjs';
 const day='2026-11-03';let tests=0;
 const check=(name,fn)=>{tests++;return Promise.resolve(fn()).then(()=>console.log('PASS',name));};
-function store(){const map=new Map;return {map,
+function store(){const map=new Map,versions=new Map;return {map,
  async get(k){return map.has(k)?structuredClone(map.get(k)):null},
- async setJSON(k,v){map.set(k,structuredClone(v));return {modified:true}}}}
+ async getWithMetadata(k){return map.has(k)?{data:structuredClone(map.get(k)),etag:versions.get(k)}:null},
+ async setJSON(k,v,opts={}){
+  if(opts.onlyIfNew&&map.has(k))return {modified:false};
+  if(opts.onlyIfMatch&&versions.get(k)!==opts.onlyIfMatch)return {modified:false};
+  const etag='\"'+(Number(versions.get(k)?.replaceAll('\"',''))+1||1)+'\"';
+  map.set(k,structuredClone(v));versions.set(k,etag);return {modified:true,etag};}}}
 const sharia={source:'VERIFIED_ASOF',sourceUpdatedAt:'2026-11-02T12:00Z',snapshotSha256:'sha-test',methodology:'AAOIFI'};
 const quote={bid:99.97,ask:100,bidSize:250,askSize:190,timestamp:'2026-11-03T15:31:00Z',source:'Alpaca IEX',spreadBps:3,ageSec:2};
 const scannerRecord={symbol:'AAA',state:'SMART',reason:'WAIT_CONFIRMED_RETEST',features:{price:100,volumeRatio:1.5,hodGapPct:1.2,rsi14:61},

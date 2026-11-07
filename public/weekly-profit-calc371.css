@@ -1,0 +1,45 @@
+/* Weekly results calculator: independent, local-only planning component. */
+#weekly371Calculator{border-color:#4a6b55;background:linear-gradient(154deg,#172f2c,#10202c);padding:22px 23px;margin-bottom:16px}
+.weekly371-head{display:flex;align-items:flex-start;justify-content:space-between;gap:15px;margin-bottom:16px}
+.weekly371-head h2{margin:5px 0 6px;font-size:22px;font-weight:900;color:#eff9f2}
+.weekly371-head p{font-size:12px;line-height:1.8;color:#acc7c0;max-width:650px;margin:0}
+.weekly371-eyebrow{font-size:10px;font-weight:900;letter-spacing:1.3px;color:#cbefa3;direction:ltr;display:inline-block}
+.weekly371-local-label{border:1px solid #52735c;border-radius:20px;padding:7px 10px;font-size:10px;color:#c1e8be;white-space:nowrap;background:#1d3d32}
+.weekly371-controls{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:11px;align-items:end;margin-bottom:14px}
+.weekly371-controls label{display:grid;gap:6px;color:#b3cbc6;font-size:12px;font-weight:700}
+.weekly371-controls input,#weekly371Calculator input{min-width:0;width:100%;background:#0c1d28;color:#f6fff6;border:1px solid #486157;border-radius:10px;padding:11px;font-size:15px;font-variant-numeric:tabular-nums}
+.weekly371-week-picker{display:flex;gap:6px;align-items:center}
+.weekly371-week-picker button{background:#29453c;color:#e3f8d5;border:1px solid #456658;min-width:37px;padding:10px;font-size:13px;border-radius:9px}
+.weekly371-week-picker input{flex:1;min-width:0}
+.weekly371-range{font-size:11px;color:#a6c4bd;direction:ltr;text-align:right;display:block;margin-top:4px}
+.weekly371-table{display:grid;gap:7px;margin:13px 0 17px}
+.weekly371-table-head,.weekly371-day-row{display:grid;grid-template-columns:minmax(120px,1.2fr) minmax(110px,1fr) minmax(94px,.8fr) minmax(120px,1fr);gap:10px;align-items:center}
+.weekly371-table-head{padding:0 11px;color:#a8c4be;font-size:11px;font-weight:800}
+.weekly371-day-row{background:#0c2329;border:1px solid #2d4b4b;border-radius:11px;padding:10px 11px}
+.weekly371-day-label{font-size:12px;color:#e9f5f1;font-weight:800}
+.weekly371-day-row input{padding:9px!important;font-size:14px!important}
+.weekly371-daily-total{display:grid;gap:2px;direction:ltr;text-align:right;font-size:14px;font-variant-numeric:tabular-nums}
+.weekly371-daily-total small{font-size:10px;color:#a4bac0}
+.weekly371-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+.weekly371-summary>div{border:1px solid #315251;background:#0c252b;border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:7px;min-width:0}
+.weekly371-summary span{font-size:11px;color:#a2c0bd}.weekly371-summary strong{font-size:19px;direction:ltr;text-align:right;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.weekly371-summary .weekly371-highlight{background:#213e32;border-color:#6e985f}
+.weekly371-summary .weekly371-highlight strong{font-size:23px;color:#e9ffc9}
+.weekly371-summary .weekly371-positive{color:#96eba5!important}.weekly371-summary .weekly371-negative,.weekly371-daily-total .weekly371-negative{color:#ff999e!important}
+.weekly371-positive{color:#96eba5}.weekly371-negative{color:#ff999e}
+.weekly371-foot{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;margin-top:14px}
+.weekly371-foot p{margin:0;color:#b5cdbf;font-size:11px;line-height:1.7}
+.weekly371-foot button{background:transparent;color:#f5b4b7;border:1px solid #65464b;white-space:nowrap;font-size:11px;padding:9px 12px}
+.weekly371-error{color:#ffbb9d!important;font-weight:750}
+@media(max-width:850px){.weekly371-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.weekly371-table-head,.weekly371-day-row{grid-template-columns:1fr 1fr 1fr 1fr;gap:5px}.weekly371-controls{grid-template-columns:1fr 1fr}.weekly371-controls>label:first-child{grid-column:1/-1}}
+@media(max-width:560px){#weekly371Calculator{padding:14px 12px}.weekly371-head{flex-direction:column;gap:8px}.weekly371-head h2{font-size:20px}.weekly371-controls{gap:7px}.weekly371-table-head{display:none}.weekly371-day-row{grid-template-columns:1fr 1fr;gap:7px;padding:11px}.weekly371-day-label{grid-column:1/-1}.weekly371-daily-total{display:flex;align-items:center;justify-content:space-between;gap:7px;grid-column:1/-1}.weekly371-summary>div{padding:10px}.weekly371-summary strong{font-size:16px}.weekly371-summary .weekly371-highlight strong{font-size:20px}.weekly371-foot{flex-direction:column}.weekly371-foot button{align-self:flex-start}}
+/* 3.7.1 auto scanner profit: status is read-only; no day P/L entry fields. */
+.weekly371-auto-controls{grid-template-columns:1.5fr 1fr 1fr}
+.weekly371-setting{border:1px solid #375650;border-radius:11px;padding:9px 12px;display:grid;gap:3px;font-size:12px;color:#b3cbc6}
+.weekly371-setting strong{font-size:19px;color:#eff9f2;direction:ltr;text-align:right}
+.weekly371-setting small{font-size:10px;color:#9cb7aa}
+.weekly371-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px;color:#adcbc0;font-size:12px}
+.weekly371-toolbar button{background:#294b40;color:#edffe2;border:1px solid #507658;border-radius:9px;padding:10px 12px;font-size:12px}
+.weekly371-day-row>[data-weekly371-count],.weekly371-day-row>[data-weekly371-status]{color:#bde7ce;font-size:12px}
+@media(max-width:700px){.weekly371-auto-controls{grid-template-columns:1fr 1fr}.weekly371-auto-controls>label:first-child{grid-column:1/-1}}
+@media(max-width:560px){.weekly371-toolbar{flex-direction:column;align-items:flex-start}.weekly371-day-row>[data-weekly371-status]{font-size:11px}.weekly371-day-row>[data-weekly371-count]{text-align:center}}

@@ -1,5 +1,5 @@
-const CACHE = "dynamic-trading-v3.7-new-experience-r6";
-const ASSETS = ["/", "/index.html", "/dt37-api-json.js?v=3752", "/styles.css?v=3752", "/tab-nav.js?v=3752", "/app.js?v=3752", "/dt37-cockpit.js?v=3752", "/dt37-research-panel.js?v=3752", "/dt37-next.css?v=3752", "/dt37-next.js?v=3752", "/manifest.webmanifest", "/icon.svg"];
+const CACHE = "dynamic-trading-v3.7.1-weekly-calculator-auto-r2";
+const ASSETS = ["/", "/index.html", "/dt37-api-json.js?v=3752", "/styles.css?v=3752", "/tab-nav.js?v=3752", "/app.js?v=3752", "/dt37-cockpit.js?v=3710", "/dt37-research-panel.js?v=3752", "/dt37-next.css?v=3752", "/dt37-next.js?v=3752", "/weekly-profit-calc371.css?v=2", "/weekly-profit-calc371.mjs?v=3", "/manifest.webmanifest", "/icon.svg"];
 self.addEventListener("install",e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)))});
 self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
 self.addEventListener("fetch",e=>{const u=new URL(e.request.url);if(u.pathname.startsWith("/api/")||u.pathname.startsWith("/.netlify/functions/"))return;e.respondWith(fetch(e.request).then(r=>{if(r&&r.ok){const cp=r.clone();caches.open(CACHE).then(c=>c.put(e.request,cp))}return r}).catch(()=>caches.match(e.request)))});

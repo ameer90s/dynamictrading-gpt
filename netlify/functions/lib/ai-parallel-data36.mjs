@@ -17,10 +17,14 @@ export async function getAiBars(symbol,now=new Date(),env=process.env,{start=nul
  .filter(x=>x.datetime.startsWith(day)&&Number.isFinite(x.close)&&x.high>=x.low&&x.low>0);
 }
 export async function fetchAiCycleData(symbols,now=new Date(),env=process.env,store=null){
- const out={},errors=[];const list=[...new Set(['SPY',...symbols])];
+ // Both independent AI and scalp callers may submit a symbol more than once.
+ // Deduplicate *within this invocation* only. Never cache L1 quote responses
+ // across requests/minutes: execution checks require provider-fresh prices.
+ const requested=[...new Set(symbols)];
+ const out={},errors=[];const list=[...new Set(['SPY',...requested])];
  const barLoader=store?createAiBarsCache37(store,{fetchBars:getAiBars,env}):getAiBars;
  for(let i=0;i<list.length;i+=4){await Promise.all(list.slice(i,i+4).map(async symbol=>{try{out[symbol]=await barLoader(symbol,now,env);}catch(err){errors.push({symbol,error:String(err.message||err)});}}));}
- let quotes={};try{for(let i=0;i<symbols.length;i+=50)Object.assign(quotes,await fetchLatestQuotes(symbols.slice(i,i+50),env.ALPACA_API_KEY_ID,env.ALPACA_API_SECRET_KEY));}
+ let quotes={};try{for(let i=0;i<requested.length;i+=50)Object.assign(quotes,await fetchLatestQuotes(requested.slice(i,i+50),env.ALPACA_API_KEY_ID,env.ALPACA_API_SECRET_KEY));}
  catch(err){errors.push({symbol:'QUOTES',error:String(err.message||err)});}
  return {bars:out,quotes,errors};
 }
