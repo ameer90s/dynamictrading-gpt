@@ -18,7 +18,7 @@ check(p1.params.maxSpreadBps!==p2.params.maxSpreadBps,'dynamic spread adapts');
 check(p1.params.atrStopMultiple!==p2.params.atrStopMultiple,'dynamic ATR stop adapts');
 check(p1.params.momentumMinPct!==p2.params.momentumMinPct,'dynamic momentum adapts');
 check(p1.params.openDollarVolumeMin!==p2.params.openDollarVolumeMin,'dynamic discovery liquidity adapts');
-const closed=Array.from({length:35},(_,i)=>({netUsd:i%6===0?-5:8,outcome:i%6===0?'STOP':'TARGET',setupType:'EARLY'}));
+const closed=Array.from({length:35},(_,i)=>({status:'CLOSED',closedAt:'2026-10-29T19:00:00Z',entry:100,stop:99,qty:5,feesUsd:2,netUsd:i%6===0?-5:8,outcome:i%6===0?'STOP':'TARGET',setupType:'EARLY'}));
 const pLearn=adaptiveAiPolicy([sample1],closed,580);
 check(p1.params.earlyMomentumMinPct!==pLearn.params.earlyMomentumMinPct,'prior completed observations affect AI thresholds');
 const b580=bars.slice(0,11),s580=spy.slice(0,11);

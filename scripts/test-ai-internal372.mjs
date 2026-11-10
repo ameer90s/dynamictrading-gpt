@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {buildAiInternalReport372} from '../netlify/functions/lib/ai-internal-report372.mjs';
+const date='2026-11-10',now=new Date('2026-11-10T21:00:00Z');
+const profitable={id:'A',setupType:'RETEST',status:'CLOSED',netUsd:8,closedAt:'2026-11-10T20:00:00Z'};
+const loss={id:'B',setupType:'EARLY',status:'CLOSED',netUsd:-4,mfePct:0.5,maePct:-1,closedAt:'2026-11-10T20:00:00Z'};
+const future={id:'C',setupType:'EARLY',status:'CLOSED',netUsd:40,closedAt:'2026-11-11T20:00:00Z'};
+const unknown={id:'D',setupType:'RETEST',status:'CLOSED',netUsd:null,closedAt:'2026-11-10T20:00:00Z'};
+const out=buildAiInternalReport372({day:date,now,records:[{position:profitable},{position:loss},{position:future},{position:unknown}],history:[profitable],coverage:{eligible:100,everScanned:100,coveragePct:100},reasons:{SPREAD_TOO_WIDE:14},recommendations:{suggestions:[{area:'RISK',hypothesis:'Test H1',experiment:'ASOF replay'}]}});
+assert.equal(out.outcomes.uniqueClosed,3);assert.equal(out.outcomes.priced,2);assert.equal(out.outcomes.unpriced,1);
+assert.equal(out.outcomes.winners,1);assert.equal(out.outcomes.losers,1);assert.equal(out.outcomes.netPaperUsd,4);
+assert.equal(out.errorReview[0].cause,'UNVERIFIED_WITHOUT_ASOF_REPLAY_AND_QUOTE_AUDIT');
+assert.equal(out.rejectionReview[0].missedTradeOutcome,'NOT_VERIFIED');
+assert.equal(out.proposedExperiments[0].autoApply,false);
+assert.equal(out.sharedWithResearchAgent,false);assert.equal(out.externalAudit,'NOT_VERIFIED');
+assert.equal(out.alternateEntryStopTargetEvaluation,'NOT_VERIFIED_REQUIRES_DETERMINISTIC_ASOF_REPLAY');
+console.log('DT372_AI_INTERNAL_LOCAL_PASS 10 checks; no future data, no duplication, no unproved causality');

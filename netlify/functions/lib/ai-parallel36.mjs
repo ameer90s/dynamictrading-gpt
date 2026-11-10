@@ -8,6 +8,8 @@
 import {completedSessionRows} from './research36.mjs';
 import {newYorkParts} from './time.mjs';
 import {detectResearchPatterns37} from './ai-pattern-catalog37.mjs';
+import {tradeEconomics372,selectExecutablePlan372,sizePaperPosition372} from './market-economics372.mjs';
+import {marketTimestamp372} from './market-time372.mjs';
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const round=(x,d=5)=>Number.isFinite(x)?Number(x.toFixed(d)):null;
 const mean=x=>x.length?x.reduce((a,b)=>a+b,0)/x.length:0;
@@ -57,7 +59,7 @@ function featureSet(rows,benchmark=[]){if(!rows.length)return null;
    benchmarkMatchedMovePct:round(benchmarkMatchedMove),firstObservedMinute:rows[0]._time.min,
    benchmarkLagMinutes:benchmarkBar?b._time.min-benchmarkBar._time.min:null,
    last5DollarVolume:round(last5DollarVolume,2),priorHod:round(priorHod),recentHigh:round(recentHigh),
-  atr:round(atr),atrPct:round(atr!=null?atr/b.close*100:null),vwap:round(vwap),ema9:round(fast),ema21:round(slow),rsi14:round(rsi),macdProxy:round(fast-slow),hod:round(hi),hodGapPct:round(pchange(hi,b.close)),
+  atr:round(atr),atrPct:round(atr!=null?atr/b.close*100:null),vwap:round(vwap),ema9:round(fast),ema12:round(ema(close.slice(-50),12)),ema21:round(slow),rsi14:round(rsi),macdProxy:round(fast-slow),hod:round(hi),hodGapPct:round(pchange(hi,b.close)),
   closePosition:round(b.high>b.low?(b.close-b.low)/(b.high-b.low):.5),barRangePct:round(signalSpread),green:b.close>b.open,
   priorClose:rows.at(-2)?.close??null,priorLow:rows.at(-2)?.low??null,low3:Math.min(...rows.slice(-3).map(x=>x.low)),high:b.high,low:b.low,volume:b.volume,barCount:rows.length,
   regimeFromBenchmark:benchmarkMove==null?'UNKNOWN':benchmarkMove>.25?'UP':benchmarkMove<-.25?'DOWN':'SIDEWAYS',quoteSource:'SEPARATE_LEVEL1'};
@@ -69,14 +71,27 @@ export function adaptiveAiPolicy(featureRows=[],historicalClosed=[],minute=585,o
  const market=median(f.map(x=>x.benchmarkMovePct));
  const liveSpread=median((observedQuotes||[]).map(q=>Number(q?.spreadBps)).filter(x=>Number.isFinite(x)&&x>=0));
  const volatility=clamp((atr??.25)/.35,.55,2.5),liquidity=clamp(Math.log10(Math.max(10000,volume??300000))/6,.7,1.35),regime=market==null?'UNKNOWN':market>.25?'UP':market<-.25?'DOWN':'SIDEWAYS';
- const completed=historicalClosed.filter(x=>Number.isFinite(x.netUsd)&&['TARGET','STOP','EXPIRED'].includes(x.outcome));
+ const day=f[0]?.day||newYorkParts().dateKey,cutoff=marketTimestamp372(day+' 00:00:00');
+ const completed=historicalClosed.filter(x=>x.status==='CLOSED'&&Number.isFinite(x.netUsd)&&
+  ['TARGET','STOP','EXPIRED'].includes(x.outcome)&&marketTimestamp372(x.closedAt)!==null&&
+  (cutoff===null||marketTimestamp372(x.closedAt)<cutoff));
  const early=completed.filter(x=>x.setupType==='EARLY'),late=completed.filter(x=>x.setupType!=='EARLY');
   const continuation=completed.filter(x=>x.setupType==='BREAKOUT_CONTINUATION');
   const vwapReclaim=completed.filter(x=>x.setupType==='VWAP_RECLAIM');
   const reversal=completed.filter(x=>x.setupType==='RANGE_REVERSAL');
  // No learning from same day's still-open trades; outcome adjustment requires >=30.
- const rate=x=>(x.filter(t=>t.netUsd>0).length+5)/(x.length+10);
- const e=edge=>(edge.length>=30?clamp((rate(edge)-.5)*.45,-.12,.12):0);
+ const learningMetrics=sample=>{
+  const rows=sample.map(x=>({net:x.netUsd,risk:x.entryEvidence?.tradeEvaluation?.economics?.netLossUsd??
+   x.costModel?.netLossUsd??(Number.isFinite(x.entry)&&Number.isFinite(x.stop)&&Number.isFinite(x.qty)?
+    (x.entry-x.stop)*x.qty+(x.feesUsd||0):null)})).filter(x=>x.risk>0);
+  let equity=0,peak=0,maxDrawdownUsd=0;for(const x of rows){equity+=x.net;peak=Math.max(peak,equity);maxDrawdownUsd=Math.max(maxDrawdownUsd,peak-equity);}
+  const risk=rows.reduce((s,x)=>s+x.risk,0),netUsd=rows.reduce((s,x)=>s+x.net,0);
+  const gains=rows.reduce((s,x)=>s+Math.max(0,x.net),0),losses=-rows.reduce((s,x)=>s+Math.min(0,x.net),0);
+  return {sample:rows.length,netUsd,riskUsd:risk,netExpectancyR:rows.length?mean(rows.map(x=>x.net/x.risk)):null,
+   profitFactor:losses>0?gains/losses:null,maxDrawdownUsd,source:'PRIOR_CLOSED_COSTED_PAPER_ONLY'};
+ };
+ const e=sample=>{const m=learningMetrics(sample);return m.sample>=30?
+  clamp(m.netExpectancyR*.15*(1-Math.min(.8,m.maxDrawdownUsd/Math.max(1,m.riskUsd))),-.12,.12):0;};
  const edgeEarly=e(early),edgeLate=e(late);
   // Learning uses only *prior* closed paper outcomes, with a 30-trade gate.
   const edgeBreakout=e(continuation),edgeVwap=e(vwapReclaim),edgeReversal=e(reversal);
@@ -126,6 +141,7 @@ export function adaptiveAiPolicy(featureRows=[],historicalClosed=[],minute=585,o
  };
  return {atMinute:minute,regime,inputs:{observedSymbols:f.length,medianAtrPct:round(atr),medianOpeningDollarVolume:round(volume,2),medianMomentum5Pct:round(mom),medianRelativeStrengthPct:round(rs),marketMovePct:round(market),observedMarketSpreadBps:round(liveSpread),completedHistorical:completed.length,earlyHistorical:early.length,retestHistorical:late.length,earlyOutcomeWeight:round(edgeEarly),retestOutcomeWeight:round(edgeLate),
    breakoutOutcomeWeight:round(edgeBreakout),vwapOutcomeWeight:round(edgeVwap),reversalOutcomeWeight:round(edgeReversal)},params,
+  learningEvidence:{all:learningMetrics(completed),early:learningMetrics(early),later:learningMetrics(late)},
   dynamicStatus:'RECOMPUTED_FROM_ASOF_CONTEXT',statisticalCalibration:completed.length>=60?'RESEARCH_SAMPLE_ONLY':'UNCALIBRATED',
   safetyInvariants:['APPROVED_SHARIA','REAL_FRESH_BID_ASK','NO_FUTURE_BARS','CASH_LONG_ONLY','POSITIVE_NET_PROFIT','NO_AUTO_BROKER_ORDERS']};
 }
@@ -158,7 +174,7 @@ export function evaluateIndependentAi(symbol,candles,spy,quote,{now=new Date(),p
     g('opening_liquidity',f.openingDollarVolume,'>=',p.openDollarVolumeMin,'OPEN_LIQUIDITY_LOW'),
     g('session_liquidity',f.last5DollarVolume,'>=',p.openDollarVolumeMin*.4,'SESSION_LIQUIDITY_LOW')];
   const sessionPass=sessionChecks.every(x=>x.passed);
-  const supports=[['VWAP',f.vwap],['EMA9',f.ema9],['EMA21',f.ema21],['OPENING_HIGH',Math.max(...rows.filter(x=>x._time.min<=584).map(x=>x.high),0)]];
+  const supports=[['VWAP',f.vwap],['EMA12',f.ema12],['EMA9',f.ema9],['EMA21',f.ema21],['OPENING_HIGH',Math.max(...rows.filter(x=>x._time.min<=584).map(x=>x.high),0)]];
   const retest=f.atr>0?supports.filter(([,s])=>s>0&&bar.low<=s+f.atr*p.maxRetestDistanceAtr&&bar.close>s&&bar.close>bar.open&&bar.close>(priorBar?.close??0))
    .map(([model,support])=>({model,support,distanceAtr:Math.abs(bar.low-support)/f.atr})).sort((a,b)=>a.distanceAtr-b.distanceAtr)[0]||null:null;
   const earlySetup=early&&openingPass&&f.momentum3Pct!=null&&f.momentum3Pct>=p.earlyMomentumMinPct&&f.price>f.vwap&&f.price>f.ema9&&f.ema9>f.ema21;
@@ -171,7 +187,9 @@ export function evaluateIndependentAi(symbol,candles,spy,quote,{now=new Date(),p
   const reversalSetup=late&&sessionPass&&dynamic.regime!=='UP'&&f.rsi14<=p.reversalMaxRsi&&
     priorBar&&priorBar.close<=f.ema9&&bar.close>f.ema9&&bar.close>bar.open&&
     f.volumeRatio>=p.rangeReversalVolumeMin&&f.closePosition>=p.minClosePosition;
+  const earlyRetest=f.minute>=600&&f.minute<=p.normalMaxMinute&&sessionPass&&retest&&['VWAP','EMA12'].includes(retest.model)&&f.green&&f.closePosition>=.75&&f.volumeRatio>=1&&f.momentum3Pct>0;
   const eligibleSetups=[
+    {type:'EARLY_RETEST',valid:!!earlyRetest,model:retest?.model||null},
     {type:'BREAKOUT_CONTINUATION',valid:breakoutSetup,model:'PRIOR_HOD_BREAKOUT'},
     {type:'RETEST',valid:retraceSetup,model:retest?.model||null},
     {type:'VWAP_RECLAIM',valid:vwapSetup,model:'VWAP_RECOVERY'},
@@ -184,7 +202,7 @@ export function evaluateIndependentAi(symbol,candles,spy,quote,{now=new Date(),p
   const strategyContextScore=x=>{
    const momentum=Math.max(-1,Math.min(1,f.momentum5Pct??0));
    const volume=Math.max(0,Math.min(3,f.volumeRatio??0));
-   const bases={BREAKOUT_CONTINUATION:14,RETEST:8,VWAP_RECLAIM:8,RANGE_REVERSAL:8,EARLY:10};
+   const bases={EARLY_RETEST:12,BREAKOUT_CONTINUATION:14,RETEST:8,VWAP_RECLAIM:8,RANGE_REVERSAL:8,EARLY:10};
    const marketFit=x.type==='BREAKOUT_CONTINUATION'?(dynamic.regime==='UP'?6:dynamic.regime==='DOWN'?-3:2):
     x.type==='RETEST'?(dynamic.regime==='UP'?3:dynamic.regime==='DOWN'?0:5):
     x.type==='VWAP_RECLAIM'?(dynamic.regime==='DOWN'?6:3):
@@ -194,7 +212,7 @@ export function evaluateIndependentAi(symbol,candles,spy,quote,{now=new Date(),p
   const strategyRanking=eligibleSetups.filter(x=>x.valid).map(x=>({...x,contextScore:strategyContextScore(x)}))
     .sort((a,b)=>b.contextScore-a.contextScore||a.type.localeCompare(b.type));
   const selected=strategyRanking[0]||null,type=selected?.type||null;
-  const tradeWindow=early||late;
+  const tradeWindow=early||late||!!earlyRetest;
   candidateChecks.push(g('trading_time',tradeWindow?1:0,'==',1,'OUTSIDE_ADAPTIVE_WINDOW'),
     g('green_bar',f.green?1:0,'==',1,'RED_BAR'),
     g('close_position',f.closePosition,'>=',p.minClosePosition,'WEAK_CLOSE'),
@@ -207,11 +225,14 @@ export function evaluateIndependentAi(symbol,candles,spy,quote,{now=new Date(),p
   const previous=prior?.pending||null;
   const validPending=previous&&previous.day===f.day&&f.minute>previous.signalMinute&&f.minute<=previous.validUntil;
   let pending=validPending?previous:null;
-  if(!pending&&entryEligible){pending={day:f.day,signalMinute:f.minute,signalBarTime:f.barTime,
+  if(!pending&&entryEligible){
+   const alternatives=strategyRanking.map(option=>({day:f.day,signalMinute:f.minute,signalBarTime:f.barTime,
     validUntil:f.minute+p.pendingBars,trigger:round(f.high+.025*f.atr),low3:f.low3,atr:f.atr,
-    hod:f.hod,type,model:selected.model,setupPrice:f.price,policyAtSignal:dynamic,
-    originGate:type==='EARLY'?'OPENING':'ADAPTIVE_SESSION',originChecks:type==='EARLY'?opening:sessionChecks,
-    candidateChecks:[...candidateChecks],signalFeatures:f};}
+    hod:f.hod,type:option.type,model:option.model,setupPrice:f.price,support:retest?.support||f.vwap,
+    policyAtSignal:dynamic,originGate:option.type==='EARLY'?'OPENING':'ADAPTIVE_SESSION',
+    originChecks:option.type==='EARLY'?opening:sessionChecks,candidateChecks:[...candidateChecks],signalFeatures:f}));
+   pending={...alternatives[0],alternatives};
+  }
   const positionOpen=prior?.position?.status==='OPEN';
   // WATCH only when there is a genuine setup or a pending trigger. This bounds
   // the active every-minute watch list and protects Netlify/Alpaca usage.
@@ -221,42 +242,61 @@ export function evaluateIndependentAi(symbol,candles,spy,quote,{now=new Date(),p
   let tradeEvaluation=null;
   if(positionOpen){state='AI_PAPER_CONFIRMED';reason='PAPER_TRADE_ACTIVE';}
   else if(pending&&f.minute>pending.signalMinute){
-   const ask=q.ask,bid=q.bid;
-   // Use policy frozen at signal creation for the setup's economic/risk checks.
+   const evaluated=[];
+   for(const signal of pending.alternatives||[pending]){
+    const pp=signal.policyAtSignal?.params||p,ask=q.ask,bid=q.bid;
+    const stop=Number.isFinite(ask)?Math.min(signal.low3*.9985,ask*(1-Math.max(pp.minRiskPct,signal.atr*pp.atrStopMultiple/ask*100)/100)):null;
+    const risk=ask>stop?ask-stop:null,riskPct=risk?100*risk/ask:null;
+    const shares=risk?sizePaperPosition372({entry:ask,stop,bid,ask,capitalUsd:pp.maxPositionCapitalUsd,
+     riskBudgetUsd:pp.maxPositionCapitalUsd*pp.cashRiskPct,feesUsd:pp.roundTripCostUsd}):null;
+    const breakout=signal.type==='BREAKOUT_CONTINUATION',earlyRetestPath=signal.type==='EARLY_RETEST';
+    const hodRoom=Math.max(0,Math.max(f.hod,signal.hod)-ask);
+    const atrMultiple=signal.type==='EARLY'?pp.earlyTargetMultiple:pp.atrTargetMultiple;
+    // Fixed technical projections, capped by observed resistance where present.
+    // Never derive a target by multiplying the risk until a gate happens to pass.
+    const targets=[{name:'ATR_BASE',multiple:atrMultiple},{name:'ATR_CONSERVATIVE',multiple:Math.min(2,atrMultiple)}];
+    for(const projection of targets){
+     const targetAtr=ask+projection.multiple*signal.atr,targetHod=ask+pp.hodTargetCapture*hodRoom;
+     const target=breakout?targetAtr:Math.min(targetAtr,targetHod),reward=risk?(target-ask)/risk:null;
+     const economics=tradeEconomics372({entry:ask,stop,target,qty:shares,feesUsd:pp.roundTripCostUsd,bid,ask});
+     const checks=[g('approved_sharia_still_valid',approved?1:0,'==',1,'UNAPPROVED_SHARIA'),
+      g('setup_origin_still_valid',signal.originGate==='OPENING'?(openingPass?1:0):(sessionPass?1:0),'==',1,'SETUP_ELIGIBILITY_CHANGED'),
+      ...q.checks,g('later_bar_after_signal',f.minute,'>',signal.signalMinute,'SIGNAL_BAR_NOT_CLOSED'),
+      g('entry_within_session_window',f.minute,'<=',pp.normalMaxMinute,'AFTER_LAST_ENTRY_WINDOW'),
+      ...(earlyRetestPath?[g('early_retest_support_reclaimed',f.price,'>=',signal.support,'RECLAIM_LOST'),
+       g('early_retest_completed_green',f.green?1:0,'==',1,'RED_BAR'),
+       g('early_retest_completed_close',f.closePosition,'>=',.75,'WEAK_CLOSE'),
+       g('early_retest_momentum',f.momentum3Pct,'>',0,'MOMENTUM_LOST'),
+       g('early_retest_volume',f.volumeRatio,'>=',1,'VOLUME_WEAK'),
+       g('early_retest_ask',ask,'>=',signal.setupPrice,'WAIT_RECLAIM_ASK')]:[
+       g('breakout_at_ask',ask,'>=',signal.trigger,'WAIT_TRIGGER')]),
+      g('chase_pct',pchange(ask,signal.setupPrice),'<=',pp.maxChasePct,'CHASE_TOO_HIGH'),
+      g('stop_risk_min_pct',riskPct,'>=',pp.minRiskPct,'STOP_TOO_CLOSE'),
+      g('stop_risk_max_pct',riskPct,'<=',pp.maxRiskPct,'STOP_TOO_FAR'),
+      ...(breakout?[]:[g('room_to_hod_in_r',risk?hodRoom/risk:null,'>=',pp.minHodRoomR,'HOD_NO_ROOM')]),
+      g('reward_r',reward,'>=',pp.minRewardR,'REWARD_R_LOW'),
+      g('net_profit_after_fees',economics.netGainUsd,'>',0,'NO_NET_PROFIT'),
+      g('net_reward_after_all_costs',economics.netRewardR,'>',1,'NET_REWARD_NOT_GREATER_THAN_RISK')];
+     evaluated.push({id:signal.type+':'+projection.name,signal,checks,economics,ask,bid,stop,risk,riskPct,target,reward,shares,
+      netProfit:economics.netGainUsd,hodRoom,breakout,signalPolicy:pp,quoteAgeSec:q.age,spreadBps:q.spreadBps,
+      targetBasis:breakout?'COMPLETED_ATR_PROJECTION':'ATR_CAPPED_BY_OBSERVED_RESISTANCE'});
+    }
+   }
+   const selectedPlan=selectExecutablePlan372(evaluated),plan=selectedPlan||evaluated[0];
+   tradeEvaluation={...plan,signal:undefined,alternatives:evaluated.map(x=>({id:x.id,type:x.signal.type,
+    entry:x.ask,stop:x.stop,target:x.target,qty:x.shares,economics:x.economics,checks:x.checks,
+    targetBasis:x.targetBasis,selected:x===selectedPlan})),selectionBasis:'HIGHEST_NET_REWARD_R_AMONG_EXECUTABLE_ASOF_PLANS'};
+   executionChecks.push(...plan.checks);
+   const {ask,bid,stop,target,shares,risk}=plan;
+   if(selectedPlan)pending=selectedPlan.signal;
    const pp=pending.policyAtSignal?.params||p;
-   const stop=Number.isFinite(ask)?Math.min(pending.low3*.9985,ask*(1-Math.max(pp.minRiskPct,pending.atr*pp.atrStopMultiple/ask*100)/100)):null;
-   const risk=ask>stop?ask-stop:null;
-   const riskPct=risk?100*risk/ask:null;
-   const targetAtr=ask+(pending.type==='EARLY'?pp.earlyTargetMultiple:pp.atrTargetMultiple)*pending.atr;
-   const hodRoom=Math.max(0,Math.max(f.hod,pending.hod)-ask);
-   // HOD-capped targets are incompatible with a legitimate fresh high breakout.
-   // Breakouts use an ATR target but remain subject to reward, fees, spread and chase gates.
-   const breakout=pending.type==='BREAKOUT_CONTINUATION';
-   const targetHod=ask+pp.hodTargetCapture*hodRoom;
-   const target=breakout?targetAtr:Math.min(targetAtr,targetHod);
-   const reward=risk?(target-ask)/risk:null;
-   const shares=risk?Math.min((pp.maxPositionCapitalUsd-pp.roundTripCostUsd/2)/ask,Math.max(0,pp.maxPositionCapitalUsd*pp.cashRiskPct-pp.roundTripCostUsd)/risk):null;
-   const netProfit=Number.isFinite(shares)?shares*(target-ask)-pp.roundTripCostUsd:null;
-   executionChecks.push(g('approved_sharia_still_valid',approved?1:0,'==',1,'UNAPPROVED_SHARIA'),
-     g('setup_origin_still_valid',pending.originGate==='OPENING'?(openingPass?1:0):(sessionPass?1:0),'==',1,'SETUP_ELIGIBILITY_CHANGED'),
-     ...q.checks,g('later_bar_after_signal',f.minute,'>',pending.signalMinute,'SIGNAL_BAR_NOT_CLOSED'),
-     g('entry_within_session_window',f.minute,'<=',pp.normalMaxMinute,'AFTER_LAST_ENTRY_WINDOW'),
-     g('breakout_at_ask',ask,'>=',pending.trigger,'WAIT_TRIGGER'),
-     g('chase_pct',pchange(ask,pending.setupPrice),'<=',pp.maxChasePct,'CHASE_TOO_HIGH'),
-     g('stop_risk_min_pct',riskPct,'>=',pp.minRiskPct,'STOP_TOO_CLOSE'),
-     g('stop_risk_max_pct',riskPct,'<=',pp.maxRiskPct,'STOP_TOO_FAR'),
-     ...(breakout?[]:[g('room_to_hod_in_r',risk?hodRoom/risk:null,'>=',pp.minHodRoomR,'HOD_NO_ROOM')]),
-     g('reward_r',reward,'>=',pp.minRewardR,'REWARD_R_LOW'),
-     g('net_profit_after_fees',netProfit,'>',0,'NO_NET_PROFIT'));
-   tradeEvaluation={ask,bid,stop,risk,riskPct,target,reward,shares,netProfit,hodRoom,breakout,
-     signalPolicy:pp,quoteAgeSec:q.age,spreadBps:q.spreadBps};
    reason=anyFail(executionChecks)||'WAIT_BREAKOUT';
    if(!anyFail(executionChecks)){
     state='AI_PAPER_CONFIRMED';reason='AI_INDEPENDENT_ENTRY';
     const signalId=`${f.day}:${symbol}:${pending.signalMinute}:${pending.type}`;
     position={id:signalId,symbol,day:f.day,status:'OPEN',openedAt:now.toISOString(),signalMinute:pending.signalMinute,
-      signalBarTime:pending.signalBarTime,setupType:pending.type,model:pending.model,entry:round(ask),entryAsk:round(ask),
-      stop:round(stop),target:round(target),qty:round(shares,6),feesUsd:pp.roundTripCostUsd,
+      signalBarTime:pending.signalBarTime,setupType:pending.type,model:pending.model,entry:ask,entryAsk:ask,
+      stop,target,qty:shares,feesUsd:pp.roundTripCostUsd,costModel:plan.economics,
       openedBarTime:f.barTime,lastEvaluatedBarTime:f.barTime,mfePct:0,maePct:0,
       dynamicPolicyAtEntry:pending.policyAtSignal,shadow:{ATR2:round(ask+2*pending.atr),ATR4:round(ask+4*pending.atr),
       R1:round(ask+risk),R2:round(ask+2*risk),HOD:round(Math.max(f.hod,pending.hod))},shadowHits:{},
@@ -282,15 +322,15 @@ export function evaluateIndependentAi(symbol,candles,spy,quote,{now=new Date(),p
 export function updateAiPaperOutcome(record,rawBars,now,{forceClose=false}={}){
  if(!record?.position)return record;
  const pos={...record.position,shadowHits:{...record.position.shadowHits}};
- const ordered=[...(rawBars||[])].sort((a,b)=>String(a.datetime).localeCompare(String(b.datetime)));
+ const ordered=[...(rawBars||[])].filter(b=>{const t=marketTimestamp372(b.datetime);return t!==null&&t+60000<=now.getTime();}).sort((a,b)=>String(a.datetime).localeCompare(String(b.datetime)));
  for(const b of ordered){if(!b.datetime||b.datetime<=pos.lastEvaluatedBarTime||b.datetime<=pos.openedBarTime)continue;
   // Same minute as the entry quote is not counted; no fabricated tick ordering.
   const hitStop=b.low<=pos.stop,hitTarget=b.high>=pos.target;
   const wasOpen=pos.status==='OPEN';
   if(wasOpen){pos.mfePct=round(Math.max(pos.mfePct??0,pchange(b.high,pos.entry)??0));pos.maePct=round(Math.min(pos.maePct??0,pchange(b.low,pos.entry)??0));
    if(hitStop&&hitTarget){pos.status='CLOSED';pos.outcome='AMBIGUOUS_SAME_BAR';pos.netUsd=null;pos.closedAt=b.datetime;}
-   else if(hitStop){pos.status='CLOSED';pos.outcome='STOP';pos.exit=pos.stop;pos.netUsd=round(pos.qty*(pos.stop-pos.entry)-pos.feesUsd,3);pos.closedAt=b.datetime;}
-   else if(hitTarget){pos.status='CLOSED';pos.outcome='TARGET';pos.exit=pos.target;pos.netUsd=round(pos.qty*(pos.target-pos.entry)-pos.feesUsd,3);pos.closedAt=b.datetime;}
+   else if(hitStop){pos.status='CLOSED';pos.outcome='STOP';pos.exit=pos.stop;pos.netUsd=round(pos.qty*(pos.stop-pos.entry)-(pos.costModel?.totalCostUsd??pos.feesUsd),3);pos.closedAt=b.datetime;}
+   else if(hitTarget){pos.status='CLOSED';pos.outcome='TARGET';pos.exit=pos.target;pos.netUsd=round(pos.qty*(pos.target-pos.entry)-(pos.costModel?.totalCostUsd??pos.feesUsd),3);pos.closedAt=b.datetime;}
   }
   for(const [name,target] of Object.entries(pos.shadow||{})){
    if(b.high>=target&&!pos.shadowHits[name])pos.shadowHits[name]={hitAt:b.datetime,scope:wasOpen?'BEFORE_OFFICIAL_EXIT':'AFTER_OFFICIAL_EXIT',uncertainWithStop:wasOpen&&hitStop};
@@ -306,7 +346,7 @@ export function updateAiPaperOutcome(record,rawBars,now,{forceClose=false}={}){
   const age=barDay===ny.dateKey&&Number.isFinite(barMinute)?ny.minuteOfDay-barMinute:null;
   const timely=age!==null&&age>=1&&age<=3&&Number.isFinite(latest.close);
   pos.status='CLOSED';pos.closedAt=timely?latest.datetime:now.toISOString();
-  if(timely){pos.outcome='EXPIRED';pos.exit=latest.close;pos.netUsd=round(pos.qty*(pos.exit-pos.entry)-pos.feesUsd,3);}
+  if(timely){pos.outcome='EXPIRED';pos.exit=latest.close;pos.netUsd=round(pos.qty*(pos.exit-pos.entry)-(pos.costModel?.totalCostUsd??pos.feesUsd),3);}
   else{pos.outcome='UNPRICED_AT_CLOSE';pos.netUsd=null;pos.exit=null;}
  }
   if(pos.status==='CLOSED'&&record.position?.status==='OPEN'){

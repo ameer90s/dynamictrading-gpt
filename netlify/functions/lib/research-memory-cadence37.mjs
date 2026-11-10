@@ -129,7 +129,7 @@ export function annotateDailyProposals37(cycle,memory){
 const complete=c=>c?.recordedEvidenceComplete===true&&c?.historyReadIssues?.length===0;
 /** Honest sample checks: daily error counts cannot substitute for independent
  * validated trade samples. Monthly statistical learning is deferred if sparse. */
-export function consolidateResearchPeriod37({period,cycles=[],memory=null,outcomes=null,scalpOutcomes=null,now=null,experimentReports=[]}={}){
+export function consolidateResearchPeriod37({period,cycles=[],memory=null,outcomes=null,now=null,experimentReports=[]}={}){
  const {kind,start,end}=period||{};
  if(!['WEEKLY','MONTHLY'].includes(kind)||!iso(start)||!iso(end)||end<start)throw Error('RESEARCH_PERIOD_INVALID');
  const allowed=range(start,end);
@@ -193,8 +193,6 @@ export function consolidateResearchPeriod37({period,cycles=[],memory=null,outcom
    'MONTHLY_SAMPLE_INSUFFICIENT_CARRY_FORWARD':
    kind==='WEEKLY'?'WEEKLY_RESEARCH_SHORTLIST_ONLY':'MONTHLY_RESEARCH_SHORTLIST_ONLY',
   distinctPaperOutcomes:outcomes||{status:'NOT_VERIFIED',uniqueClosed:0,limitations:['No period-distinct outcomes supplied']},
-  scalpPaperOutcomes:scalpOutcomes||{status:'NOT_VERIFIED',uniqueClosed:0},
-  scalpMonthlyDescriptiveStudyReady:kind==='MONTHLY'&&completeEnough&&scalpOutcomes?.readyForDescriptiveLearning===true,
   status:completeEnough&&(kind==='WEEKLY'||outcomes?.readyForDescriptiveLearning===true)?
    'CONSOLIDATED_REQUIRES_INDEPENDENT_VALIDATION':'INSUFFICIENT_SAMPLE_CARRY_FORWARD',
   warnings:['Repeated paper outcome counts across daily reports are NOT unique trades',
@@ -203,7 +201,7 @@ export function consolidateResearchPeriod37({period,cycles=[],memory=null,outcom
    'Strategy approval and production activation are separate owner-controlled actions'],
   strategyChanged:false,applied:false,canAutoApply:false};
  return {...attachExperimentEvidence37(report,experimentReports),digest:h([report.kind,report.start,report.end,report.sessionsWithFullEvidence,
-   report.candidates,report.distinctPaperOutcomes,report.scalpPaperOutcomes])};
+   report.candidates,report.distinctPaperOutcomes])};
 }
 
 /** Current period closing snapshots are deduplicated by immutable trade ID,
@@ -236,23 +234,6 @@ export function summarizePeriodTrades37({period,states=[]}={}){
   limitations:['Paper projection is not an actual broker fill',
    'Fees and slippage are only as accurate as the original paper model',
    'At least 60 distinct outcomes per setup does not alone prove profitable strategy changes']};
-}
-/** Scalp is reported SEPARATELY from the primary AI's EARLY/RETEST results.
- * Only final per-day state snapshots count. Never sum rolling daily reports. */
-export function summarizePeriodScalp37({period,states=[],standaloneStates=[]}={}){
- // Standalone state is authoritative. Use old embedded scalp ONLY for days without it.
- const byDay=new Map(standaloneStates.filter(s=>s?.day&&s?.book).map(s=>[s.day,s]));
- const scalpStates=[...byDay.values()].map(s=>({records:s.book.records||{},closedOutcomes:s.book.closedOutcomes||[]}));
- for(const state of states){const day=state?.dateKey||state?.day;
-  if(day&&byDay.has(day))continue;
-  if(state?.scalp37?.schemaVersion==='3.7-SCALP-PAPER-1')scalpStates.push({records:state.scalp37.records||{},closedOutcomes:state.scalp37.closedOutcomes||[]});
- }
- const summary=summarizePeriodTrades37({period,states:scalpStates});
- return {...summary,book:'INDEPENDENT_SCALP_PAPER37',
-  standaloneDays:byDay.size,sourceMode:byDay.size?'STANDALONE_SCALP_AUTHORITATIVE':'LEGACY_ONLY_OR_NOT_RECORDED',
-  status:scalpStates.length?'RECORDED_SCALP_PAPER_ONLY':'NOT_RECORDED',
-  actualBrokerFillsVerified:false,independentWalkForwardVerified:false,
-  limitations:[...summary.limitations,'Scalp profits are modeled on bars and adverse-slippage assumptions, not an executable quote at exit']};
 }
 /** A compact lifetime registry: unlike the 3-day carry-forward, this preserves
  * every known family and its dated weekly/monthly consideration. */

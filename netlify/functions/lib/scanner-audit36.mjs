@@ -9,6 +9,7 @@ export async function writeScannerAudit36(store,dateKey,minute,rows,{eligibleCou
   state:x.recommendationState||'WAIT',reason:x.stateReason||x.research36?.reason||null,
   attempted:true,source:x.research36?.features?.source||null,features:x.research36?.features||null,
   openingChecks:x.research36?.openingChecks||[],confirmationChecks:x.research36?.confirmationChecks||[],executionChecks:x.research36?.executionChecks||[],
+  comparedPlans:x.research36?.comparedPlans||[],entryPath:x.research36?.entryPath||null,
   quote:x.research36?.quote||null,price:x.price??null,focusRank:x.focusRank??null,
   setupFamily:x.metrics?.setupFamily||null,retestModel:x.research36?.retestModel||null,
   trigger:x.research36?.trigger||null,riskEvidence:x.research36?.risk||null,qualityScore:x.research36?.qualityScore??null,

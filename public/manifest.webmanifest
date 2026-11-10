@@ -1,6 +1,6 @@
 {
-  "name": "Dynamic Trading",
-  "short_name": "DT 3.7.1",
+  "name": "DT PULSE — Dynamic Trading",
+  "short_name": "DT PULSE",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#08111a",
@@ -9,9 +9,15 @@
   "dir": "rtl",
   "icons": [
     {
-      "src": "/icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "/dt-pulse-approved-pwa-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/dt-pulse-approved-pwa-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ]

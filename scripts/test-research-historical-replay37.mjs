@@ -22,7 +22,7 @@ test('reads real stored selected-symbol archive without pretending universe cove
  assert.equal(r.coverage.holdoutSessions,2);assert.ok(r.coverage.sourceBarSeries>40);
 });
 test('all three actual detectors evaluated with independent state',()=>{
- assert.deepEqual(Object.keys(r.comparisons),['SCANNER','AI','SCALP']);
+ assert.deepEqual(Object.keys(r.comparisons),['SCANNER','AI']);
  for(const c of Object.values(r.comparisons))assert.ok(c.baseline.minutesEvaluated>0);
 });
 test('never manufacture quotes fills profits or validation',()=>{

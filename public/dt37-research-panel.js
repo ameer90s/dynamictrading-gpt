@@ -1,7 +1,6 @@
 /* Dynamic Trading 3.7 — Research Agent. Read-only; no publish, trade, or strategy write. */
 (()=>{'use strict';
 const $=id=>document.getElementById(id);
-const ar=(value,group='status')=>window.DT37ReportArabic.label(value,group);
 const demo=new URLSearchParams(location.search).get('preview')==='1';
 const put=(id,v)=>{const el=$(id);if(el)el.textContent=String(v??'—')};
 const newEl=(tag,cls,txt)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=String(txt);return n};
@@ -18,22 +17,22 @@ function render(data){
  const status=data?.status||'NO_REVIEW',r=document.querySelector('.desk-research-list');
  const hasLocal=Array.isArray(data?.localHypotheses)&&data.localHypotheses.length>0;
  const available=status==='REVIEW_CREATED_NOT_APPLIED'||status==='REVIEW_CREATED_NOT_VALIDATED'||status==='LOCAL_DAILY_REPORT'||status==='LOCAL_RESEARCH_ONLY'||hasLocal;
- const statusLabel=({REVIEW_CREATED_NOT_APPLIED:'مراجعة OpenAI محفوظة (التوصيات فرضيات)',LOCAL_DAILY_REPORT:'تقرير يومي محلي محفوظ',LOCAL_RESEARCH_ONLY:'تحليل محلي فقط',NO_REVIEW:'لا توجد مراجعة محفوظة لهذه الجلسة',DISABLED:'التحليل غير مفعل',RESERVED:'قيد التحليل',FAILED_NO_RETRY:'فشلت المراجعة',ARCHIVE_UNAVAILABLE:'أرشيف غير متاح'})[status]||ar(status);
+ const statusLabel=({BACKGROUND_PENDING:'الطلب لدى المزود؛ التقرير لم يكتمل',BACKGROUND_WINDOW_EXCEEDED_NOT_VERIFIED:'انتهت نافذة المتابعة؛ النتيجة غير متحققة',BACKGROUND_PREREQUISITES_NOT_VERIFIED:'الخلفية تنتظر تحقق الحساب والخصوصية والتكلفة',REVIEW_CREATED_NOT_APPLIED:'مراجعة OpenAI محفوظة (التوصيات فرضيات)',LOCAL_DAILY_REPORT:'تقرير يومي محلي محفوظ',LOCAL_RESEARCH_ONLY:'تحليل محلي فقط',NO_REVIEW:'لا توجد مراجعة محفوظة لهذه الجلسة',DISABLED:'التحليل غير مفعل',RESERVED:'قيد التحليل',FAILED_NO_RETRY:'فشلت المراجعة',ARCHIVE_UNAVAILABLE:'أرشيف غير متاح'})[status]||status.replaceAll('_',' ');
  put('dt37ResearchState',demo?'مثال: مراجعة محفوظة':statusLabel);
- put('dt37ResearchDetail',data.updatedAt?`آخر تقرير محفوظ: ${fmtDate(data.updatedAt)} · OpenAI: ${data.paidStatus?ar(data.paidStatus):'غير متحقق'}`:'لا توجد مراجعة مسجلة حتى الآن');
+ put('dt37ResearchDetail',data.updatedAt?`آخر تقرير محفوظ: ${fmtDate(data.updatedAt)} · OpenAI: ${window.DT37ReportArabic?.label(data.paidStatus)||data.paidStatus||'غير متحقق'}`:'لا توجد مراجعة مسجلة حتى الآن');
  put('researchStatusValue',statusLabel);
- put('researchLastRun',data.updatedAt?`آخر تقرير: ${fmtDate(data.updatedAt)} · ${data.openaiModel||'محرك محلي'} · إيصال التشغيل: ${data.delivery?.status?ar(data.delivery.status):'غير متاح'}`:'لم يُسجّل تقرير؛ تحقق من جدولة الأرشيف وحالة التشغيل');
+ put('researchLastRun',data.updatedAt?`آخر تقرير: ${fmtDate(data.updatedAt)} · ${data.openaiModel||'محرك محلي'} · إيصال التشغيل: ${data.delivery?.status||'غير متاح'}`:'لم يُسجّل تقرير؛ تحقق من جدولة الأرشيف وحالة التشغيل');
  const evidence=data.evidence;
- put('researchEvidenceValue',evidence?(evidence.status==='READY'?'بيانات مقبولة':'غير مكتملة'):(data.daily?('تقرير تشخيصي: '+ar(data.daily.status)):'غير متحقق'));
+ put('researchEvidenceValue',evidence?(evidence.status==='READY'?'بيانات مقبولة':'غير مكتملة'):(data.daily?('تقرير تشخيصي: '+data.daily.status):'غير متحقق'));
  const engines=data.daily?.engines;
  put('researchEvidenceWarning',evidence?`دقائق محفوظة: الأساسي ${evidence.scannerMinutes??'—'} · AI ${evidence.aiMinutes??'—'}؛ المفقود لا يعتبر صفراً من الفرص.`:
-  engines?`الأساسي ${engines.scanner.storedMinutes??'غير متاح'}/${engines.scanner.expectedMinutes}، AI ${engines.ai.storedMinutes??'غير متاح'}/${engines.ai.expectedMinutes}؛ السكالب المستقل: ${ar(engines.independentScalp.status)}؛ الدقائق غير المسجلة ليست فرصاً صفراً.`:'سلامة أرشيف Netlify لم تُثبت لهذه الجلسة؛ لا يمكن الاعتماد على نتائج غير محفوظة.');
+  engines?`الأساسي ${engines.scanner?.storedMinutes??'غير متاح'}/${engines.scanner?.expectedMinutes}، AI ${engines.ai?.storedMinutes??'غير متاح'}/${engines.ai?.expectedMinutes}؛ الدقائق غير المسجلة ليست فرصاً صفراً.`:'سلامة أرشيف Netlify لم تُثبت لهذه الجلسة؛ لا يمكن الاعتماد على نتائج غير محفوظة.');
  const experiments=Array.isArray(data.experiments)&&data.experiments.length?data.experiments:(data.localHypotheses||[]);
  put('researchHypothesesValue',experiments.length);put('dt37ResearchRuns',available?'1':'0');
  put('researchBudgetValue',data.budget?`حجز تقديري $${Number(data.budget.reservedUsd||0).toFixed(2)} / $${Number(data.budget.limitUsd||0).toFixed(2)}`:'—');
  put('researchSummary',(data.summary||(hasLocal?'توجد فرضيات محلية محفوظة غير مطبقة وغير مثبتة خارج العينة.':'لا يوجد تحليل محفوظ لهذه الجلسة.'))+
-  (data.paidStatus&&data.paidStatus!=='REVIEW_CREATED_NOT_APPLIED'?` · المراجعة المدفوعة: ${ar(data.paidStatus)}. التقرير المحلي لا يتطلب OpenAI.`:'')+
-  (data.periodWarnings?.length?` · تنبيه أرشيف الفترات: ${data.periodWarnings.map(x=>ar(x)).join('، ')}`:''));
+  (data.paidStatus&&data.paidStatus!=='REVIEW_CREATED_NOT_APPLIED'?` · المراجعة المدفوعة: ${window.DT37ReportArabic?.label(data.paidStatus)||data.paidStatus}. التقرير المحلي لا يتطلب OpenAI.`:'')+
+  (data.periodWarnings?.length?` · تنبيه أرشيف الفترات: ${data.periodWarnings.join(', ')}`:''));
  const learning=data?.learning;
  if(learning){
   const note=`طبقة التعلم للماسحين: الأساسي ${learning.scanner.observedRows} سجل، AI ${learning.ai.observedRows} سجل؛ ${learning.proposals.length} تحسينات مرشحة. `+
@@ -42,31 +41,31 @@ function render(data){
   put('researchSummary',(data.summary?data.summary+' · ':'')+note);
  }
  if(r){r.replaceChildren();const candidateList=learning?.proposals||[];if(!experiments.length&&!candidateList.length){r.append(newEl('div','empty-state','لا توجد فرضيات محفوظة لهذه الجلسة.'))}else experiments.slice(0,5).forEach((x,i)=>{
- const card=newEl('article','desk-research-idea');const badge=newEl('span','desk-research-idea-tag',`${String(i+1).padStart(2,'0')} · ${ar(x.area||x.id||'RESEARCH','area')}`);card.append(badge);
+ const card=newEl('article','desk-research-idea');const badge=newEl('span','desk-research-idea-tag',`${String(i+1).padStart(2,'0')} · ${x.area||x.id||'RESEARCH'}`);card.append(badge);
  card.append(newEl('h3',null,x.hypothesis_ar||x.hypothesis||'فرضية غير محددة'));
  card.append(newEl('p','muted',x.test_ar||x.experiment||'تجربة التحقق لم تُكتب'));
  card.append(newEl('small',null,'غير مطبقة · '+(x.acceptance_metric_ar||x.acceptanceMetric||'تنتظر تجربة خارج العينة')));
  r.append(card)});
  if(candidateList.length){r.append(newEl('h3',null,'ملاحظات اليوم — ليست مرشحات نهائية'));
   candidateList.forEach((x,i)=>{const card=newEl('article','desk-research-idea');
-   card.append(newEl('span','desk-research-idea-tag',`${String(i+1).padStart(2,'0')} · ${ar(x.area||'RESEARCH','area')} · ${(x.engines||[]).map(x=>ar(x,'area')).join(' + ')}`));
+   card.append(newEl('span','desk-research-idea-tag',`${String(i+1).padStart(2,'0')} · ${x.area||'RESEARCH'} · ${(x.engines||[]).join(' + ')}`));
    card.append(newEl('h3',null,x.hypothesis_ar||'مقترح بحثي'));
-   card.append(newEl('small',null,x.suppressed?`محظور من إعادة التوصية: ${x.priorDecision?.verdict?ar(x.priorDecision.verdict):'قرار سابق'} · ${x.priorDecision?.evidenceId||'تاريخ محفوظ'}`:
-    `${x.candidateKind?ar(x.candidateKind):'تجربة'} · ملاحظة يومية، تُجمع أسبوعياً · ${ar(x.testResult||'NOT_VERIFIED')} · غير مطبق`));r.append(card)});
+   card.append(newEl('small',null,x.suppressed?`محظور من إعادة التوصية: ${x.priorDecision?.verdict||'قرار سابق'} · ${x.priorDecision?.evidenceId||'تاريخ محفوظ'}`:
+    `${x.candidateKind||'تجربة'} · ملاحظة يومية، تُجمع أسبوعياً · ${x.testResult||'NOT_VERIFIED'} · غير مطبق`));r.append(card)});
  }
  // Periodic research is strictly read-only: daily observations, weekly shortlist,
  // monthly sample checks. No button here can approve or change a strategy.
  for(const [period,label] of [[data.weekly,'المقترحات الأسبوعية'],[data.monthly,'تقييم نهاية الشهر']]){
   r.append(newEl('h3',null,label));
   if(!period){r.append(newEl('p','muted','لا يوجد تقرير معتمد الحفظ لهذه الفترة بعد.'));continue}
-  r.append(newEl('p','muted',`${period.end} · جلسات مكتملة ${period.sessionsWithFullEvidence}/${period.minimumFullEvidenceSessions} · صفقات ورقية فريدة ${period.uniquePaperTrades??'غير محسوبة'} · ${ar(period.status)}`));
+  r.append(newEl('p','muted',`${period.end} · جلسات مكتملة ${period.sessionsWithFullEvidence}/${period.minimumFullEvidenceSessions} · صفقات ورقية فريدة ${period.uniquePaperTrades??'غير محسوبة'} · ${period.status}`));
   if(period.kind==='MONTHLY'&&!period.descriptiveLearningReady)
    r.append(newEl('p','muted','العينة الشهرية غير كافية للتعلم الإحصائي؛ تأجيل الترشيح النهائي للشهر التالي.'));
   for(const c of (period.proposals||[]).slice(0,8)){
    const card=newEl('article','desk-research-idea');
-   card.append(newEl('span','desk-research-idea-tag',`${ar(c.area||'RESEARCH','area')} · ${(c.engines||[]).map(x=>ar(x,'area')).join(' + ')}`));
+   card.append(newEl('span','desk-research-idea-tag',`${c.area||'RESEARCH'} · ${(c.engines||[]).join(' + ')}`));
    card.append(newEl('h3',null,c.hypothesis||'تحسين مرشح للمراجعة'));
-   card.append(newEl('small',null,c.suppressed?'ممنوع إعادة الاقتراح بسبب نتيجة أو رفض سابق':'حالة الأدلة: '+ar(c.status)+' · يحتاج تجربة مستقلة وموافقتك'));
+   card.append(newEl('small',null,c.suppressed?'ممنوع إعادة الاقتراح بسبب نتيجة أو رفض سابق':'حالة الأدلة: '+c.status+' · يحتاج تجربة مستقلة وموافقتك'));
    r.append(card);
   }
  }

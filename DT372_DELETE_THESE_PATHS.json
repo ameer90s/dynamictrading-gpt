@@ -1,0 +1,16 @@
+[
+  "netlify/functions/ai-parallel-llm-review.mjs",
+  "netlify/functions/lib/ai-scalp-paper37.mjs",
+  "netlify/functions/lib/scalp-agent-review37.mjs",
+  "netlify/functions/lib/scalp-features37.mjs",
+  "netlify/functions/lib/scalp-pattern-engine37.mjs",
+  "netlify/functions/lib/scalp-standalone37.mjs",
+  "netlify/functions/scalp-paper-scan37.mjs",
+  "netlify/functions/scalp-paper37.mjs",
+  "public/dt37-scalp-panel37.js",
+  "scripts/replay-ai-scalp-session37.mjs",
+  "scripts/test-ai-scalp-adversarial37.mjs",
+  "scripts/test-ai-scalp-paper37.mjs",
+  "scripts/test-ai-scalp-research37.mjs",
+  "scripts/test-standalone-scalp37.mjs"
+]

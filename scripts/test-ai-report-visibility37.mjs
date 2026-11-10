@@ -15,14 +15,18 @@ const baseDoc={status:'REVIEW_CREATED_NOT_APPLIED',model:'gpt-6.1-sol',usage:{in
 async function run(primary,recovery,mirror){
  const doc=new Map([['ai-parallel-session-index',{days:[day]}],
   [`dt37-openai37-review-${day}`,primary],[`dt37-openai37-review-recovery-${day}`,recovery],
-  [`ai-parallel-llm-review-${day}`,mirror]]);
+  [`ai-parallel-llm-review-${day}`,mirror],[`ai-parallel-recommendations-${day}`,{internalReport:{owner:'DYNAMIC_AI_ONLY',summary:'AI_INTERNAL_ONLY'},suggestions:[]}]]);
  globalThis.__dt37AuditStore={async get(k){return doc.get(k)??null;}};
  const reply=await handler(new Request(`https://local.invalid/api/ai-parallel?day=${day}`));
  assert.equal(reply.status,200);
- return (await reply.json()).days[0].llmReview;
+ return (await reply.json()).days[0];
 }
-assert.equal((await run(baseDoc,null,null)).suggestions[0].title_ar,'TEST_SHOW_REPORT');
-assert.equal((await run({status:'RESERVED'},baseDoc,null)).suggestions[0].title_ar,'TEST_SHOW_REPORT');
-assert.equal((await run(baseDoc,null,{status:'REVIEW_CREATED_NOT_APPLIED',suggestions:[{title_ar:'UI_MIRROR'}]})).suggestions[0].title_ar,'UI_MIRROR');
-assert.equal((await run(null,null,null)).status,'DISABLED_OR_NOT_RUN');
-console.log('DT37_AI_REPORT_VISIBILITY_OFFLINE_PASS 4/4');
+for(const input of [[baseDoc,null,null],[{status:'RESERVED'},baseDoc,null],[baseDoc,null,{status:'REVIEW_CREATED_NOT_APPLIED',suggestions:[{title_ar:'UI_MIRROR'}]}],[null,null,null]]){
+ const result=await run(...input);
+ assert.equal(result.llmReview.status,'NOT_SHARED_WITH_RESEARCH_AGENT');
+ assert.deepEqual(result.llmReview.suggestions,[]);
+ assert.equal(result.internalReport.summary,'AI_INTERNAL_ONLY');
+ assert(!JSON.stringify(result).includes('TEST_SHOW_REPORT'));
+ assert(!JSON.stringify(result).includes('UI_MIRROR'));
+}
+console.log('DT372_AI_REPORT_ISOLATION_PASS 4 source combinations, internal report retrieved without paid Research copies');

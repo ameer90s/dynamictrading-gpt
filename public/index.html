@@ -7,38 +7,39 @@
 <meta content="#090f19" name="theme-color"/>
 <meta content="Dynamic Trading - لوحة تحليل ديناميكي للأسهم الشرعية وأفضل فرص التداول" name="description"/>
 <link href="/manifest.webmanifest" rel="manifest"/>
-<link href="/icon.svg" rel="icon" type="image/svg+xml"/>
-<link href="/styles.css?v=3752" rel="stylesheet"/>
-<title>Dynamic Trading 3.7.1 | مركز التداول</title>
+<link href="/dt-pulse-approved-pwa.jpg" rel="icon" type="image/jpeg"/>
+<link href="/styles.css?v=3752" rel="stylesheet"/><link href="/dt372-brand.css?v=1" rel="stylesheet"/>
+<title>DT PULSE — Dynamic Trading 3.7.2</title>
 <link href="/dt37-next.css?v=3752" rel="stylesheet"/><link href="/weekly-profit-calc371.css?v=2" rel="stylesheet"/></head>
 <body>
 <div class="app-shell dt37-next"><header class="dt37-header" role="banner">
-<div class="dt37-brand"><div aria-hidden="true" class="dt37-mark">D<span>↗</span></div><div><div class="dt37-product"><b>Dynamic Trading</b><span class="dt37-version">3.7.1</span></div><p>مركز القرار · تداول ورقي</p></div></div>
+<div class="dt37-brand"><img src="/dt-pulse-approved-wordmark.jpg" class="dt372-approved-brand" alt="DT PULSE — Dynamic Trading"/><div><div class="dt37-product"><b>DT PULSE</b><span class="dt37-version">3.7.2</span></div><p>Dynamic Trading · تداول ورقي</p></div></div>
 <div class="dt37-header-right">
 <div aria-label="الوقت المحلي والوقت الأمريكي" class="dt37-timezones">
 <div class="dt37-timezone"><span class="dt37-flag">🇦🇪</span><span class="dt37-timezone-name">الإمارات</span><b dir="ltr" id="uaeTime">--:--:--</b><small hidden="" id="uaeDate">—</small></div>
 <div class="dt37-timezone"><span class="dt37-flag">🇺🇸</span><span class="dt37-timezone-name">نيويورك</span><b dir="ltr" id="nyTime">--:--:--</b><small hidden="" id="nyDate">—</small></div>
 </div>
-<div class="dt37-market-line"><span class="status-pill" id="marketStatus">جارٍ تحديد حالة السوق…</span><span class="dt37-paper">ورقي</span></div>
+<div class="dt37-market-line"><span class="status-pill" id="marketStatus">جارٍ تحديد حالة السوق…</span><span class="dt37-paper">PAPER</span></div>
 </div>
 </header><nav aria-label="التنقل بين صفحات Dynamic Trading" class="main-tabs dt37-nav">
 <button aria-controls="tab-today" aria-label="اليوم" class="tab-button active" data-tab="today" type="button"><span class="tab-icon">⌂</span><span class="tab-label">اليوم</span><i class="tab-dot" hidden="" id="todayTabDot"></i></button>
-<button aria-controls="tab-market" aria-label="الفرص" class="tab-button" data-tab="market" type="button"><span class="tab-icon">⌁</span><span class="tab-label">الفرص</span></button>
+<button aria-controls="tab-market" aria-label="الفرص" class="tab-button" data-tab="market" type="button"><span class="tab-icon">⌁</span><span class="tab-label">الماسح الأساسي</span></button>
+<button aria-controls="tab-ai" aria-label="Dynamic AI" class="tab-button" data-tab="ai" type="button"><span class="tab-icon">✦</span><span class="tab-label">Dynamic AI</span></button>
 <button aria-controls="tab-research" aria-label="الباحث" class="tab-button" data-tab="research" type="button"><span class="tab-icon">✧</span><span class="tab-label">الباحث</span></button>
 <button aria-controls="tab-performance" aria-label="الأداء" class="tab-button" data-tab="performance" type="button"><span class="tab-icon">▥</span><span class="tab-label">الأداء</span></button>
-<button aria-controls="tab-tools" aria-label="المزيد" class="tab-button" data-tab="tools" type="button"><span class="tab-icon">⚙</span><span class="tab-label">المزيد</span></button>
-</nav><div class="message" hidden="" id="message"></div><main class="tab-panels"><section class="tab-panel active" data-panel="today" id="tab-today" role="tabpanel"><section aria-labelledby="dt37-now-title" class="dt37-action-panel"><div class="dt37-action-body"><span class="dt37-kicker">الخطوة التالية</span><h2 id="dt37-now-title">شو تحتاج تتابع الحين؟</h2><p id="smartTickerText">بانتظار قراءة نافذة السوق…</p></div><div class="dt37-action-links"><button class="dt37-go-primary" data-dt37-goto="market" type="button">استعراض الفرص <span>↗</span></button><button class="dt37-go-secondary" data-dt37-goto="research" type="button">مراجعة الباحث</button></div></section><section aria-label="لوحة المراقبة الموحدة" class="desk-command">
-<div class="desk-command-header"><div class="dt37-hero-message"><div class="dt37-overline"><span class="dt37-live-dot"></span>العمليات المباشرة<span>·</span> ملخص اليوم</div>
+<button aria-controls="tab-tools" aria-label="المزيد" class="tab-button" data-tab="tools" type="button"><span class="tab-icon">⚙</span><span class="tab-label">الإشعارات والقائمة</span></button>
+</nav><div class="message" hidden="" id="message"></div><main class="tab-panels"><section class="tab-panel active" data-panel="today" id="tab-today" role="tabpanel"><section aria-labelledby="dt37-now-title" class="dt37-action-panel"><div class="dt37-action-body"><span class="dt37-kicker">NEXT ACTION</span><h2 id="dt37-now-title">شو تحتاج تتابع الحين؟</h2><p id="smartTickerText">بانتظار قراءة نافذة السوق…</p></div><div class="dt37-action-links"><button class="dt37-go-primary" data-dt37-goto="market" type="button">استعراض الفرص <span>↗</span></button><button class="dt37-go-secondary" data-dt37-goto="research" type="button">مراجعة الباحث</button></div></section><section aria-label="لوحة المراقبة الموحدة" class="desk-command">
+<div class="desk-command-header"><div class="dt37-hero-message"><div class="dt37-overline"><span class="dt37-live-dot"></span> LIVE OPERATIONS <span>·</span> ملخص اليوم</div>
 <h1>قرار أوضح.<br/><em>ضجيج أقل.</em></h1><p>راقب المحركات الثلاثة وادخل لتفاصيل أي قرار بضغطة واحدة.</p></div>
 <button aria-label="تحديث بيانات المحركات" class="desk-update" id="dt37CockpitRefresh" type="button">↻ <span>تحديث</span></button></div>
 <div class="desk-agent-grid">
-<article aria-labelledby="deskCoreTitle" class="desk-agent desk-agent-scanner"><div class="desk-agent-top"><span class="desk-agent-number">الماسح الأساسي</span><span class="desk-agent-type">النتائج الفعلية فقط</span></div><span aria-hidden="true" class="desk-agent-symbol">◈</span><h3 id="deskCoreTitle">الماسح الأساسي</h3><p>يفحص شروط الدخول ويؤكد الفرص.</p><div class="desk-agent-status"><span class="desk-status-caption">حالة الأرشيف</span><strong id="dt37ScannerState">بانتظار البيانات</strong><small id="dt37ScannerDetail">لا يوجد سجل محقق بعد</small></div><button class="desk-agent-link" data-dt37-jump="scanner" type="button">التفاصيل ←</button></article>
-<article aria-labelledby="deskAiTitle" class="desk-agent desk-agent-ai"><div class="desk-agent-top"><span class="desk-agent-number">الماسح الذكي المتكيف</span><span class="desk-agent-type">مراقبة ورقية مستقلة</span></div><span aria-hidden="true" class="desk-agent-symbol">⌁</span><h3 id="deskAiTitle">ماسح AI</h3><p>يختبر قرارات ديناميكية مستقلة.</p><div class="desk-agent-status"><span class="desk-status-caption">حالة آخر تشغيل</span><strong id="dt37AiState">بانتظار البيانات</strong><small id="dt37AiDetail">لا توجد دورة AI محققة بعد</small></div><button class="desk-agent-link" data-dt37-jump="ai" type="button">التفاصيل ←</button></article>
-<article aria-labelledby="deskResearchTitle" class="desk-agent desk-agent-research"><div class="desk-agent-top"><span class="desk-agent-number">الباحث الذكي</span><span class="desk-agent-type">لا يطبق أي تعديل تلقائي</span></div><span aria-hidden="true" class="desk-agent-symbol">✳</span><h3 id="deskResearchTitle">الباحث الذكي</h3><p>يدقق النتائج ويقترح تجارب.</p><div class="desk-agent-status"><span class="desk-status-caption">آخر مراجعة بحثية</span><strong id="dt37ResearchState">لم يبدأ التحليل الحي</strong><small id="dt37ResearchDetail">واجهة البيانات غير مفعّلة حتى الاعتماد</small></div><button class="desk-agent-link" data-dt37-jump="research" type="button">التفاصيل ←</button></article>
+<article aria-labelledby="deskCoreTitle" class="desk-agent desk-agent-scanner"><div class="desk-agent-top"><span class="desk-agent-number">CORE SCANNER</span><span class="desk-agent-type">النتائج الفعلية فقط</span></div><span aria-hidden="true" class="desk-agent-symbol">◈</span><h3 id="deskCoreTitle">الماسح الأساسي</h3><p>يفحص شروط الدخول ويؤكد الفرص.</p><div class="desk-agent-status"><span class="desk-status-caption">حالة الأرشيف</span><strong id="dt37ScannerState">بانتظار البيانات</strong><small id="dt37ScannerDetail">لا يوجد سجل محقق بعد</small></div><button class="desk-agent-link" data-dt37-jump="scanner" type="button">التفاصيل ←</button></article>
+<article aria-labelledby="deskAiTitle" class="desk-agent desk-agent-ai"><div class="desk-agent-top"><span class="desk-agent-number">ADAPTIVE AI</span><span class="desk-agent-type">مراقبة ورقية مستقلة</span></div><span aria-hidden="true" class="desk-agent-symbol">⌁</span><h3 id="deskAiTitle">ماسح AI</h3><p>يختبر قرارات ديناميكية مستقلة.</p><div class="desk-agent-status"><span class="desk-status-caption">حالة آخر تشغيل</span><strong id="dt37AiState">بانتظار البيانات</strong><small id="dt37AiDetail">لا توجد دورة AI محققة بعد</small></div><button class="desk-agent-link" data-dt37-goto="ai" type="button">التفاصيل ←</button></article>
+<article aria-labelledby="deskResearchTitle" class="desk-agent desk-agent-research"><div class="desk-agent-top"><span class="desk-agent-number">RESEARCH AGENT</span><span class="desk-agent-type">لا يطبق أي تعديل تلقائي</span></div><span aria-hidden="true" class="desk-agent-symbol">✳</span><h3 id="deskResearchTitle">Research Agent</h3><p>يدقق النتائج ويقترح تجارب.</p><div class="desk-agent-status"><span class="desk-status-caption">آخر مراجعة بحثية</span><strong id="dt37ResearchState">لم يبدأ التحليل الحي</strong><small id="dt37ResearchDetail">API معطّل حتى الاعتماد</small></div><button class="desk-agent-link" data-dt37-jump="research" type="button">التفاصيل ←</button></article>
 </div>
 
 
-<div class="dt37-live-footer desk-live-footer"><span aria-live="polite" id="dt37LiveStatus" role="status">جاري قراءة حالة الخدمات…</span><span id="dt37LastUpdate">—</span></div><details class="dt37-meta-details"><summary>تفاصيل التغطية والسجلات <span>⌄</span></summary><div aria-label="مؤشرات الحالة" class="desk-metrics"><div><span>تغطية AI</span><strong id="dt37Coverage">—</strong><small>آخر دورة مسجلة</small></div><div class="dt37-secondary-metric"><span>النتائج الورقية</span><strong id="dt37AiTrades">—</strong><small>من الأرشيف فقط</small></div><div><span>دقائق الماسح</span><strong id="dt37ArchiveMinutes">—</strong><small>دقيقة محفوظة</small></div><div class="dt37-secondary-metric"><span>مراجعات الباحث</span><strong id="dt37ResearchRuns">—</strong><small>من السجلات الفعلية</small></div></div></details></section><section class="card selected-trade-card" hidden="" id="selectedTradeSection">
+<div class="dt37-live-footer desk-live-footer"><span aria-live="polite" id="dt37LiveStatus" role="status">جاري قراءة حالة الخدمات…</span><span id="dt37LastUpdate">—</span></div><details class="dt37-meta-details"><summary>تفاصيل التغطية والسجلات <span>⌄</span></summary><div aria-label="مؤشرات الحالة" class="desk-metrics"><div><span>تغطية AI</span><strong id="dt37Coverage">—</strong><small>آخر دورة مسجلة</small></div><div class="dt37-secondary-metric"><span>نتائج Paper</span><strong id="dt37AiTrades">—</strong><small>من الأرشيف فقط</small></div><div><span>دقائق الماسح</span><strong id="dt37ArchiveMinutes">—</strong><small>دقيقة محفوظة</small></div><div class="dt37-secondary-metric"><span>مراجعات Research</span><strong id="dt37ResearchRuns">—</strong><small>من السجلات الفعلية</small></div></div></details></section><section class="card selected-trade-card" hidden="" id="selectedTradeSection">
 <div class="section-title">
 <div><span class="tag locked-tag">🔒 صفقة اليوم</span><h2>الصفقة المعتمدة</h2><p class="muted">تبقى الصفقة مقفلة حتى تسجيل نتيجتها. بعدها يمكن اعتماد فرصة جديدة، ويتوقف الاعتماد لباقي الجلسة بعد 2 SL.</p></div>
 <div class="meta-stack"><span class="muted" id="selectedAt"></span><span class="muted" id="nextTradeDate"></span></div>
@@ -47,8 +48,8 @@
 </section>
 
 
-</section><section class="tab-panel" data-panel="market" id="tab-market" role="tabpanel"><section class="dt37-section-intro"><p class="dt37-kicker">اكتشاف الفرص والجودة</p><h1>الفرص والسوق</h1><p>الإشارات أولاً، ثم الأسباب والتحقق والسجلات التفصيلية عند الحاجة.</p></section><section class="card quick-actions"><div class="quick-actions-head"><div><span class="tag">اليوم</span><h2>تشغيل وفحص الفرص</h2><p class="muted">تقرأ البيانات المحفوظة تلقائياً، والتحديث اليدوي متاح عند الحاجة فقط.</p></div></div><div class="quick-action-buttons"><button class="primary" id="scanBtn">قراءة فرص اليوم</button><button class="secondary" id="dailyBtn">تحديث يدوي فوري</button></div><div class="timing-note" id="recommendationTiming">اكتشاف الفرص يغطي الكون الشرعي المؤهل خلال نحو 10 دقائق. كل SMART تبقى تحت متابعة مستقلة كل دقيقة في الخلفية، والتطبيق يقرأ آخر تحديث كل 30 ثانية حتى إغلاق السوق النظامي. اعتماد الصفقة يقفل الاعتماد فقط؛ البحث يستمر.</div></section><section class="card" id="top5Section">
-<div class="section-title"><div><span class="tag">حتى 8 فرص مرصودة</span><h2>الفرص المرصودة</h2><p class="muted">القرارات الموجودة فعلياً فقط. لا توجد فرصة مؤكدة ما لم تُسجّل CONFIRMED.</p></div><div class="meta-stack"><span class="sample-badge" id="dailyIdeasCount">0 / 8</span><span class="muted" id="modelStatus">النموذج: أساسي</span><span class="muted" id="generatedAt"></span></div></div>
+</section><section class="tab-panel" data-panel="market" id="tab-market" role="tabpanel"><section class="dt37-section-intro"><p class="dt37-kicker">DISCOVERY / QUALITY</p><h1>الفرص والسوق</h1><p>الإشارات أولاً، ثم الأسباب والتحقق والسجلات التفصيلية عند الحاجة.</p></section><section class="card quick-actions"><div class="quick-actions-head"><div><span class="tag">TODAY</span><h2>تشغيل وفحص الفرص</h2><p class="muted">تقرأ البيانات المحفوظة تلقائياً، والتحديث اليدوي متاح عند الحاجة فقط.</p></div></div><div class="quick-action-buttons"><button class="primary" id="scanBtn">قراءة فرص اليوم</button><button class="secondary" id="dailyBtn">تحديث يدوي / Force Refresh</button></div><div class="timing-note" id="recommendationTiming">Discovery يغطي الكون الشرعي المؤهل خلال نحو 10 دقائق. كل SMART تبقى تحت متابعة مستقلة كل دقيقة في الخلفية، والتطبيق يقرأ آخر تحديث كل 30 ثانية حتى إغلاق السوق النظامي. اعتماد الصفقة يقفل الاعتماد فقط؛ البحث يستمر.</div></section><section class="card" id="top5Section">
+<div class="section-title"><div><span class="tag">FLEXIBLE 8</span><h2>الفرص المرصودة</h2><p class="muted">القرارات الموجودة فعلياً فقط. لا توجد فرصة مؤكدة ما لم تُسجّل CONFIRMED.</p></div><div class="meta-stack"><span class="sample-badge" id="dailyIdeasCount">0 / 8</span><span class="muted" id="modelStatus">النموذج: أساسي</span><span class="muted" id="generatedAt"></span></div></div>
 <div class="cards-list" id="top5"><div class="empty-state">لا توجد نتائج بعد.</div></div>
 </section><section class="hero-grid">
 <details class="card focus-card" id="focusCard"><summary><span>تحليل السهم بالتفصيل</span><span class="muted" id="focusAge"></span></summary><div class="empty-state" id="focusContent">يعرض السهم محل التركيز عندما يصل إلى حالة واضحة: BAD أو WAIT أو SMART أو CONFIRMED.</div></details>
@@ -57,36 +58,22 @@
 <div class="market-gauges">
 <div><span>SPY</span><strong id="spyTrend">--%</strong><div class="bar"><i id="spyBar"></i></div></div>
 <div><span>QQQ</span><strong id="qqqTrend">--%</strong><div class="bar"><i id="qqqBar"></i></div></div>
-<div><span>المؤشر المجمع</span><strong id="marketTrend">--%</strong><div class="bar"><i id="marketBar"></i></div></div>
+<div><span>Combined</span><strong id="marketTrend">--%</strong><div class="bar"><i id="marketBar"></i></div></div>
 </div>
 <p class="muted" id="marketInterpretation">بانتظار التحليل.</p>
 </article>
 </section><details class="dt37-detail-fold"><summary>سجل الماسح الأساسي وقرارات التأكيد</summary><section class="dt36-audit-card" id="dt36AuditSection">
-<div class="section-title"><div><span class="tag">3.7 · تدقيق القرارات</span>
+<div class="section-title"><div><span class="tag">3.7 · DECISION AUDIT</span>
 <h2>🔎 كروت الانتقال: REGULAR → SMART → CONFIRMED</h2>
-<p class="muted">لقطات المؤشرات وشروط الاجتياز والإخفاق وقت كل قرار. جودة الإشارة ليست احتمال ربح مؤكداً.</p></div>
+<p class="muted">لقطات المؤشرات وشروط PASS / FAIL وقت كل قرار. جودة الإشارة ليست احتمال ربح مؤكداً.</p></div>
 <button class="secondary" id="dt36RefreshBtn" type="button">تحديث سجل التحولات</button></div>
 <div class="dt36-transitions" id="dt36TransitionCards"><div class="empty-state">بانتظار أول انتقال في جلسة اليوم.</div></div>
 <details class="dt36-ai-box"><summary>🧠 التحليل الإحصائي الداخلي — أسباب وانتقالات</summary>
 <div class="muted">تحليل محلي لسجل الإشارات والنتائج، لا يغيّر قواعد التداول تلقائياً ولا يعطي نسبة نجاح قبل المعايرة.</div>
 <div class="dt36-insights" id="dt36AiInsights"><div class="empty-state">بانتظار نتائج أول جلسة.</div></div></details>
-</section></details><details class="dt37-detail-fold"><summary>سجل ماسح AI ومتابعة الإشارات</summary><section class="dt36-audit-card" id="aiParallelSection">
-<div class="section-title"><div><span class="tag">3.7 · الماسح الذكي المتكيف</span>
-<h2>🧠 ماسح AI الموازي — مستقل وديناميكي</h2>
-<p class="muted">يعمل بالخلفية من الاكتشاف حتى نتيجة الصفقة الورقية. يحتفظ بمعاييره المتغيرة ونتائجه، ويقارنها بالماسح الأساسي دون التأثير على قراراته.</p></div>
-<button class="secondary" id="aiParallelRefresh" type="button">تحديث AI</button></div>
-<div class="calibration-note" id="aiParallelStatus">لم تصل بيانات AI الموازي بعد. لا يعني ذلك أنه يعمل إذا لم تُنشر جدولة Netlify.</div>
-<div class="history-toolbar"><button class="secondary" id="aiParallelExportJson">تصدير سجل AI الكامل بصيغة JSON</button>
-<button class="secondary" id="aiParallelExportCsv">تصدير CSV</button><button class="secondary" id="scannerAuditExportJson">تصدير سجل الماسح</button></div>
-<div class="dt36-transitions" id="aiParallelCandidates"></div>
-<details><summary>⚙️ المعايير الديناميكية وأسباب اختيارها</summary><div class="dt36-feature-grid" id="aiParallelPolicy"></div></details>
-<details open=""><summary>🔎 اكتشافات AI وتوصيات تحسين البرنامج بالكامل</summary><div class="dt36-insights" id="aiParallelRecommendations"></div></details>
-<details><summary>📊 مقارنة ماسح AI بالماسح الأساسي</summary><div id="aiParallelCompare"></div></details>
-<div class="muted">⚡ السكالب الورقي المستقل موجود في تبويب «الباحث»، وليس ضمن ماسح AI.</div>
-<div class="muted">تحليل إحصائي متكيف؛ ليس نموذج LLM ولا احتمال ربح معايراً. يشترط عروض أسعار حقيقية حديثة لإشارة AI مؤكدة. لا يرسل أوامر تداول.</div>
 </section></details><details class="dt37-detail-fold dt37-extra-market"><summary>تحليل السوق والإعدادات المتقدمة</summary><section class="hero-grid intelligence-grid">
-<details class="card"><summary>🧭 الاختيار الديناميكي <span class="sample-badge" id="dynamicStatus">بانتظار المسح</span></summary><div class="section-title"><div><span class="tag">الاختيار الديناميكي</span><h2>الاختيار الديناميكي</h2><p class="muted">يمسح قائمتك الأساسية أولاً، ثم يبحث في المجموعة الأوسع عن بدائل للأسهم الضعيفة. SPY/QQQ للقياس فقط.</p></div></div><div class="dynamic-leaders" id="dynamicLeaders"><div class="empty-state">تظهر قائمة المرشحين بعد بدء نافذة السوق.</div></div></details>
-<details class="card"><summary>📰 الأخبار ومحفزات التداول <span class="muted" id="newsUpdated"></span></summary><div class="section-title"><div><span class="tag">الأخبار</span><h2>الأخبار ومحفزات التداول</h2><p class="muted">أخبار السوق الأوسع + إعلانات الشركات الرسمية تُستخدم كفلتر مخاطر/اتجاه، ولا ترفع التوصية وحدها.</p></div></div><div class="news-panel" id="newsPanel"><div class="empty-state">بانتظار تحديث الأخبار.</div></div></details>
+<details class="card"><summary>🧭 الاختيار الديناميكي <span class="sample-badge" id="dynamicStatus">بانتظار المسح</span></summary><div class="section-title"><div><span class="tag">DYNAMIC</span><h2>الاختيار الديناميكي</h2><p class="muted">يمسح قائمتك الأساسية أولاً، ثم يبحث في المجموعة الأوسع عن بدائل للأسهم الضعيفة. SPY/QQQ للقياس فقط.</p></div></div><div class="dynamic-leaders" id="dynamicLeaders"><div class="empty-state">تظهر قائمة المرشحين بعد بدء نافذة السوق.</div></div></details>
+<details class="card"><summary>📰 الأخبار و Catalyst <span class="muted" id="newsUpdated"></span></summary><div class="section-title"><div><span class="tag">NEWS</span><h2>الأخبار و Catalyst</h2><p class="muted">أخبار السوق الأوسع + إعلانات الشركات الرسمية تُستخدم كفلتر مخاطر/اتجاه، ولا ترفع التوصية وحدها.</p></div></div><div class="news-panel" id="newsPanel"><div class="empty-state">بانتظار تحديث الأخبار.</div></div></details>
 </section><details class="card scan-settings" id="scanSettings"><summary><span>⚙️ إعدادات المسح المتقدمة</span><small>الأسهم · وضع الدقة</small></summary>
 <div class="settings-grid"><div class="field grow">
 <label for="symbols">قائمة الأسهم الأساسية — حد أقصى 5 (شراء فقط)</label>
@@ -95,20 +82,20 @@
 </div><div class="field mode-field">
 <label for="strategyMode">دقة الاستراتيجية</label>
 <select id="strategyMode">
-<option selected="" value="active">نشط مرن 0.6–1.0% — أربعة أنماط / يبدأ من 60%</option>
-<option value="balanced">متوازن — فرص متوسطة / شروط 75%+</option>
-<option value="precision">دقة عالية — صفقات أقل / شروط 82%+</option>
+<option selected="" value="active">Active Flexible 0.6–1.0% — 4 Setups / يبدأ من 60%</option>
+<option value="balanced">Balanced — فرص متوسطة / شروط 75%+</option>
+<option value="precision">High Precision — صفقات أقل / شروط 82%+</option>
 </select>
 </div></div></details></details><details class="dt37-detail-fold"><summary>الرسم البياني المتقدم (Market Pro)</summary><section class="card pro-card">
 <div class="section-title pro-title">
 <div>
-<span class="tag live-tag">رسوم السوق المتقدمة</span>
+<span class="tag live-tag">MARKET PRO</span>
 <h2>شاشة السكالب المباشر</h2>
 <p class="muted">شموع دقيقة + VWAP + Premarket + Relative Volume + ضغط شرائي/بيعي تقديري</p>
 </div>
 <div class="pro-actions">
 <label class="auto-toggle"><input id="autoLive" type="checkbox"/> تحديث تلقائي 30ث</label>
-<button class="secondary" id="proRefreshBtn">تحديث الرسم المتقدم</button>
+<button class="secondary" id="proRefreshBtn">تحديث Market Pro</button>
 </div>
 </div>
 <div class="pro-metrics">
@@ -119,15 +106,15 @@
 <em id="proSession">--</em>
 </article>
 <article class="pro-metric"><span>VWAP</span><strong id="proVwap">--</strong><small id="proVwapMode">--</small></article>
-<article class="pro-metric"><span>أعلى سعر قبل الافتتاح</span><strong id="proPreHigh">--</strong></article>
-<article class="pro-metric"><span>أدنى سعر قبل الافتتاح</span><strong id="proPreLow">--</strong></article>
-<article class="pro-metric"><span>أعلى سعر بعد الإغلاق</span><strong id="proPostHigh">--</strong></article>
-<article class="pro-metric"><span>أدنى سعر بعد الإغلاق</span><strong id="proPostLow">--</strong></article>
-<article class="pro-metric"><span>حجم التداول النسبي</span><strong id="proRvol">--</strong><small id="proRvolSample">--</small></article>
+<article class="pro-metric"><span>Premarket High</span><strong id="proPreHigh">--</strong></article>
+<article class="pro-metric"><span>Premarket Low</span><strong id="proPreLow">--</strong></article>
+<article class="pro-metric"><span>Postmarket High</span><strong id="proPostHigh">--</strong></article>
+<article class="pro-metric"><span>Postmarket Low</span><strong id="proPostLow">--</strong></article>
+<article class="pro-metric"><span>Relative Volume</span><strong id="proRvol">--</strong><small id="proRvolSample">--</small></article>
 <article class="pro-metric"><span>دعم / مقاومة</span><strong id="proSR">--</strong></article>
 </div>
 <div class="pressure-wrap">
-<div class="pressure-head"><span>الضغط الشرائي والبيعي التقديري</span><span id="pressureText">BUY --% · SELL --%</span></div>
+<div class="pressure-head"><span>ضغط BUY / SELL التقديري</span><span id="pressureText">BUY --% · SELL --%</span></div>
 <div class="pressure-bar"><i id="buyPressure"></i><b id="sellPressure"></b></div>
 <small class="muted" id="pressureNote">النسبة تقديرية من اتجاه شموع الدقيقة والحجم وليست Order Flow حقيقي.</small>
 </div>
@@ -137,40 +124,30 @@
 </div>
 <div class="chart-legend"><span>● شموع</span><span class="vwap-legend">━ VWAP</span><span class="support-legend">━ دعم</span><span class="resistance-legend">━ مقاومة</span></div>
 </div>
-<div class="chart-shell"><canvas aria-label="شارت السهم" id="marketProChart"></canvas><div class="chart-empty" id="chartEmpty">اضغط «تحديث الرسم المتقدم» لعرض الشارت.</div></div>
-<div class="extended-note muted" id="proExtendedNote">الفترات الممتدة: تظهر حالة ما قبل الافتتاح وما بعد الإغلاق دائماً؛ الأسعار الحية الممتدة تعتمد على خطة مزود البيانات.</div>
+<div class="chart-shell"><canvas aria-label="شارت السهم" id="marketProChart"></canvas><div class="chart-empty" id="chartEmpty">اضغط «تحديث Market Pro» لعرض الشارت.</div></div>
+<div class="extended-note muted" id="proExtendedNote">Extended-hours: تظهر حالة PRE/POST دائماً؛ الأسعار الحية الممتدة تعتمد على خطة مزود البيانات.</div>
 <div class="pro-footer"><span class="muted" id="proMarketTime"></span><span class="muted" id="proUpdated"></span></div>
-</section></details></section><section class="tab-panel" data-panel="research" id="tab-research" role="tabpanel"><section class="dt37-section-intro"><p class="dt37-kicker">البحث الذكي</p><h1>الباحث الذكي</h1><p>أدلة واضحة، فرضيات قابلة للاختبار، وميزانية مراقبة.</p></section>
-<section class="desk-research-hero"><div><span class="desk-overline">03 / بحث مستقل</span><h2>باحث الأداء</h2><p>يراجع الأدلة ويقترح تجارب، ولا يتدخل في التداول.</p></div><div class="desk-research-actions"><span class="desk-research-mode">ورقي · للقراءة فقط</span><button class="secondary" id="dt37ResearchRefresh" type="button">↻ تحديث التقرير</button></div></section>
-<div class="desk-research-stats"><article><span>حالة المراجعة</span><strong id="researchStatusValue">بانتظار الأرشيف</strong></article><article><span>سلامة الأدلة</span><strong id="researchEvidenceValue">غير متحققة</strong></article><article><span>تجارب مقترحة</span><strong id="researchHypothesesValue">—</strong></article><article><span>استخدام OpenAI</span><strong id="researchBudgetValue">—</strong><small>سقف تجريبي: $5 / شهر</small></article></div>
-<section aria-label="نتيجة التحليل" class="card desk-research-section"><div class="section-title"><div><span class="tag">مراجعة الأدلة</span><h2>الملخص والتحليل</h2><p class="muted" id="researchLastRun">لم تُسجّل مراجعة بحثية بعد</p></div></div><div class="desk-research-summary" id="researchSummary">بانتظار جلسة مكتملة وأرشيف كافٍ. لا تُعرض نتائج تخمينية.</div><div class="desk-evidence-warn" id="researchEvidenceWarning">الدقائق المفقودة تُصنف MISSING، ولا تعتبر صفراً من الفرص.</div></section>
-<section aria-label="التوصيات البحثية" class="card desk-research-section"><div class="section-title"><div><span class="tag">مقترحات غير مطبقة</span><h2>فرضيات وتحسينات مقترحة</h2><p class="muted">كل توصية مرتبطة بدليل وتجربة قبول، ولا تُطبق تلقائياً.</p></div></div><div class="desk-research-list" id="researchHypotheses"><div class="empty-state">لا توجد فرضيات محفوظة لهذا اليوم بعد.</div></div></section>
-<section aria-label="السكالب المستقل والتحليل البحثي" class="card desk-research-section" id="dt37StandaloneScalpSection">
-<div class="section-title"><div><span class="tag">السكالب المستقل · ورقي فقط</span><h2>⚡ السكالب الذكي — محرك مستقل تحت الباحث</h2>
-<p class="muted">12 نمطاً من شموع دقيقة مكتملة. صفقات ورقية منفصلة عن ماسح AI؛ نتائج بعد الرسوم والانزلاق المفترض، وليست أوامر حقيقية.</p></div>
-<button class="secondary" id="dt37ScalpRefresh" type="button">تحديث سجل السكالب</button></div>
-<div class="desk-research-stats"><article><span>الحالة</span><strong id="dt37ScalpStatus">بانتظار بيانات السكالب المستقل</strong></article>
-<article><span>دخول / إغلاق</span><strong id="dt37ScalpCount">—</strong></article>
-<article><span>الصافي الورقي المتوقع</span><strong id="dt37ScalpNet">—</strong></article>
-<article><span>الأنماط المرصودة</span><strong id="dt37ScalpPatterns">—</strong></article></div>
-<h3>سجل الصفقات الورقية</h3><div class="dt36-transitions" id="dt37ScalpPositions"><div class="empty-state">لا توجد صفقات محفوظة.</div></div>
-<h3>تقرير Research Agent عن السكالب</h3><div class="desk-research-list" id="dt37ScalpAnalysis"><div class="empty-state">لم يُحفظ تحليل سكالب بعد.</div></div>
-<p class="muted">لا يقارن نتائج السكالب مع صفقات AI إلا بعد توحيد نمذجة التكاليف والتحقق المستقل. لا تعديل تلقائي للاستراتيجية.</p>
-</section>
-<section aria-label="متطلبات الإثبات" class="card desk-research-section"><div class="section-title"><div><span class="tag">جودة البيانات</span><h2>البيانات التي يعتمد عليها الباحث</h2></div></div><div class="desk-data-checks"><div><span>01</span>كل قرار لكل سهم ودقيقة وأسباب الرفض</div><div><span>02</span>Bid/Ask والكمية والعمر والسبريد أو سبب غيابها</div><div><span>03</span>المصدر والتاريخ الشرعي ونتائج Paper وMFE/MAE</div><div><span>04</span>أخطاء الدورة، الدقائق المفقودة، ومقارنة المحركين</div></div><p class="muted">واجهة قراءة فقط. البيانات المعروضة من Netlify Blobs عند توافرها؛ لا توجد صفقات افتراضية في عرض التشغيل.</p></section>
-</section><section class="tab-panel" data-panel="performance" id="tab-performance" role="tabpanel"><section class="dt37-section-intro"><p class="dt37-kicker">الأداء</p><h1>نتائج قابلة للقياس</h1><p>الأرقام الموثقة أولاً. التفاصيل التاريخية داخل الأقسام.</p></section><section class="stats-grid performance-stats">
-<article class="stat"><span>الصفقات المغلقة</span><strong id="statTotal">0</strong></article>
-<article class="stat"><span>نسبة النجاح</span><strong id="statWin">0%</strong></article>
-<article class="stat"><span>العائد المتوقع (R)</span><strong id="statR">0.00R</strong><small>لكل صفقة</small></article>
-<article class="stat"><span>معامل الربحية</span><strong id="statPF">--</strong></article>
-<article class="stat"><span>صافي النتيجة</span><strong id="statNetR">0.00R</strong></article>
-<article class="stat"><span>أقصى تراجع</span><strong id="statDD">0.00R</strong></article>
-<article class="stat"><span>متوسط الرابحة</span><strong id="statAvgWin">0.00R</strong></article>
-<article class="stat"><span>متوسط الخاسرة</span><strong id="statAvgLoss">0.00R</strong></article>
-<article class="stat"><span>هدف الأسبوع</span><strong>+2.5%</strong><small>صافي</small></article>
-<article class="stat"><span>تكلفة الاشتراك</span><strong>−$10.00</strong><small>تُخصم من هدف/صافي الأسبوع</small></article>
-</section>
-<section aria-labelledby="weekly371Title" class="card weekly371-calculator" id="weekly371Calculator">
+</section></details></section><section class="tab-panel" data-panel="ai" id="tab-ai" role="tabpanel"><section class="dt37-section-intro"><h1>Dynamic AI</h1><p>ماسح مستقل وتقرير داخلي؛ لا يرسل أوامر وسيط أو تقريره إلى الباحث.</p></section><details class="dt37-detail-fold"><summary>سجل ماسح AI ومتابعة الإشارات</summary><section class="dt36-audit-card" id="aiParallelSection">
+<div class="section-title"><div><span class="tag">3.7 · ADAPTIVE AI SCANNER</span>
+<h2>🧠 ماسح AI الموازي — مستقل وديناميكي</h2>
+<p class="muted">يعمل بالخلفية من الاكتشاف حتى نتيجة الصفقة الورقية. يحتفظ بمعاييره المتغيرة ونتائجه، ويقارنها بالماسح الأساسي دون التأثير على قراراته.</p></div>
+<button class="secondary" id="aiParallelRefresh" type="button">تحديث AI</button></div>
+<div class="calibration-note" id="aiParallelStatus">لم تصل بيانات AI الموازي بعد. لا يعني ذلك أنه يعمل إذا لم تُنشر جدولة Netlify.</div>
+<div class="history-toolbar"><button class="secondary" id="aiParallelExportJson">تصدير سجل AI الكامل JSON</button>
+<button class="secondary" id="aiParallelExportCsv">CSV</button><button class="secondary" id="scannerAuditExportJson">تصدير سجل الماسح</button></div>
+<div class="dt36-transitions" id="aiParallelCandidates"></div>
+<details><summary>⚙️ جميع الباراميترز الديناميكية وأسباب اختيارها</summary><div class="dt36-feature-grid" id="aiParallelPolicy"></div></details>
+<details open=""><summary>🔎 اكتشافات AI وتوصيات تحسين البرنامج بالكامل</summary><div class="dt36-insights" id="aiParallelRecommendations"></div></details>
+<details><summary>📊 مقارنة AI بالماسح الأساسي</summary><div id="aiParallelCompare"></div></details>
+<div class="muted">⚡ السكالب الورقي المستقل موجود في تبويب «الباحث» تحت Research Agent، وليس ضمن ماسح AI.</div>
+<div class="muted">تحليل إحصائي متكيف؛ ليس نموذج LLM ولا احتمال ربح معايراً. يشترط عروض أسعار حقيقية حديثة لإشارة AI مؤكدة. لا يرسل أوامر تداول.</div>
+</section></details></section><section class="tab-panel" data-panel="research" id="tab-research" role="tabpanel"><section class="dt37-section-intro"><p class="dt37-kicker">AI RESEARCH</p><h1>الباحث الذكي</h1><p>أدلة واضحة، فرضيات قابلة للاختبار، وميزانية مراقبة.</p></section>
+<section class="desk-research-hero"><div><span class="desk-overline">03 / INDEPENDENT RESEARCH</span><h2>باحث الأداء</h2><p>يراجع الأدلة ويقترح تجارب، ولا يتدخل في التداول.</p></div><div class="desk-research-actions"><span class="desk-research-mode">PAPER · READ ONLY</span><button class="secondary" id="dt37ResearchRefresh" type="button">↻ تحديث التقرير</button></div></section>
+<div class="desk-research-stats"><article><span>حالة المراجعة</span><strong id="researchStatusValue">بانتظار الأرشيف</strong></article><article><span>سلامة الأدلة</span><strong id="researchEvidenceValue">غير متحققة</strong></article><article><span>تجارب مقترحة</span><strong id="researchHypothesesValue">—</strong></article><article><span>استخدام OpenAI</span><strong id="researchBudgetValue">—</strong><small>سقف حجز تقديري: $3 / شهر؛ ليس سقف فوترة لدى المزود</small></article></div>
+<section aria-label="نتيجة التحليل" class="card desk-research-section"><div class="section-title"><div><span class="tag">EVIDENCE REVIEW</span><h2>الملخص والتحليل</h2><p class="muted" id="researchLastRun">لم تُسجّل مراجعة بحثية بعد</p></div></div><div class="desk-research-summary" id="researchSummary">بانتظار جلسة مكتملة وأرشيف كافٍ. لا تُعرض نتائج تخمينية.</div><div class="desk-evidence-warn" id="researchEvidenceWarning">الدقائق المفقودة تُصنف MISSING، ولا تعتبر صفراً من الفرص.</div></section>
+<section aria-label="التوصيات البحثية" class="card desk-research-section"><div class="section-title"><div><span class="tag">PROPOSED · NOT APPLIED</span><h2>فرضيات وتحسينات مقترحة</h2><p class="muted">كل توصية مرتبطة بدليل وتجربة قبول، ولا تُطبق تلقائياً.</p></div></div><div class="desk-research-list" id="researchHypotheses"><div class="empty-state">لا توجد فرضيات محفوظة لهذا اليوم بعد.</div></div></section>
+<section aria-label="متطلبات الإثبات" class="card desk-research-section"><div class="section-title"><div><span class="tag">DATA QUALITY</span><h2>البيانات التي يعتمد عليها الباحث</h2></div></div><div class="desk-data-checks"><div><span>01</span>كل قرار لكل سهم ودقيقة وأسباب الرفض</div><div><span>02</span>Bid/Ask والكمية والعمر والسبريد أو سبب غيابها</div><div><span>03</span>المصدر والتاريخ الشرعي ونتائج Paper وMFE/MAE</div><div><span>04</span>أخطاء الدورة، الدقائق المفقودة، ومقارنة المحركين</div></div><p class="muted">واجهة قراءة فقط. البيانات المعروضة من Netlify Blobs عند توافرها؛ لا توجد صفقات افتراضية في عرض التشغيل.</p></section>
+</section><section class="tab-panel" data-panel="performance" id="tab-performance" role="tabpanel"><section class="dt37-section-intro"><p class="dt37-kicker">PERFORMANCE</p><h1>نتائج قابلة للقياس</h1><p>الأرقام الموثقة أولاً. التفاصيل التاريخية داخل الأقسام.</p></section><section aria-labelledby="weekly371Title" class="card weekly371-calculator" id="weekly371Calculator">
   <div class="weekly371-head"><div><span class="weekly371-eyebrow">الماسح الأساسي · نتائج ورقية · رأس مال ابتدائي 1,000 دولار</span><h2 id="weekly371Title">تحصيل الماسح الأساسي الأسبوعي — تلقائي</h2><p>تُقرأ نتائج CONFIRMED من سجل الماسح الأساسي تلقائياً. محاكاة ورقية تعتمد سعر الإشارة ولمس الهدف الموصى به أو الوقف، وليست أرباح وسيط فعلية. نبدأ الاثنين بـ1,000$، ثم نستخدم رصيد نهاية كل يوم لليوم التالي، بعد خصم عمولة الصفقات المحددة.</p></div><span class="weekly371-local-label">قراءة تلقائية · دون إدخال يدوي</span></div>
   <div class="weekly371-controls weekly371-auto-controls">
     <label>أسبوع تداول نيويورك<div class="weekly371-week-picker"><button aria-label="الأسبوع السابق" data-weekly371-shift="-1" type="button">‹</button><input aria-label="اختيار أسبوع التداول" data-weekly371-week="" type="date"/><button aria-label="الأسبوع التالي" data-weekly371-shift="1" type="button">›</button></div><span class="weekly371-range" data-weekly371-week-label="">—</span></label>
@@ -197,36 +174,47 @@
     <div><span>حالة الأسبوع</span><strong data-weekly371-completeness="">غير متحقق</strong></div>
   </div>
   <div class="weekly371-foot"><div><p data-weekly371-verdict="">النتائج تظهر تلقائياً عند فتح تبويب الأداء.</p><p>* محاكاة إشارات فقط: لا نملك أسعار التنفيذ الفعلي أو عمولة الوسيط الفعلية أو الانزلاق السعري؛ لا تُدرج الأيام ناقصة البيانات كأرباح أو صفراً. لا تتغير الاستراتيجية أو نتائج Research Agent، ولا تُضاف أي عملية مجدولة.</p><p class="weekly371-error" data-weekly371-error="" role="alert"></p></div></div>
-</section><section class="quick-stats"><article><span>نسبة النجاح</span><strong id="quickWin">0%</strong></article><article><span>العائد المتوقع (R)</span><strong id="quickExpectancy">0.00R</strong></article><article><span>معامل الربحية</span><strong id="quickPF">--</strong></article><article><span>صافي العائد (R)</span><strong id="quickNetR">0.00R</strong></article></section><details class="card performance-card"><summary>🧠 تحليل جودة الاستراتيجية — تعلم الماسح 3.7 <span class="sample-badge" id="sampleQuality">العينة: غير كافية</span></summary><div class="section-title"><div><span class="tag">التعلم 3.7</span><h2>تحليل جودة الاستراتيجية</h2><p class="muted">يتعلم بشكل محافظ من نتائج كل CONFIRMED التلقائية، وليس من الصفقات المعتمدة فقط. يبدأ التكيّف بعد عينة كافية.</p></div></div>
+</section><section class="stats-grid performance-stats">
+<article class="stat"><span>الصفقات المغلقة</span><strong id="statTotal">0</strong></article>
+<article class="stat"><span>نسبة النجاح</span><strong id="statWin">0%</strong></article>
+<article class="stat"><span>Expectancy</span><strong id="statR">0.00R</strong><small>لكل صفقة</small></article>
+<article class="stat"><span>Profit Factor</span><strong id="statPF">--</strong></article>
+<article class="stat"><span>صافي النتيجة</span><strong id="statNetR">0.00R</strong></article>
+<article class="stat"><span>Max Drawdown</span><strong id="statDD">0.00R</strong></article>
+<article class="stat"><span>متوسط الرابحة</span><strong id="statAvgWin">0.00R</strong></article>
+<article class="stat"><span>متوسط الخاسرة</span><strong id="statAvgLoss">0.00R</strong></article>
+<article class="stat"><span>هدف الأسبوع</span><strong>+2.5%</strong><small>Net</small></article>
+<article class="stat"><span>تكلفة الاشتراك</span><strong>−$10.00</strong><small>تُخصم من هدف/صافي الأسبوع</small></article>
+</section><section class="quick-stats"><article><span>Win Rate</span><strong id="quickWin">0%</strong></article><article><span>Expectancy</span><strong id="quickExpectancy">0.00R</strong></article><article><span>Profit Factor</span><strong id="quickPF">--</strong></article><article><span>Net R</span><strong id="quickNetR">0.00R</strong></article></section><details class="card performance-card"><summary>🧠 تحليل جودة الاستراتيجية — Scanner Learning 3.7 <span class="sample-badge" id="sampleQuality">العينة: غير كافية</span></summary><div class="section-title"><div><span class="tag">3.7 LEARNING</span><h2>تحليل جودة الاستراتيجية</h2><p class="muted">يتعلم بشكل محافظ من نتائج كل CONFIRMED التلقائية، وليس من الصفقات المعتمدة فقط. يبدأ التكيّف بعد عينة كافية.</p></div></div>
 <div class="insight-grid">
 <article class="insight"><span>أفضل سهم</span><strong id="bestSymbol">--</strong><small id="bestSymbolSub">--</small></article>
 <article class="insight"><span>أفضل وقت</span><strong id="bestTime">--</strong><small id="bestTimeSub">--</small></article>
 <article class="insight"><span>أفضل مستوى ثقة</span><strong id="bestConfidence">--</strong><small id="bestConfidenceSub">--</small></article>
 <article class="insight"><span>فلتر الأداء الحالي</span><strong id="performanceThreshold">82%+</strong><small id="performanceFilterNote">أساسي</small></article>
 </div>
-<div class="performance-table" id="symbolPerformance"><div class="empty-state">تظهر مقارنة الأسهم بعد تسجيل النتائج.</div></div></details><section class="card scanner-health-card" id="scannerHealthCard"><div class="section-title"><div><span class="tag" id="scannerHealthTag">الماسح</span><h2>حالة الماسح</h2><p class="muted" id="scannerHealthText">جاري التحقق من آخر دورة مسح…</p></div></div><div class="result-counts"><span>الحالة <b id="scannerHealthState">--</b></span><span>آخر دورة <b id="scannerLastAge">--</b></span><span>الكون الشرعي <b id="scannerShariaCount">--</b></span><span>تم فحصه <b id="scannerScannedCount">--</b></span></div><div class="calibration-note" id="scannerHealthDetail">--</div></section><details class="card performance-card"><summary>📡 قوة الماسح — تلقائي</summary><div class="section-title"><div><span class="tag">الماسح التلقائي</span><h2>قوة الماسح — تلقائي</h2><p class="muted">يتابع كل CONFIRMED تلقائياً سواء اعتمدت الصفقة أم لا. النتيجة تُحسب من بيانات الدقيقة حتى إغلاق السوق، ولا تدخل الحالات الملتبسة في نسبة النجاح.</p></div></div><div class="result-counts"><span>إشارات <b id="scanTotal">0</b></span><span>الرابحة <b id="scanWin">--</b></span><span>T3 <b id="scanT3">0</b></span><span>SL <b id="scanSL">0</b></span></div><div class="history-toolbar"><select id="scannerHistoryRange"><option value="1">اليوم</option><option value="2">الجلسة السابقة</option><option value="5">آخر 5 جلسات</option><option value="30">آخر 30 جلسة</option></select><button class="secondary" id="exportHistoryJson">تصدير JSON · 30 جلسة</button><button class="secondary" id="exportHistoryCsv">تصدير CSV · 30 جلسة</button></div><div class="history" id="scannerHistory"><div class="empty-state">بانتظار أول CONFIRMED.</div></div></details><details class="card error-analysis-card"><summary>🧪 تحليل أسباب الخسارة</summary>
-<div class="section-title"><div><span class="tag">تحليل الأخطاء</span><h2>تحليل أسباب الخسارة</h2><p class="muted">كل SL يُصنّف تلقائياً حسب ظروف الدخول: Retest، RVOL، MTF، السوق، المطاردة، الأخبار والمساحة المتاحة.</p></div></div>
+<div class="performance-table" id="symbolPerformance"><div class="empty-state">تظهر مقارنة الأسهم بعد تسجيل النتائج.</div></div></details><section class="card scanner-health-card" id="scannerHealthCard"><div class="section-title"><div><span class="tag" id="scannerHealthTag">SCANNER</span><h2>حالة الماسح</h2><p class="muted" id="scannerHealthText">جاري التحقق من آخر دورة مسح…</p></div></div><div class="result-counts"><span>الحالة <b id="scannerHealthState">--</b></span><span>آخر دورة <b id="scannerLastAge">--</b></span><span>الكون الشرعي <b id="scannerShariaCount">--</b></span><span>تم فحصه <b id="scannerScannedCount">--</b></span></div><div class="calibration-note" id="scannerHealthDetail">--</div></section><details class="card performance-card"><summary>📡 قوة الماسح — تلقائي</summary><div class="section-title"><div><span class="tag">SCANNER AUTO</span><h2>قوة الماسح — تلقائي</h2><p class="muted">يتابع كل CONFIRMED تلقائياً سواء اعتمدت الصفقة أم لا. النتيجة تُحسب من بيانات الدقيقة حتى إغلاق السوق، ولا تدخل الحالات الملتبسة في نسبة النجاح.</p></div></div><div class="result-counts"><span>Signals <b id="scanTotal">0</b></span><span>Win <b id="scanWin">--</b></span><span>T3 <b id="scanT3">0</b></span><span>SL <b id="scanSL">0</b></span></div><div class="history-toolbar"><select id="scannerHistoryRange"><option value="1">Today</option><option value="2">Previous Session</option><option value="5">Last 5 Sessions</option><option value="30">Last 30 Sessions</option></select><button class="secondary" id="exportHistoryJson">Export JSON · 30 جلسة</button><button class="secondary" id="exportHistoryCsv">Export CSV · 30 جلسة</button></div><div class="history" id="scannerHistory"><div class="empty-state">بانتظار أول CONFIRMED.</div></div></details><details class="card error-analysis-card"><summary>🧪 تحليل أسباب الخسارة</summary>
+<div class="section-title"><div><span class="tag">ERROR LAB</span><h2>تحليل أسباب الخسارة</h2><p class="muted">كل SL يُصنّف تلقائياً حسب ظروف الدخول: Retest، RVOL، MTF، السوق، المطاردة، الأخبار والمساحة المتاحة.</p></div></div>
 <div class="error-grid" id="errorAnalysis"><div class="empty-state">تظهر أسباب الخسارة بعد تسجيل صفقات SL.</div></div></details><details class="card"><summary>📊 إحصائية الصفقات المعتمدة</summary>
 <div class="section-title"><div><h2>إحصائية التوصيات</h2><p class="muted">تُسجّل نتيجة الصفقة المعتمدة. BAD TRADE تظهر في السجل لكنها لا تدخل في إحصائيات/تعلّم High Precision.</p></div><button class="danger-link" id="clearStats">مسح الإحصائيات</button></div>
 <div class="result-counts">
 <span>T1 <b id="countT1">0</b></span><span>T2 <b id="countT2">0</b></span><span>T3 <b id="countT3">0</b></span><span>SL <b id="countSL">0</b></span>
 </div>
-<div class="history" id="history"><div class="empty-state">لا توجد صفقات مسجلة.</div></div></details></section><section class="tab-panel" data-panel="tools" id="tab-tools" role="tabpanel"><section class="dt37-section-intro"><p class="dt37-kicker">النظام والإعدادات</p><h1>المزيد والإعدادات</h1><p>الأدوات المتقدمة والتنبيهات وإعدادات البحث.</p></section><details class="card" open=""><summary>🔔 التنبيهات والصوت</summary><div class="quick-action-buttons"><button class="secondary" id="pushBtn">🔔 تفعيل تنبيهات الخلفية</button><button class="secondary" id="soundTestBtn">🔊 تجربة صوت التوصية</button></div><p class="muted">يُرسل CONFIRMED مرة واحدة لكل Signal ID. يسجل البرنامج زمن confirmedAt → pushSentAt لقياس التأخير.</p></details><details class="card backtest-card"><summary>🧪 Backtest تاريخي متعدد الأشهر</summary>
+<div class="history" id="history"><div class="empty-state">لا توجد صفقات مسجلة.</div></div></details></section><section class="tab-panel" data-panel="tools" id="tab-tools" role="tabpanel"><section class="dt37-section-intro"><p class="dt37-kicker">SYSTEM &amp; SETTINGS</p><h1>المزيد والإعدادات</h1><p>الأدوات المتقدمة والتنبيهات وإعدادات البحث.</p></section><details class="card" open=""><summary>🔔 التنبيهات والصوت</summary><div class="quick-action-buttons"><button class="secondary" id="pushBtn">🔔 تفعيل تنبيهات الخلفية</button><button class="secondary" id="soundTestBtn">🔊 تجربة صوت التوصية</button></div><p class="muted">يُرسل CONFIRMED مرة واحدة لكل Signal ID. يسجل البرنامج زمن confirmedAt → pushSentAt لقياس التأخير.</p></details><details class="card backtest-card"><summary>🧪 Backtest تاريخي متعدد الأشهر</summary>
 <div class="section-title"><div><span class="tag">BACKTEST LAB</span><h2>Backtest تاريخي متعدد الأشهر</h2><p class="muted">يفحص عدة أشهر ويقارن 5 إعدادات محافظة، ويسمح بمحاولات Setup متعددة داخل الجلسة. إذا وجد تحسناً يعطيك مقترحاً للمراجعة ولا يطبقه إلا بعد موافقتك.</p></div></div>
 <div class="provider-note"><b>تحسين الجودة:</b> عند إضافة مفاتيح Alpaca يستخدم البرنامج أخبار Benzinga الأوسع + Bid/Ask/Spread من IEX، ويستخدم Alpaca أيضاً للـBacktest التاريخي لتخفيف استهلاك Twelve Data.</div>
 <div class="backtest-toolbar"><input id="backtestSymbol" maxlength="12" value="PLTR"/><select id="backtestMonths"><option value="3">3 أشهر</option><option selected="" value="6">6 أشهر</option><option value="9">9 أشهر</option><option value="12">12 شهر</option></select><button class="secondary" id="backtestBtn">تشغيل Backtest</button><span class="muted">إذا لم تُضف Alpaca، يستخدم Twelve Data بنوافذ تاريخية ويحمي حصة الـcredits.</span></div>
 <div class="backtest-result" id="backtestResult"><div class="empty-state">لم يتم تشغيل الاختبار بعد.</div></div>
-<details class="card data-quality-card"><summary>📡 جودة البيانات · الأخبار و Spread</summary><p class="muted">للتفعيل الكامل أضف في Netlify: <b>ALPACA_API_KEY_ID</b> و <b>ALPACA_API_SECRET_KEY</b>. يمنع النظام CONFIRMED عندما تكون بيانات Quote المتاحة قديمة.</p></details></details><details class="card smart-notes"><summary>💡 ملاحظات سريعة</summary><div class="notes-grid"><article class="note-card good"><b>☪️ الوضع الشرعي</b><span>شراء السهم الفعلي فقط بحساب Cash. لا شورت، لا Margin/Leverage، ولا CFD/Options/Futures.</span></article><article class="note-card warn"><b>BAD TRADE</b><span>لا تختفي الأسهم الضعيفة من قائمتك؛ تظهر بالأحمر، ويبحث البرنامج عن بديل أفضل لها.</span></article><article class="note-card info"><b>الأهداف الديناميكية</b><span>T1 وT2 أجزاء من مسافة Blend الديناميكية، وT3 هو هدف Blend، مع ستة أهداف Shadow بحثية. لا يوجد ضمان ربح.</span></article></div></details></section></main><footer>Dynamic Trading 3.7.1 · تداول ورقي فقط · لا ينفذ أوامر تداول تلقائياً</footer></div>
+<details class="card data-quality-card"><summary>📡 جودة البيانات · الأخبار و Spread</summary><p class="muted">للتفعيل الكامل أضف في Netlify: <b>ALPACA_API_KEY_ID</b> و <b>ALPACA_API_SECRET_KEY</b>. يمنع النظام CONFIRMED عندما تكون بيانات Quote المتاحة قديمة.</p></details></details><details class="card smart-notes"><summary>💡 ملاحظات سريعة</summary><div class="notes-grid"><article class="note-card good"><b>☪️ الوضع الشرعي</b><span>شراء السهم الفعلي فقط بحساب Cash. لا شورت، لا Margin/Leverage، ولا CFD/Options/Futures.</span></article><article class="note-card warn"><b>BAD TRADE</b><span>لا تختفي الأسهم الضعيفة من قائمتك؛ تظهر بالأحمر، ويبحث البرنامج عن بديل أفضل لها.</span></article><article class="note-card info"><b>الأهداف الديناميكية</b><span>T1 وT2 أجزاء من مسافة Blend الديناميكية، وT3 هو هدف Blend، مع ستة أهداف Shadow بحثية. لا يوجد ضمان ربح.</span></article></div></details></section></main><footer>Dynamic Trading 3.7.2 · Paper Only · لا تنفذ أي أمر تداول تلقائي</footer></div>
 <script src="/dt37-api-json.js?v=3752"></script>
 <script src="/tab-nav.js?v=3752"></script>
-<script defer="" src="/dt37-cockpit.js?v=3710"></script>
 <script src="/dt37-report-ar371.js?v=1"></script>
+<script defer src="/dt372-collapse.js?v=1"></script>
+<script defer="" src="/dt37-cockpit.js?v=3710"></script>
 <script defer="" src="/dt37-research-panel.js?v=3752"></script>
-<script defer="" src="/dt37-scalp-panel37.js?v=1"></script>
+
 <script src="/ui-backtest-market37.js?v=3752"></script>
 <script src="/ui-presentation37.js?v=3752"></script>
 <script src="/app.js?v=3752"></script>
 <script src="/ai-parallel-panel.js?v=3753"></script>
-<script defer="True" src="/dt37-next.js?v=3752"></script>
-<script type="module" src="/weekly-profit-calc371.mjs?v=3"></script></body>
+<script defer="True" src="/dt37-next.js?v=3752"></script><script type="module" src="/weekly-profit-calc371.mjs?v=3"></script></body>
 </html>

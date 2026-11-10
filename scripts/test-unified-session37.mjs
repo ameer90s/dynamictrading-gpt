@@ -3,7 +3,6 @@ import {marketSession,recommendationWindow} from '../netlify/functions/lib/time.
 import {sessionPlan37} from '../netlify/functions/lib/trading-session-plan37.mjs';
 import {researchExpectedMinutes37} from '../netlify/functions/lib/daily-research-diagnostic37.mjs';
 import {aiOpenSymbols37,followAiOpenPositions37} from '../netlify/functions/lib/ai-followup37.mjs';
-import {scalpCycle37} from '../netlify/functions/lib/ai-scalp-paper37.mjs';
 import {readFileSync} from 'node:fs';
 let successes=0;
 async function test(name,fn){await fn();successes++;console.log('PASS UNIFIED_WINDOW',name)}
@@ -65,29 +64,14 @@ await test('AI end-of-session missing candles cannot fabricate profit',()=>{
  assert.equal(r.closedNew.length,1);assert.equal(r.closedNew[0].outcome,'UNPRICED_AT_CLOSE');
  assert.equal(r.closedNew[0].netUsd,null);
 });
-await test('scalp entry cutoff closes pending after cutoff but does not close existing positions early',()=>{
- const day='2026-11-05',d=ny(day,15,0);
- const state={schemaVersion:'3.7-SCALP-PAPER-1',day,records:{AAA:{symbol:'AAA',day,status:'PENDING',pending:{day,
- type:'MOMENTUM_SCALP',signalMinute:899,validUntil:902},position:null}},closedOutcomes:[],tradeCount:0,lastMinute:899};
- const r=scalpCycle37({day,now:d,minute:900,candidates:['AAA'],previous:state,enabled:true,sessionEndMinute:960,
- newEntryCutoffMinute:899,barMap:{AAA:[]},quotes:{},features:{},approved:['AAA'],market:{regime:'RANGE',confidence:.5}});
- assert.equal(r.state.records.AAA.position,null);assert.equal(r.state.records.AAA.pending,null);
- assert.equal(r.state.records.AAA.reason,'SCALP_PRE_CLOSE_NO_NEW_ENTRIES');
- assert.equal(r.policy.entryMaxMinute,899);
-});
-await test('scalp scheduled, legacy embedded off by default, real close still scheduled UTC',()=>{
- const root=new URL('../',import.meta.url);
+await test('3.7.2 retires scalp schedule and preserves both main scanners',()=>{
  const toml=readFileSync(new URL('../netlify.toml',import.meta.url),'utf8');
- assert.match(toml,/\[functions\."scalp-paper-scan37"\]\s*schedule\s*=\s*"\* 13-21 \* \* 1-5"/);
- const s=readFileSync(new URL('../netlify/functions/scalp-paper-scan37.mjs',import.meta.url),'utf8');
- assert.match(s,/STANDALONE_ENABLED:process\.env\.DT37_SCALP_STANDALONE_ENABLED\?\?'true'/);
+ assert.doesNotMatch(toml,/\[functions\."scalp-paper-scan37"\]/);
  const ai=readFileSync(new URL('../netlify/functions/ai-parallel-scan.mjs',import.meta.url),'utf8');
  assert.match(ai,/followAiOpenPositions37/);
- assert.match(ai,/noLegacyScalp:true/);
- assert.match(ai,/priorLatest/);
- assert.match(ai,/recommendations:\[\]/);
  const main=readFileSync(new URL('../netlify/functions/daily-recommendation.mjs',import.meta.url),'utf8');
  assert.match(main,/sessionPlan37\(clock\)\.discovery/);
- assert.doesNotMatch(toml,/^\s*\[functions\."ai-parallel-llm-review"\]/m);
+ assert.match(toml,/\[functions\."ai-parallel-scan"\]/);
+ assert.match(toml,/\[functions\."daily-recommendation"\]/);
 });
 console.log(`DT37_UNIFIED_SESSION_TESTS_PASS ${successes}/${successes}`);

@@ -54,7 +54,7 @@ function qualityOf(r){const q=quoteOf(r.quote);return {
   nonIex:q.source&&q.source!=='UNKNOWN'&&!/IEX/i.test(q.source)?1:0};}
 export function summarizeMinuteAudit({kind,day,doc}={}){
  if(!['ai','scanner'].includes(kind)||!/^20\d\d-\d\d-\d\d$/.test(day||''))throw Error('LEDGER_BAD_IDENTITY');
- const minute=Number(doc?.minute);if(!Number.isInteger(minute)||minute<570||minute>959)throw Error('LEDGER_BAD_MINUTE');
+ const minute=Number(doc?.minute);if(!Number.isInteger(minute)||minute<570||minute>960)throw Error('LEDGER_BAD_MINUTE');
  const rows=kind==='scanner'?doc.records:doc.snapshots;
  if(!Array.isArray(rows))throw Error('LEDGER_RECORDS_MISSING');
  const states={},reasons={},gatesFail={},sources={},features={},quote={},symbols=[];
@@ -99,7 +99,10 @@ export function summarizeMinuteAudit({kind,day,doc}={}){
  * All seven hours are combined for the one post-close review.
  */
 export const researchHours=Object.freeze([9,10,11,12,13,14,15]);
-export const ledgerKey=(kind,day,minute)=>`dt37-research-ledger-${kind}-${day}-${String(Math.floor(minute/60)).padStart(2,'0')}`;
+// Store the terminal 16:00 snapshot in the existing final hourly shard; no
+// additional hourly reads are needed by post-close research.
+const ledgerHour=minute=>Math.min(15,Math.floor(minute/60));
+export const ledgerKey=(kind,day,minute)=>`dt37-research-ledger-${kind}-${day}-${String(ledgerHour(minute)).padStart(2,'0')}`;
 export async function recordResearchMinute({store,kind,day,doc}={}){
  const summary=summarizeMinuteAudit({kind,day,doc});const key=ledgerKey(kind,day,summary.minute);
  // A shared hourly Blob can be updated by overlapping scheduled minutes.
@@ -112,12 +115,12 @@ export async function recordResearchMinute({store,kind,day,doc}={}){
   const current=await store.getWithMetadata(key,{type:'json',consistency:'strong'});
   if(current&&!current.etag)throw Error('LEDGER_READ_ETAG_MISSING');
   const prior=current?.data||null;
-  if(prior&&(prior.kind!==kind||prior.day!==day||prior.hour!==Math.floor(summary.minute/60)))
+  if(prior&&(prior.kind!==kind||prior.day!==day||prior.hour!==ledgerHour(summary.minute)))
    throw Error('LEDGER_IDENTITY_MISMATCH');
   const minutes={...(prior?.minutes||{})};
   if(minutes[k]?.archiveSha256===summary.archiveSha256)return {status:'DUPLICATE',minute:summary.minute};
   minutes[k]=summary;
-  const updated={schemaVersion:'3.7-RESEARCH-LEDGER-1',kind,day,hour:Math.floor(summary.minute/60),
+  const updated={schemaVersion:'3.7-RESEARCH-LEDGER-1',kind,day,hour:ledgerHour(summary.minute),
    updatedAt:new Date().toISOString(),minutes};
   const receipt=await store.setJSON(key,updated,current?{onlyIfMatch:current.etag}:{onlyIfNew:true});
   // A conditional Blob SDK write can falsely report modified=true on a

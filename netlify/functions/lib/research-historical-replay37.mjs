@@ -1,6 +1,6 @@
 /**
- * Historical point-in-time signal replay for all three engines. OFFLINE ONLY.
- * Uses the real scanner, AI and scalp setup detectors; does not invent Level 1
+ * Historical point-in-time signal replay for scanner and AI. OFFLINE ONLY.
+ * Uses the real scanner and AI setup detectors; does not invent Level 1
  * quotes, executions, returns or unobserved trading opportunities.
  * This fixture is a selected-symbol archive, NOT a full-universe replay.
  */
@@ -8,17 +8,15 @@ import {createHash} from 'node:crypto';
 import {RESEARCH36_POLICY,evaluateResearch36} from './research36.mjs';
 import {adaptiveAiPolicy,evaluateIndependentAi,featureSet} from './ai-parallel36.mjs';
 import {classifyMarket37} from './ai-research-feedback37.mjs';
-import {scalpPolicy37,detectScalpSetup37} from './ai-scalp-paper37.mjs';
 
 const sha=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
 const num=x=>typeof x==='number'&&Number.isFinite(x);
 const iso=x=>/^20\d\d-\d\d-\d\d$/.test(x||'')&&!Number.isNaN(Date.parse(x))&&new Date(`${x}T12:00:00Z`).toISOString().slice(0,10)===x;
 const pad=x=>String(x).padStart(2,'0');
-const engines=['SCANNER','AI','SCALP'];
+const engines=['SCANNER','AI'];
 const guard={
  SCANNER:{maxSpreadBps:'DECREASE',minClosePosition:'INCREASE',minRetestVolume:'INCREASE',minNetR:'INCREASE',openingDollarVolume:'INCREASE'},
- AI:{maxSpreadBps:'DECREASE',minClosePosition:'INCREASE',retestVolumeMin:'INCREASE',earlyVolumeMin:'INCREASE',minRewardR:'INCREASE'},
- SCALP:{maxSpreadBps:'DECREASE',minVolumeRatio:'INCREASE',minMomentum3Pct:'INCREASE',minNetProfitUsd:'INCREASE',maxQuoteDeviationPct:'DECREASE'}
+ AI:{maxSpreadBps:'DECREASE',minClosePosition:'INCREASE',retestVolumeMin:'INCREASE',earlyVolumeMin:'INCREASE',minRewardR:'INCREASE'}
 };
 const finiteLiteral=x=>num(x)&&x>0&&x<1e7;
 /** Parameter delta is deliberately narrow: never accepts arbitrary research/LLM JavaScript. */
@@ -141,12 +139,7 @@ export function replayThreeScanners37({fixture,proposal,trainingEnd,holdoutStart
        const x=evaluateIndependentAi(sh.symbol,sh.prefix,spyPrefix,null,{allowHistorical:true,now,approved:true,policy:p});
        if(x.decisionTrace?.eligibleForPending)note(rec,day,sh.symbol,x.setupType||'AI_SETUP',m,market.regime);
        countReason(rec,x.reason);
-      }else{
-       if(market.regime==='UNKNOWN'){rec.marketUnknown++;countReason(rec,'INSUFFICIENT_CROSS_SECTION');continue;}
-       const baseline=scalpPolicy37(market,dynamic),p=variant==='CANDIDATE'&&locked.engine===engine?amendPolicy(baseline,locked):baseline;
-       const x=detectScalpSetup37(currentFeatures,market,p);
-       if(x.type)note(rec,day,sh.symbol,x.type,m,market.regime);
-       countReason(rec,x.reason);
+
       }
      }
     }
@@ -163,14 +156,14 @@ export function replayThreeScanners37({fixture,proposal,trainingEnd,holdoutStart
   barCompleteness:{symbolDaysWith390Bars:shards.filter(x=>x.rows.length===390).length,
    symbolDaysIncomplete:shards.filter(x=>x.rows.length<390).length}};
  const quality=evalDates.length>=5&&shards.length>=60&&everyMinutes===1&&skippedNoSPY===0;
- return {schemaVersion:'3.7-OFFLINE-THREE-ENGINE-REPLAY-1',runId:`DT37_REPLAY_${sha([locked,trainingEnd,holdoutStart,holdoutEnd,coverage,comparisons]).slice(0,24)}`,
+ return {schemaVersion:'3.7.2-OFFLINE-TWO-ENGINE-REPLAY-1',runId:`DT37_REPLAY_${sha([locked,trainingEnd,holdoutStart,holdoutEnd,coverage,comparisons]).slice(0,24)}`,
   proposal:locked,trainingEnd,holdoutStart,holdoutEnd,coverage,comparisons,
   status:shards.length===0?'NO_HISTORICAL_HOLDOUT_DATA':!quality?'INCOMPLETE_OR_SPARSE_HOLDOUT':'SIGNALS_REPLAYED_NO_EXECUTION_EVIDENCE',
   signalReplayEvidence:true,executionProfitabilityVerified:false,independentAudit:'NOT_VERIFIED',
   strategyApplied:false,eligibleForProductionApproval:false,
   warning:'A signal is NOT an executed trade; newly discovered symbols outside the candidate-only archive cannot be observed',
   requirementsNotVerified:['HISTORICAL_AUTHENTIC_L1_BID_ASK','BROKER_FILL_REALISM','COMPLETE_ASOF_UNIVERSE','INDEPENDENT_OUT_OF_SAMPLE_AUDIT',
-   'SCANNER_AI_SCALP_EXECUTION_PNL_AFTER_ALL_COSTS','NETLIFY_COSTS'],
+   'SCANNER_AI_EXECUTION_PNL_AFTER_ALL_COSTS','NETLIFY_COSTS'],
   assumptions:['Approved symbols are drawn from a local snapshot, historical point-in-time Sharia approval not established',
    'No quotes or fills were invented; no P&L is calculated','Replay stride above 1 minute may miss transient signals']};
 }

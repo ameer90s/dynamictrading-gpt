@@ -8,7 +8,8 @@
  * No brokerage order API. Quotes are only from authenticated market-data provider.
  */
 import {evaluateResearch36,completedSessionRows,shadowSix,RESEARCH36_POLICY} from './research36.mjs';
-const R=Object.freeze({openMin:.5,openMax:6.5,volumeRatioMin:.5,openingMomentum5Min:.15,relativeStrengthMin:.1,usdVolumeMin:500000,earliestRetest:631,latestRetest:900,retentionBars:3,discoveryCooldownMinutes:10,minSignalVolume:.75,minReclaimPct:.08,minPullbackPct:.55,maxPullbackPct:3.5,minHodGapPct:.35,maxHodGapPct:3.5,maxBarRangePct:1.0,maxSpreadBps:12,maxQuoteAgeSec:7,maxEntryJumpPct:.35,minEntryHodGapPct:.8,minRiskPct:.45,maxRiskPct:1.10,minHodRoomR:1.35,minRawRewardR:1.0,feeUsd:2,paperCapitalUsd:1000});
+import {tradeEconomics372,selectExecutablePlan372,sizePaperPosition372} from './market-economics372.mjs';
+const R=Object.freeze({openMin:.5,openMax:6.5,volumeRatioMin:.5,openingMomentum5Min:.15,relativeStrengthMin:.1,usdVolumeMin:500000,earliestRetest:600,latestRetest:900,retentionBars:3,discoveryCooldownMinutes:10,minSignalVolume:.75,minReclaimPct:.08,minPullbackPct:.55,maxPullbackPct:3.5,minHodGapPct:.35,maxHodGapPct:3.5,maxBarRangePct:1.0,maxSpreadBps:12,maxQuoteAgeSec:7,maxEntryJumpPct:.35,minEntryHodGapPct:.8,minRiskPct:.45,maxRiskPct:1.10,minHodRoomR:1.35,minRawRewardR:1.0,minNetRewardR:1.0,feeUsd:2,paperCapitalUsd:1000});
 const round=(x,n=5)=>x!=null&&Number.isFinite(x)?Number(x.toFixed(n)):null;
 const px=(a,b)=>a>0&&b>0?100*(a/b-1):null;
 const median=x=>{const a=[...x].sort((a,b)=>a-b);return a.length?(a.length%2?a[a.length>>1]:(a[a.length/2-1]+a[a.length/2])/2):null;};
@@ -57,24 +58,41 @@ function asofCandidate(rows,s,opening,p=R){
   const barRange=100*(b.high-b.low)/b.close;
   if(barRange>1.8)continue;
   const hodGap=px(s.hod[k],b.close),formerHod=s.hod[k-1];
-  if(!(hodGap>=p.minHodGapPct&&hodGap<=5))continue;
   const low3=Math.min(b.low,prev.low,rows[k-2].low),pull=px(formerHod,low3);
-  if(!(pull>=p.minPullbackPct&&pull<=p.maxPullbackPct))continue;
   const low2=Math.min(b.low,prev.low),pv=s.vw[k],ma=s.e12[k],cl=b.close;
   const supports=[['VWAP',pv,low2<=pv*1.0025&&cl>=pv*1.0005&&prev.close>=pv*.994],
     ['EMA12',ma,low2<=ma*1.0025&&cl>=ma*1.0005&&cl>=pv*.997],
     ['OR5',fiveHi,low2<=fiveHi*1.0025&&cl>=fiveHi*1.0005&&formerHod>fiveHi*1.002],
     ['OR15',openingHigh,low2<=openingHigh*1.0025&&cl>=openingHigh*1.0005&&formerHod>openingHigh*1.002]];
   const prior6=median(rows.slice(Math.max(0,k-6),k).map(x=>x.volume));
+  // Independent breakout path: a completed strong new-high candle, never a stale HOD chase.
+  // Reuse the identical fresh L1, spread, Sharia, stop and net-economics gates below.
+  const atrBreak=atrAsOf(rows,k),breakVolume=b.volume/Math.max(prior6||1,1);
+  if(b.close>formerHod*1.001&&prev.close<=formerHod&&b.close>pv&&b.close>ma&&
+     closePosition>=.75&&breakVolume>=1.5&&barRange<=p.maxBarRangePct&&
+     atrBreak>0&&atrBreak<cl*.035){
+    found.push({date:b._time.day,minute:m,sourceModel:'FRESH_HOD_BREAKOUT',sourceMinute:m,
+     retestModel:'BREAKOUT',support:formerHod,signalHigh:b.high,signalClose:b.close,
+     localLow:low3,atr:atrBreak,barRange,signalVol:breakVolume,reclaim:px(cl,formerHod),
+     pull,hodGap,closePosition,trigger:b.high+.03*atrBreak,validUntil:m+p.retentionBars});
+  }
+  // Retest requires room below HOD and a real prior pullback; breakout is independent.
+  if(!(hodGap>=p.minHodGapPct&&hodGap<=5&&pull>=p.minPullbackPct&&pull<=p.maxPullbackPct))continue;
   for(const [model,support,ok] of supports){if(!ok||!Number.isFinite(support)||support<=0||cl/support>1.018)continue;
     const signalVol=b.volume/Math.max(prior6,1),reclaim=px(cl,support);
     if(signalVol<p.minSignalVolume||reclaim<p.minReclaimPct||hodGap>p.maxHodGapPct||barRange>p.maxBarRangePct)continue;
     const prior=discovery.filter(x=>x.minute<m&&m-x.minute<=45).at(-1);
     if(!prior)continue;
     const atr=atrAsOf(rows,k);if(!(atr>0&&atr<cl*.035))continue;
-    found.push({date:b._time.day,minute:m,sourceModel:prior.type,sourceMinute:prior.minute,retestModel:model,support,
+    const setup={date:b._time.day,minute:m,sourceModel:prior.type,sourceMinute:prior.minute,retestModel:model,support,
       signalHigh:b.high,signalClose:b.close,localLow:low3,atr,barRange,signalVol,reclaim,pull,hodGap,closePosition,
-      trigger:b.high+.03*atr,validUntil:m+p.retentionBars});
+      momentum5Pct:ret5,trigger:b.high+.03*atr,validUntil:m+p.retentionBars};
+    found.push({...setup,entryPath:'BREAKOUT_ORIGINAL'});
+    // The original breakout gate remains exact. A tiny zone is a separate
+    // alternative requiring independent completed-bar momentum/volume evidence.
+    if(ret5>0&&closePosition>=.75&&signalVol>=1)found.push({...setup,entryPath:'TRIGGER_ZONE'});
+    if(['VWAP','EMA12'].includes(model)&&ret5>0&&closePosition>=.75&&signalVol>=1)
+     found.push({...setup,entryPath:'EARLY_RETEST',confirmationLevel:b.close});
   }
  }
  return {discovery,found};
@@ -86,28 +104,41 @@ function execution(f,c,quote,now,p=R){const ask=Number(quote?.ask),bid=Number(qu
  const date=`${z.year}-${z.month}-${z.day}`;
  const spread=ask>0&&bid>0&&ask>=bid?10000*(ask-bid)/((ask+bid)/2):null;
  const stop=ask>0?Math.min(c.localLow*.9985,ask*(1-.0045)):null;
- const hod=f?.hod??null;const target=ask>0&&hod!=null?Math.min(ask+3.5*c.atr,ask+.92*(hod-ask)):null;
+ const hod=f?.hod??null;const breakout=c.retestModel==='BREAKOUT';
+ // The prior HOD must not cap a verified fresh-HOD breakout's target.
+ const target=ask>0&&hod!=null?(breakout?ask+Math.min(2.0*c.atr,ask*.025):Math.min(ask+3.5*c.atr,ask+.92*(hod-ask))):null;
+ // Only a tiny tick / spread fraction is permitted near the frozen trigger.
+ const narrowTolerance=ask>0&&bid>0&&ask>=bid?Math.max(0,Math.min(.01,(ask-bid)*.25,c.atr*.02)):0;
  const risk=stop!=null?ask-stop:null,riskPct=risk&&ask>0?100*risk/ask:null;
  const rawR=risk>0?(target-ask)/risk:null;
- const qty=risk>0?Math.min((p.paperCapitalUsd-p.feeUsd/2)/ask,Math.max(0,p.paperCapitalUsd*.0075-p.feeUsd)/risk):null;
- const netGainUsd=qty!=null?(target-ask)*qty-p.feeUsd:null;
- const netLossUsd=qty!=null?(ask-stop)*qty+p.feeUsd:null;
- const netR=netLossUsd>0?netGainUsd/netLossUsd:null;
+ const qty=risk>0?sizePaperPosition372({entry:ask,stop,bid,ask,capitalUsd:p.paperCapitalUsd,
+  riskBudgetUsd:p.paperCapitalUsd*.0075,feesUsd:p.feeUsd}):null;
+ const economics=tradeEconomics372({entry:ask,stop,target,qty,feesUsd:p.feeUsd,bid,ask});
+ const {netGainUsd,netLossUsd}=economics,netR=economics.netRewardR;
+ const early=c.entryPath==='EARLY_RETEST',zone=c.entryPath==='TRIGGER_ZONE';
  const checks=[check('quote_is_authentic_alpaca',String(quote?.source||'').startsWith('Alpaca')?1:0,'==',1,'NO_ALPACA_QUOTE'),
   check('valid_bid_ask_sizes',ask>0&&bid>0&&ask>=bid&&bidSize>0&&askSize>0?1:0,'==',1,'INVALID_LEVEL1'),
   check('quote_age_nonnegative',age,'>=',0,'QUOTE_IN_FUTURE'),check('quote_age_seconds',age,'<=',p.maxQuoteAgeSec,'QUOTE_STALE'),
   check('within_pending_window',minute-c.minute,'<=',p.retentionBars,'PENDING_EXPIRED'),
   check('quote_after_retest_bar',date===c.date&&minute>c.minute?1:0,'==',1,'QUOTE_BEFORE_RETEST_CLOSE'),
   check('spread_bps',spread,'<=',p.maxSpreadBps,'SPREAD_TOO_WIDE'),
-  check('ask_above_breakout_trigger',ask,'>=',c.trigger,'WAIT_BREAKOUT_ASK'),
+  ...(early?[
+   check('early_retest_completed_reclaim',f.lastClose,'>=',c.support,'RECLAIM_LOST'),
+   check('early_retest_current_momentum',f.momentum5Pct,'>',0,'MOMENTUM_LOST'),
+   check('early_retest_current_volume',f.volumeRatio,'>=',p.minSignalVolume,'VOLUME_WEAK'),
+   check('early_retest_ask_after_completed_confirmation',ask,'>=',c.confirmationLevel,'WAIT_RECLAIM_ASK')]:[
+   check(zone?'ask_near_frozen_trigger_with_tiny_tolerance':'ask_above_breakout_trigger',ask,'>=',c.trigger-(zone?narrowTolerance:0),'WAIT_BREAKOUT_ASK'),
+   ...(zone?[check('zone_independent_momentum',f.momentum5Pct,'>',0,'MOMENTUM_LOST'),
+    check('zone_independent_volume',f.volumeRatio,'>=',1,'VOLUME_WEAK')]:[])]),
   check('entry_jump_pct',ask>0?Math.abs(px(ask,c.signalClose)):null,'<=',p.maxEntryJumpPct,'PRICE_CHASE'),
-  check('previous_hod_gap_pct',hod>0?px(hod,ask):null,'>=',p.minEntryHodGapPct,'HOD_NO_ROOM'),
+  check('previous_hod_gap_pct',breakout?p.minEntryHodGapPct:(hod>0?px(hod,ask):null),'>=',p.minEntryHodGapPct,'HOD_NO_ROOM'),
   check('stop_risk_min_pct',riskPct,'>=',p.minRiskPct-1e-8,'STOP_TOO_CLOSE'),
   check('stop_risk_max_pct',riskPct,'<=',p.maxRiskPct,'STOP_TOO_FAR'),
-  check('hod_room_in_R',riskPct>0?px(hod,ask)/riskPct:null,'>=',p.minHodRoomR,'HOD_ROOM_R_INSUFFICIENT'),
+  check('hod_room_in_R',breakout?p.minHodRoomR:(riskPct>0?px(hod,ask)/riskPct:null),'>=',p.minHodRoomR,'HOD_ROOM_R_INSUFFICIENT'),
   check('blend_reward_in_R',rawR,'>=',p.minRawRewardR,'TARGET_BELOW_1R'),
-  check('net_paper_profit_usd',netGainUsd,'>',0,'NET_PROFIT_NOT_POSITIVE')];
- return {checks,stop,target,qty,netR,netGainUsd,netLossUsd,age,spread,riskPct,rawR};
+  check('net_paper_profit_usd',netGainUsd,'>',0,'NET_PROFIT_NOT_POSITIVE'),
+  check('net_reward_after_all_costs_R',netR,'>',Math.max(1,p.minNetRewardR),'NET_REWARD_BELOW_RISK')];
+ return {checks,stop,target,qty,netR,netGainUsd,netLossUsd,economics,age,spread,riskPct,rawR};
 }
 export function evaluateLiveResearch36(symbol,candles,spy,quote,opts={}){
  const now=opts.now||new Date();const p=liveConfirmationPolicy37(opts.modeConfig);const rows=completedSessionRows(candles,now,{allowHistorical:opts.allowHistorical===true});
@@ -132,18 +163,25 @@ export function evaluateLiveResearch36(symbol,candles,spy,quote,opts={}){
  const executionMinute=(Number(ny.hour)%24)*60+Number(ny.minute),executionDay=`${ny.year}-${ny.month}-${ny.day}`;
  const canEnter=executionMinute<=p.latestRetest;
  const valid=det.found.filter(x=>x.date===executionDay&&executionMinute>x.minute&&executionMinute-x.minute<=p.retentionBars&&canEnter);
- const candidate=valid.sort((a,b)=>b.minute-a.minute||a.retestModel.localeCompare(b.retestModel))[0]||null;
- const foundPending=!!candidate;
+ const ordered=valid.sort((a,b)=>b.minute-a.minute||a.retestModel.localeCompare(b.retestModel));
  const expiredRetests=det.found.filter(x=>x.date===executionDay&&executionMinute-x.minute>p.retentionBars);
  const hod=rows.length?Math.max(...rows.map(x=>x.high)):null;
- const ex=openingPassed&&candidate?execution({hod},candidate,quote,now,p):null;
+ const context={hod,lastClose:rows.at(-1).close,momentum5Pct:rows.length>5?px(rows.at(-1).close,rows.at(-6).close):null,
+  volumeRatio:rows.at(-1).volume/Math.max(1,median(rows.slice(-7,-1).map(x=>x.volume))||1)};
+ const plans=ordered.map(c=>{
+  const plan=execution(context,c,quote,now,p);
+  return {...plan,candidate:c,id:`${c.minute}:${c.retestModel}:${c.entryPath||'FRESH_HOD_BREAKOUT'}`};
+ });
+ const selected=selectExecutablePlan372(plans);
+ const fallback=plans[0]||null,ex=selected||fallback,candidate=ex?.candidate||null;
  const checks=[...open,...(candidate?[check('retail_retest_from_asof_setup',1,'==',1,'RETEST_MISSING'),
-  check('retest_after_1030',candidate.minute,'>',630,'BEFORE_1030'),check('new_retest_before_1500',candidate.minute,'<=',p.latestRetest,'AFTER_1500')]:[check('retest_candidate',0,'==',1,'WAIT_RETEST')]),...(ex?.checks||[])];
+  check('retest_from_1000',candidate.minute,'>=',600,'BEFORE_1000'),check('new_retest_before_1500',candidate.minute,'<=',p.latestRetest,'AFTER_1500')]:[check('retest_candidate',0,'==',1,'WAIT_RETEST')]),...(ex?.checks||[])];
  let state='WAIT',reason='WAIT_OPENING';
  if(currentMinute>=585){state='WAIT';reason=open.find(x=>!x.passed)?.reason||(canEnter?(expiredRetests.length?'PENDING_EXPIRED_WAIT_NEW_RETEST':'OPENING_WATCH_ONLY'):'DISCOVERY_WINDOW_CLOSED');}
  if(openingPassed&&candidate){state='SMART';reason=ex?.checks.find(x=>!x.passed)?.reason||'PAPER_CONFIRMED';if(ex?.checks.every(x=>x.passed))state='CONFIRMED';}
- const risk=state==='CONFIRMED'?{entry:round(quote.ask),stop:round(ex.stop),exitTarget:round(ex.target),qty:round(ex.qty,6),
+ const risk=state==='CONFIRMED'?{entry:quote.ask,stop:ex.stop,exitTarget:ex.target,qty:ex.qty,
   netRewardR:round(ex.netR),netGainUsd:round(ex.netGainUsd,2),netLossUsd:round(ex.netLossUsd,2),rawRewardR:round(ex.rawR),
+  costModel:ex.economics,entryPath:candidate.entryPath||'FRESH_HOD_BREAKOUT',
   shadow:shadowSix(quote.ask,ex.stop,candidate.atr,hod,rows),ts:now.toISOString(),quoteTimestamp:quote.timestamp}:null;
  const quoteDetail={bid:Number.isFinite(Number(quote?.bid))?Number(quote?.bid):null,ask:Number.isFinite(Number(quote?.ask))?Number(quote?.ask):null,
   bidSize:quote?.bidSize??null,askSize:quote?.askSize??null,timestamp:quote?.timestamp??null,
@@ -153,13 +191,17 @@ export function evaluateLiveResearch36(symbol,candles,spy,quote,opts={}){
   openingChecks:open,confirmationChecks:checks.slice(open.length,open.length+(candidate?3:1)),executionChecks:ex?.checks||[],checks,
   quote:quoteDetail,risk,retestModel:candidate?.retestModel||null,retestSupport:candidate?.support??null,
   trigger:round(candidate?.trigger),pendingCandidate:candidate?{...candidate}:null,
+  entryPath:candidate?.entryPath||candidate?.sourceModel||null,
+  comparedPlans:plans.map(x=>({id:x.id,entryPath:x.candidate.entryPath||x.candidate.sourceModel,
+   minute:x.candidate.minute,stop:x.stop,target:x.target,qty:x.qty,economics:x.economics,
+   checks:x.checks,selected:x===selected,targetBasis:x.candidate.retestModel==='BREAKOUT'?'COMPLETED_ATR_PROJECTION':'ATR_CAPPED_BY_OBSERVED_HOD'})),
   pendingId:candidate?`${symbol}:${candidate.date}:${candidate.sourceMinute}:${candidate.minute}:${candidate.retestModel}`:null,
   selectedPendingAgeMinutes:candidate?executionMinute-candidate.minute:null,expiredRetestCount:expiredRetests.length,
   smartStage:state==='CONFIRMED'?'CONFIRMED':candidate?'PENDING_VALID':openingPassed?(canEnter?(expiredRetests.length?'PENDING_EXPIRED':'OPENING_WATCH'):'EXPIRED'):'NOT_ELIGIBLE',
   canConfirmNow:!!candidate,confirmationPolicy:{openMin:p.openMin,maxSpreadBps:p.maxSpreadBps,minHodRoomR:p.minHodRoomR,quoteAgeSec:p.maxQuoteAgeSec,latestRetest:p.latestRetest},
   recentDiscoveredSetups:det.discovery.slice(-8),seenRetestEvents:det.found.length,
   researchPolicy:opts.modeConfig?.id==='active'?'ACTIVE_FLEXIBLE_LIVE_QUOTE_GATES_V37':'RESEARCH36_REFERENCE_LIVE_QUOTE_GATES',
-  candidateDetector:'ASOF_RETEST_AND_DISCOVERY_MATCHES_PYTHON_PROXY_RULES',
+  candidateDetector:'ASOF_RETEST_AND_FRESH_HOD_BREAKOUT_WITH_NET_R_GATES_372',
   historicalEquivalenceStatus:'REQUIRES_LIVE_OPENING_TOP8_AND_REAL_QUOTES',
   eventKey:`${f.day}:${symbol}:${candidate?.minute??currentMinute}:${state}:${candidate?.retestModel||'NONE'}`};
  return trace;

@@ -3,8 +3,8 @@ import {summarizeMinuteAudit,ledgerKey} from '../netlify/functions/lib/research-
 import {buildDailyDiagnostic37,publishDailyDiagnostic37,dailyResearchKey37,researchExpectedMinutes37} from '../netlify/functions/lib/daily-research-diagnostic37.mjs';
 import {dailyEvidenceReadiness,verifyReview,buildEvidence,callOpenAiResearch,researchBudgetKey37,PILOT} from '../netlify/functions/lib/research-openai37.mjs';
 import {publicResearchSummary} from '../netlify/functions/lib/research-public37.mjs';
-import {summarizePeriodScalp37} from '../netlify/functions/lib/research-memory-cadence37.mjs';
-import {scalpResearchHistory37,generateStrategyLearningCycle37} from '../netlify/functions/lib/research-strategy-cycle37.mjs';
+import {summarizeRetiredPeriod372 as summarizePeriodScalp37,retiredBookHistory372 as scalpResearchHistory37} from '../netlify/functions/lib/retired-history372.mjs';
+import {generateStrategyLearningCycle37} from '../netlify/functions/lib/research-strategy-cycle37.mjs';
 import {pairedDailyResearch} from '../netlify/functions/lib/research-ledger37.mjs';
 import {readFileSync} from 'node:fs';
 const day='2026-11-05',now=new Date('2026-11-05T22:16:00.000Z');
@@ -132,14 +132,14 @@ await test('daily learning uses standalone scalp over same-day embedded legacy b
  assert.equal(summary.uniqueClosed,1);assert.equal(summary.netModeledUsd,-1.7);
  assert.equal(summary.rejectionsToday.SPREAD_TOO_WIDE,4);
 });
-await test('independent scalp loss proposals stay read-only in daily learning',async()=>{
+await test('retired scalp does not enter daily strategy learning',async()=>{
  const audit=pairedDailyResearch(shard('scanner'),shard('ai'));
  const pos={id:'D1',symbol:'ABC',status:'CLOSED',closedAt:'2026-11-05T20:00:00Z',openedAt:'2026-11-05T18:00:00Z',
   setupType:'VWAP_RECLAIM_SCALP',netUsd:-2};
  const cycle=generateStrategyLearningCycle37({day,audit,aiState:{updatedAt:now.toISOString()},scannerHistory:{signals:{}},now:now.toISOString(),
   standaloneScalpStates:[{day,book:{closedOutcomes:[pos]},gateCounts:{SPREAD_TOO_WIDE:4}}]});
- assert.equal(cycle.historical.scalp.uniqueClosed,1);
- assert.equal(cycle.historical.scalp.losses,1);assert(cycle.proposals.some(p=>p.engines.includes('SCALP')));
+ assert.equal(cycle.historical.scalp,undefined);
+ assert(!cycle.proposals.some(p=>p.engines.includes('SCALP')));
  assert.equal(cycle.canAutoApply,false);
 });
 await test('API optional weekly failure does not hide locally saved daily status',async()=>{

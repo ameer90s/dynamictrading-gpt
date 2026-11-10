@@ -3,7 +3,7 @@
  * An incomplete read is not saved as a valid cache. */
 export const AI_HISTORY_SCHEMA='dt37-ai-closed-history-1';
 export async function getPriorAiHistory37(store,{day,index,now=new Date(),ttlMs=5*60000}={}){
- const days=(index?.days||[]).filter(x=>x!==day).slice(0,30);
+ const days=(index?.days||[]).filter(x=>/^20\d{2}-\d{2}-\d{2}$/.test(x)&&x<day).slice(0,30);
  const marker=days.join('|');
  const key='dt37-ai-prior-history-latest'; // rolling key (day/marker validated)
  let prev;

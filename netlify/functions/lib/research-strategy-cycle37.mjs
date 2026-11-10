@@ -5,6 +5,7 @@
  * No broker calls, deploys, parameter mutation, or automatic strategy activation.
  */
 import {createHash} from 'node:crypto';
+import {marketTimestamp372} from './market-time372.mjs';
 const sha=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
 const integer=x=>Number.isInteger(x)&&x>=0?x:0;
 const finite=x=>typeof x==='number'&&Number.isFinite(x);
@@ -16,7 +17,7 @@ const riskReadOnly=Object.freeze(['PAPER_ONLY','NO_AUTOMATIC_STRATEGY_APPLICATIO
 const totals=(list)=>(Array.isArray(list)?list:[]).reduce((acc,x)=>{if(typeof x?.name==='string'&&integer(x.count)>0){const key=id(x.name);acc[key]=(acc[key]||0)+x.count;}return acc;},{});
 const countMatches=(obj,regex)=>Object.entries(obj).reduce((v,[key,n])=>v+(regex.test(key)?n:0),0);
 const closedAsOf=(iso,day,at)=>{if(typeof iso!=='string'||!/^20\d{2}-\d\d-\d\d/.test(iso)||iso.slice(0,10)>day)return false;
- const stamp=Date.parse(iso),cutoff=Date.parse(at);return Number.isFinite(stamp)&&(!Number.isFinite(cutoff)||stamp<=cutoff);};
+ const stamp=marketTimestamp372(iso),cutoff=marketTimestamp372(at);return stamp!==null&&cutoff!==null&&stamp<=cutoff;};
 function scannerTrades(history,day,now){
  const out=[],seen=new Set();
  for(const rec of Object.values(history?.signals||{}))for(const s of rec?.confirmedSignals||[]){
@@ -40,45 +41,6 @@ function aiTrades(states,day,now){
    netUsd:finite(p.netUsd)?p.netUsd:null,outcomeType:'PAPER_PROJECTION_NOT_BROKER_FILL'});
  }
  return rows;
-}
-/** The independent scalp paper book is never silently mixed into baseline AI wins. */
-export function scalpResearchHistory37(states=[],day,now,standaloneStates=[]){
- // Standalone per-day books are authoritative; an embedded legacy scalp book
- // can fill gaps for older dates, but must never double-count the same day.
- const standaloneByDay=new Map(standaloneStates.filter(x=>x?.day&&x?.book).map(x=>[x.day,x]));
- const normalized=[...standaloneByDay.values()].map(x=>({dateKey:x.day,scalp37:{
-  schemaVersion:'3.7-SCALP-PAPER-1',closedOutcomes:x.book.closedOutcomes||[],
-  entryRejections:x.gateCounts||{}}}));
- const legacy=states.filter(x=>!standaloneByDay.has(x?.dateKey||x?.day));
- states=[...normalized,...legacy];
- // Preserve the daily counter even when older books are later in the collection.
- const today=states.find(x=>(x.dateKey||x.day)===day)||states[0];
- const seen=new Set(),closed=[];
- const rejects={};
- for(const state of states){
-  const book=state?.scalp37;
-  if(!book||book.schemaVersion!=='3.7-SCALP-PAPER-1')continue;
-  for(const p of book.closedOutcomes||[]){
-   if(!p?.id||seen.has(p.id)||!closedAsOf(p.closedAt,day,now))continue;
-   seen.add(p.id);
-   if(p.status!=='CLOSED')continue; // UNPRICED is not a win or a loss
-   closed.push({id:id(p.id),setupType:id(p.setupType),netUsd:finite(p.netUsd)?p.netUsd:null,
-    strategyVariantId:id(p.strategyVariantId),outcome:id(p.outcome)});
-  }
-  // Report today's concrete scalp rejection reasons without summing rolling snapshots.
-  if(state===today)for(const [reason,n] of Object.entries(book.entryRejections||{})){
-   if(integer(n)>0)rejects[id(reason)]=n;
-  }
- }
- const priced=closed.filter(x=>x.netUsd!==null),types=[...new Set(closed.map(x=>x.setupType))];
- return {status:states.some(x=>x?.scalp37?.schemaVersion==='3.7-SCALP-PAPER-1')?'RECORDED_PAPER_ONLY':'NOT_RECORDED',
-  uniqueClosed:closed.length,withModeledNet:priced.length,netModeledUsd:round(priced.reduce((v,x)=>v+x.netUsd,0)),
-  wins:priced.filter(x=>x.netUsd>0).length,losses:priced.filter(x=>x.netUsd<0).length,
-  unpriced:closed.length-priced.length,rejectionsToday:rejects,
-  bySetup:Object.fromEntries(types.map(t=>[t,{sample:priced.filter(x=>x.setupType===t).length,
-   netModeledUsd:round(priced.filter(x=>x.setupType===t).reduce((v,x)=>v+x.netUsd,0)),
-   readyForDescriptiveStudy:priced.filter(x=>x.setupType===t).length>=60}])),
-  distinctTradeDeduplication:true,actualBrokerFillsVerified:false,causalImprovementVerified:false};
 }
 export function observedMistakes37(audit,day,{expectedMinutes=390}={}){
  if(!/^20\d{2}-\d\d-\d\d$/.test(day||'')||audit?.dateKey!==day||!audit?.streams?.scanner||!audit?.streams?.ai)
@@ -163,7 +125,7 @@ function deterministicHypotheses(learn,day,policy){
 function validateOpenAi(review,day){
  return review?.status==='REVIEW_CREATED_NOT_APPLIED'&&review?.day===day&&Array.isArray(review?.review?.experiments);
 }
-export function generateStrategyLearningCycle37({day,audit,aiState={},scannerHistory={},pastAiStates=[],pastScannerHistories=[],previousCycles=[],standaloneScalpStates=[],openaiReview=null,now=null,expectedMinutes=390}={}){
+export function generateStrategyLearningCycle37({day,audit,aiState={},scannerHistory={},pastAiStates=[],pastScannerHistories=[],previousCycles=[],openaiReview=null,now=null,expectedMinutes=390}={}){
  const mistakes=observedMistakes37(audit,day,{expectedMinutes});
  const priorAi=aiTrades([aiState,...pastAiStates],day,now),priorScanner=[scannerHistory,...pastScannerHistories].flatMap(x=>scannerTrades(x,day,now));
  const historical={ai:{closedUnique:priorAi.length,withNetUsd:priorAi.filter(p=>p.netUsd!=null).length,
@@ -172,17 +134,8 @@ export function generateStrategyLearningCycle37({day,audit,aiState={},scannerHis
    perSetup:Object.fromEntries([...new Set(priorAi.map(p=>p.setupType))].sort().filter(Boolean).map(k=>[k,{count:priorAi.filter(x=>x.setupType===k).length,meanNetUsd:round(priorAi.filter(x=>x.setupType===k).reduce((a,p)=>a+(p.netUsd||0),0)/priorAi.filter(x=>x.setupType===k).length)}]))},
   scanner:{closedUnique:priorScanner.length,outcomes:Object.fromEntries([...new Set(priorScanner.map(p=>p.outcome))].sort().map(k=>[k,priorScanner.filter(x=>x.outcome===k).length])),
    realFillPnLAvailable:false},source:'CLOSED_AS_OF_POSTCLOSE_REPORT_TIME_NO_FUTURE_OUTCOMES',historyDepth:{aiSessions:1+pastAiStates.length,scannerSessions:1+pastScannerHistories.length}};
- const scalp=scalpResearchHistory37([aiState,...pastAiStates],day,now,standaloneScalpStates);
- historical.scalp=scalp;
+ // Scalp history remains in archival readers only, never in active proposals.
  let proposals=deterministicHypotheses(mistakes,day,aiState?.lastPolicy);
- // Daily scalp mistakes are research hypotheses only; do not rewrite the live strategy.
- const scalpSpread=Object.entries(scalp.rejectionsToday).reduce((a,[k,v])=>a+(k.includes('SPREAD')||k.includes('QUOTE')?v:0),0);
- if(scalpSpread>0)proposals.push(makeProposal({day,area:'COSTS_SPREAD',engine:'SCALP',source:'SCALP_PAPER_RECORDS',
-  sourceIds:[`ai-scalp:${day}:${scalpSpread}`],policy:aiState?.lastPolicy,
-  observed:`Scalp paper recorded ${scalpSpread} quote/spread rejections, not evidence of profitable missed trades.`,variantKey:'SCALP_QUOTE_COSTS_V1'}));
- if(scalp.losses>0)proposals.push(makeProposal({day,area:'RISK_GATES',engine:'SCALP',source:'SCALP_PAPER_RECORDS',
-  sourceIds:[`ai-scalp:${day}:modeled-losses:${scalp.losses}`],policy:aiState?.lastPolicy,
-  observed:`Scalp paper recorded ${scalp.losses} modeled losing exits in past closed trades; causality is not established.`,variantKey:'SCALP_RISK_V1'}));
  if(validateOpenAi(openaiReview,day)){
   const acceptedIds=new Set([`DT37_${day}`,...(openaiReview.review?.observations||[]).flatMap(x=>x.evidence_ids||[])
    .filter(v=>typeof v==='string'&&new RegExp(`^(?:scanner|ai):${day}:\\d{4}:[A-Za-z0-9._-]+$`).test(v))]);

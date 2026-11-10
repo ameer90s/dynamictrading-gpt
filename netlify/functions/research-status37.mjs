@@ -45,10 +45,8 @@ export default async function handler(request){
     let budget=null;
     // The research budget is not a trading account balance; only expose aggregated usage counts.
     try{budget=await store.get(researchBudgetKey37(day),{type:'json',consistency:'strong'});}catch{ /* Optional budget status only */ }
-    const scalpReport=await store.get(`dt37-scalp-agent-review-${day}`,{type:'json',consistency:'strong'}).catch(()=>null);
     return json({...publicResearchSummary({day,review,local,evidence,budget,learning,weekly,monthly,memory,daily,budgetLimitUsd:PILOT.budgetUsd}),
       periodWarnings,
-      scalpResearch:scalpReport||{status:'NOT_RECORDED',day},
       delivery:delivery||{status:'NO_DAILY_RUN_RECEIPT',day}});
   }catch(e){return json({day,status:'ARCHIVE_UNAVAILABLE',error:'READ_FAILED',mode:'PAPER_ONLY'},503)}
 }

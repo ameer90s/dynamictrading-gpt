@@ -57,7 +57,7 @@ for (const kind of ['scanner','ai']) {
  }
 }
 let apiCount=0;
-const review={summary_ar:'summary',observations:[{fact_ar:'fact',evidence_ids:[`DT37_${DAY}`],limitation_ar:'limit'}],experiments:[],uncertainties_ar:[]};
+const review={summary_ar:'محاكاة اختبار حفظ التقرير',observations:[{fact_ar:'توجد سجلات موثقة للمراجعة',metric_ref:'NONE',evidence_ids:[`DT37_${DAY}`],limitation_ar:'لا توجد أسعار تنفيذ حقيقية'}],experiments:[{area:'DATA_INGESTION',hypothesis_ar:'فحص سلامة حفظ الأرشيف',evidence_ids:[`DT37_${DAY}`],test_ar:'مقارنة مصادر السجل المحفوظ',expected_risk_ar:'نقص بيانات الأرشيف المحتمل',acceptance_metric_ar:'حفظ كامل دون فقد السجلات',confidence:'LOW'}],uncertainties_ar:[]};
 const fakePaidApi=async()=>{apiCount++;return {ok:true,status:200,headers:{get:()=> 'application/json'},json:async()=>({id:'paid-fixture',model:'gpt-6.1-sol',usage:{input_tokens:2000,output_tokens:200},output:[{content:[{type:'output_text',text:JSON.stringify(review)}]}]})}};
 let thrown='';
 try{await runScheduledResearch({store:source,env:{OPENAI_RESEARCH_ENABLED:'true',OPENAI_RESEARCH_API_KEY:'FAKE_FOR_OFFLINE_TEST'},now:dayNow,fetchFn:fakePaidApi});}

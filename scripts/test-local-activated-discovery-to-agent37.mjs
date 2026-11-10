@@ -15,7 +15,7 @@ import {strategyLearningKey37} from '../netlify/functions/lib/research-learning-
 import {publicResearchSummary} from '../netlify/functions/lib/research-public37.mjs';
 
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
-const profile=JSON.parse(readFileSync(resolve(root,'LOCAL_FEATURE_ACTIVATION37.json'),'utf8'));
+const profile=JSON.parse(readFileSync(resolve(root,'tests/fixtures/local-feature-activation372.json'),'utf8'));
 assert.equal(profile.externalCallsAllowed,false);assert.equal(profile.paidReview.realApiAllowed,false);
 assert.equal(profile.flags.AI_LLM_REVIEW_ENABLED,'false');
 const DAY='2026-11-03',PREV='2026-11-02',syms=['AAA','BBB','CCC'];
@@ -67,8 +67,8 @@ try{
     executionChecks:r.research36?.executionChecks||[]}));
   const ai=independentCycle({dateKey:DAY,now,minute,universe:syms,batch:syms,barMap:input,quotes,
     existing:aiState,approved:syms,sessionEndMinute:959});
-  assert.equal(ai.audit.scalp37.summary.noOrders,true);
-  assert.notEqual(ai.state.scalp37.status,'DISABLED_BY_DEFAULT');
+  assert.equal(ai.audit.scalp37,undefined);
+  assert.equal(ai.state.scalp37,undefined);
   latestAi=ai.audit.snapshots;
   aiState=ai.state;primaryEvaluations+=latestScanner.length;aiEvaluations+=latestAi.length;
   // Exercise true per-minute recorder on actual engine output; later synth data is separate.
@@ -76,7 +76,7 @@ try{
   await recordResearchMinute({store:st,kind:'ai',day:DAY,doc:{...ai.audit,shariaEvidence:sharia,cycleStatus:'COMPLETED'}});
  }
  pass('REAL_SCANNER_ANALYSIS_AND_SIGNAL_HISTORY',`${checkpoints.length} checkpoints, ${primaryEvaluations} evaluated stock rows`);
- pass('REAL_AI_AND_PAPER_SCALP_ENGINE',`${checkpoints.length} checkpoints, ${aiEvaluations} evaluated AI rows; scalp enabled`);
+ pass('REAL_AI_ENGINE_WITHOUT_RETIRED_ENGINE',`${checkpoints.length} checkpoints, ${aiEvaluations} evaluated AI rows; retired engine absent`);
  // Simulated per-minute data is only for exercising report readiness and routing.
  // It MUST NOT be described as 390 authentic engine outcomes or market coverage.
  for(const kind of ['scanner','ai']){
@@ -157,7 +157,7 @@ try{
   actualFullDayEngineContinuityVerified:false,
   realPaidApiCalls:0,mockedPaidApiCalls:paidMockCalls,
   realNetlifyWrites:0,brokerOrders:0,externalReportSent:false,
-  scannerConfirmedSignalsOnCheckpoints:signalCount,scalpPaperEntriesOnCheckpoints:aiState.scalp37.tradeCount,
+  scannerConfirmedSignalsOnCheckpoints:signalCount,retiredEnginePresent:!!aiState.scalp37,
   report:{status:reviewResult.status,learningStatus:reviewResult.learningStatus,
     evidenceReadyForSyntheticFixture:readiness.ok,publicView:publicView.learning.status,
     proposalCount:publicView.learning.proposals.length,repeatedRunStatus:rerun.status},

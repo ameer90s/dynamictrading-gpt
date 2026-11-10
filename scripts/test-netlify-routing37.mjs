@@ -30,5 +30,5 @@ for(const name of sourceFiles){
 assert.match(readFileSync('netlify/functions/research-status37.mjs','utf8'),/export\s+default/);
 const scheduler=['daily-recommendation','news-scan','outcome-tracker','premarket-memory','ai-parallel-scan'];
 for(const name of scheduler){assert.match(toml, new RegExp('\\[functions\\."'+name+'"\\]'),`Missing scheduled job ${name}`)}
-assert.match(readFileSync('netlify/functions/research-openai37.mjs','utf8'),/schedule\s*:\s*['"]15 22 \* \* 1-5['"]/);
+assert.match(readFileSync('netlify/functions/research-openai37.mjs','utf8'),/schedule\s*:\s*['"]15,17,20,23 22 \* \* 1-5['"]/);
 console.log(`PASS Netlify routing: ${services.size} explicit /api/ endpoints, no conflicting rewrite, schedules preserved.`);

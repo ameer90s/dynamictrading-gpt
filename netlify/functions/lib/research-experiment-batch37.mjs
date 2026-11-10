@@ -61,11 +61,11 @@ export function runThreeEngineWalkForward37({fixture,proposal,folds,approvedSymb
  }
  const results=sorted.map(x=>replayThreeScanners37({fixture,proposal,trainingEnd:x.trainingEnd,
   holdoutStart:x.holdoutStart,holdoutEnd:x.holdoutEnd,approvedSymbols,everyMinutes}));
- const total=Object.fromEntries(['SCANNER','AI','SCALP'].map(engine=>[engine,{
+ const total=Object.fromEntries(['SCANNER','AI'].map(engine=>[engine,{
   candidateOnly:results.reduce((s,r)=>s+r.comparisons[engine].candidateOnly,0),
   baselineOnly:results.reduce((s,r)=>s+r.comparisons[engine].baselineOnly,0),
   common:results.reduce((s,r)=>s+r.comparisons[engine].common,0)}]));
- return {schemaVersion:'3.7-OFFLINE-WALK-FORWARD-1',folds:results,
+ return {schemaVersion:'3.7.2-OFFLINE-TWO-ENGINE-WALK-FORWARD-1',folds:results,
   totals:total,trainingDataExcludedFromEvaluation:true,retuneBetweenFolds:false,
   status:results.every(x=>x.status==='SIGNALS_REPLAYED_NO_EXECUTION_EVIDENCE')?'SIGNALS_ONLY':'INCOMPLETE_HISTORICAL_EVIDENCE',
   verifiedBrokerPnL:false,independentlyReviewed:false,canTrade:false,canDeploy:false,applied:false,

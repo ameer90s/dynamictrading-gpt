@@ -1,0 +1,23 @@
+{
+  "schema": "DT37_LOCAL_ACTIVATION_REHEARSAL_1",
+  "scope": "ISOLATED_LOCAL_TEST_ONLY_NEVER_DEPLOY",
+  "flags": {
+    "DT37_RESEARCH_LEARNING_ENABLED": "true",
+    "OPENAI_RESEARCH_ENABLED": "true",
+    "AI_LLM_REVIEW_ENABLED": "false"
+  },
+  "paidReview": {
+    "mode": "LOCAL_INJECTED_MOCK_ONLY",
+    "model": "gpt-6.1-sol",
+    "realApiAllowed": false,
+    "realApiKeyIncluded": false
+  },
+  "externalCallsAllowed": false,
+  "releaseStatus": "NOT_APPROVED_FOR_PRODUCTION",
+  "notes": [
+    "This JSON is not read by Netlify or by the real scheduler.",
+    "The local verification harness explicitly loads these flags and provides a mock OpenAI transport.",
+    "Paid production use requires a separate spending authorization and hard external budget cap.",
+    "Deploy only within approved Saturday window and after independent audit."
+  ]
+}

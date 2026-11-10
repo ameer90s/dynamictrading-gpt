@@ -59,14 +59,20 @@ check('pending events are included in immutable per-minute audit',()=>{
 });
 
 check('full late breakout signal -> fresh quote -> paper fill -> target close -> archived lifecycle',()=>{
+ const positiveBarsAt=m=>barsAt(m).map(b=>{const minute=Number(b.datetime.slice(11,13))*60+Number(b.datetime.slice(14,16));return minute>=676&&minute<=692?{...b,low:b.low-.20}:b;});
  const pendingCycle=independentCycle({dateKey:D,now:now(695),minute:695,universe:['AI1'],batch:['AI1'],
-   barMap:{AI1:barsAt(695),SPY:spyAt(695)},approved:['AI1']});
+   barMap:{AI1:positiveBarsAt(695),SPY:spyAt(695)},approved:['AI1']});
  const signal=pendingCycle.state.records.AI1.pending;
+ // A frozen policy from a quiet cross-section alongside this more volatile
+ // stock. This exercises a positive lifecycle without changing a target or fee.
+ signal.policyAtSignal=adaptiveAiPolicy([{atrPct:.25,openingDollarVolume:300000,momentum5Pct:.18,
+  relativeStrengthPct:.1,benchmarkMovePct:0}],[],695);
+ signal.alternatives=signal.alternatives.map(a=>({...a,policyAtSignal:signal.policyAtSignal}));
  assert.equal(signal.type,'BREAKOUT_CONTINUATION');
  const quote={source:'Alpaca IEX latest quote',bid:101.185,ask:101.19,bidSize:100,askSize:110,
    timestamp:new Date(now(696).getTime()-1000).toISOString()};
  const entryCycle=independentCycle({dateKey:D,now:now(696),minute:696,universe:['AI1'],batch:['AI1'],
-   barMap:{AI1:barsAt(696),SPY:spyAt(696)},quotes:{AI1:quote},approved:['AI1'],existing:pendingCycle.state});
+   barMap:{AI1:positiveBarsAt(696),SPY:spyAt(696)},quotes:{AI1:quote},approved:['AI1'],existing:pendingCycle.state});
  const pos=entryCycle.state.records.AI1.position;
  assert.equal(pos?.status,'OPEN',JSON.stringify(entryCycle.state.records.AI1.latestChecks?.execution?.filter(x=>!x.passed)));
  assert.equal(pos.setupType,'BREAKOUT_CONTINUATION');
@@ -77,7 +83,7 @@ check('full late breakout signal -> fresh quote -> paper fill -> target close ->
  const completed={datetime:iso(697),open:pos.entry+.04,high:pos.target+.1,
    low:pos.entry-.06,close:pos.target-.02,volume:15000};
  const exitCycle=independentCycle({dateKey:D,now:now(698),minute:698,universe:['AI1'],batch:['AI1'],
-   barMap:{AI1:[...barsAt(696),completed],SPY:spyAt(698)},approved:['AI1'],existing:entryCycle.state});
+   barMap:{AI1:[...positiveBarsAt(696),completed],SPY:spyAt(698)},approved:['AI1'],existing:entryCycle.state});
  const finished=exitCycle.state.records.AI1.position;
  assert.equal(finished.status,'CLOSED');assert.equal(finished.outcome,'TARGET');
  assert(finished.netUsd>0);assert.equal(finished.exitEvidence.bar.datetime,iso(697));
@@ -87,7 +93,7 @@ check('full late breakout signal -> fresh quote -> paper fill -> target close ->
  assert(exitCycle.audit.lifecycleEvents.some(x=>x.kind==='PAPER_EXIT_RECORDED'));
  assert.equal(exitCycle.audit.closedNew.length,1);
  const again=independentCycle({dateKey:D,now:now(699),minute:699,universe:['AI1'],batch:['AI1'],
-   barMap:{AI1:[...barsAt(696),completed],SPY:spyAt(699)},approved:['AI1'],existing:exitCycle.state});
+   barMap:{AI1:[...positiveBarsAt(696),completed],SPY:spyAt(699)},approved:['AI1'],existing:exitCycle.state});
  assert.equal(again.state.records.AI1.state,'RESULT_RECORDED');
  assert(!again.audit.lifecycleEvents.some(x=>x.kind==='PAPER_EXIT_RECORDED'));
 });

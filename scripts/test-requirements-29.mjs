@@ -6,7 +6,7 @@ const checks=[
 ['3 shadow approved trade',app.includes('Shadow داخل الصفقة')],
 ['4 original/approval shadow',selection.includes('approvalShadow')&&hist.includes('recommendedTarget')],
 ['5 history sessions',app.includes('loadSignalHistorySessions(30)')],
-['6 history navigation',index.includes('value="2">الجلسة السابقة</option>')&&index.includes('value="5">آخر 5 جلسات</option>')&&index.includes('value="30">آخر 30 جلسة</option>')],
+['6 history navigation',index.includes('value="2">Previous Session</option>')&&index.includes('value="5">Last 5 Sessions</option>')&&index.includes('value="30">Last 30 Sessions</option>')],
 ['7 export csv json',app.includes("exportSignalHistory(kind='json')")&&app.includes("kind==='json'")],
 ['8 actionable confirmed',tele.includes('actionableAtFirstRevalidation')],
 ['9 signal age approval',selection.includes('signalAgeAtApprovalSec')],

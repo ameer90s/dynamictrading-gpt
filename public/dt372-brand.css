@@ -1,0 +1,15 @@
+/* Exact approved visual crop from owner screenshot. */
+.dt37-next .dt37-header{border-color:#1b805b;box-shadow:0 4px 28px #02ad4d17}
+.dt37-next .dt37-product b{color:#d6ffe2}
+.dt372-approved-brand{width:126px;max-height:60px;object-fit:contain;border-radius:10px;display:block;flex:0 0 auto}
+.dt372-fold-toggle{border:1px solid #456c60;background:#17382f;color:#c7f5d5;padding:6px 10px;border-radius:9px;font-size:11px;font-weight:700;white-space:nowrap;margin-inline-start:auto}
+.dt372-fold-toggle:hover{background:#245843}
+.dt372-fold-toggle:focus-visible{outline:2px solid #83e1ae;outline-offset:3px}
+.dt37-next .section-title:has(>.dt372-fold-toggle){display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.dt37-next .desk-command-header>.dt372-fold-toggle{margin-inline-start:0}
+@media(max-width:520px){.dt372-approved-brand{width:86px;max-height:44px}.dt37-next .dt37-product b{font-size:15px}.dt37-next .dt372-fold-toggle{font-size:10px;padding:5px 7px}}
+
+.dt37-next .main-tabs{grid-template-columns:repeat(6,minmax(0,1fr))}
+.dt372-major-fold{margin-block:12px;border:1px solid #284e43;border-radius:14px;padding:10px}
+.dt372-major-fold>summary{cursor:pointer;font-weight:700;color:#d6ffe2;padding:8px}
+@media(max-width:630px){.dt37-next .main-tabs .tab-label{font-size:9px;white-space:normal}.dt37-next .main-tabs .tab-button{min-width:0;padding-inline:3px}}

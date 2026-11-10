@@ -24,13 +24,15 @@ const missing=evaluateLiveResearch36(ref.symbol,stock,spy,null,{now,allowHistori
 const stale=evaluateLiveResearch36(ref.symbol,stock,spy,{...quote,timestamp:new Date(now.getTime()-120000).toISOString()},{now,allowHistorical:true,shariaApproved:true});
 const invalidSource=evaluateLiveResearch36(ref.symbol,stock,spy,{...quote,source:'SIMULATED_BID_ASK'},{now,allowHistorical:true,shariaApproved:true});
 const notApproved=evaluateLiveResearch36(ref.symbol,stock,spy,quote,{now,allowHistorical:true,shariaApproved:false});
-assert.equal(accepted.state,'CONFIRMED',JSON.stringify({reason:accepted.reason,checks:accepted.checks.filter(x=>!x.passed)},null,2));
+assert.equal(accepted.state,'SMART','old reference quote must now be rejected when total-cost reward is below risk');
+assert(accepted.comparedPlans.every(p=>!p.economics.acceptable));
+assert(accepted.executionChecks.some(c=>c.gate==='net_reward_after_all_costs_R'&&!c.passed));
 assert.equal(missing.state,'SMART');assert.equal(stale.state,'SMART');
 assert.equal(invalidSource.state,'SMART');assert.equal(notApproved.state,'WAIT');
-assert.equal(accepted.risk.shadow!=null,true);assert.equal(Object.keys(accepted.risk.shadow).length,6);
+assert.equal(accepted.risk,null);assert(accepted.comparedPlans.length>0);
 const future={datetime:`${day} ${String(Math.floor((ts+4)/60)).padStart(2,'0')}:${String((ts+4)%60).padStart(2,'0')}:00`,open:2000,high:3000,low:1000,close:2200,volume:999999};
 const noLookahead=evaluateLiveResearch36(ref.symbol,[...stock,future],spy,quote,{now,allowHistorical:false,shariaApproved:true});
 assert.equal(noLookahead.pendingCandidate?.minute,accepted.pendingCandidate?.minute,'future candle changed as-of setup');
 assert.equal(noLookahead.state,accepted.state);
 assert.ok(accepted.features.openingRankVerification==='NOT_FULLY_VERIFIED');
-console.log('LIVE_RESEARCH36_PASS 9/9 historical retest discovery + execution-time fresh quote and safety checks');
+console.log('LIVE_RESEARCH36_PASS 9 frozen detector references + total-cost rejection and fresh quote safety');

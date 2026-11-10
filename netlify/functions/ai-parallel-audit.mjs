@@ -4,8 +4,8 @@ export async function serveAudit(req, injectedStore){
  if(req.method!=='GET')return json({error:'METHOD_NOT_ALLOWED'},405);
  const url=new URL(req.url),day=url.searchParams.get('day')||recommendationWindow().dateKey,kind=url.searchParams.get('kind')==='scanner'?'scanner':'ai-parallel';
  if(!/^20\d\d-\d\d-\d\d$/.test(day))return json({error:'INVALID_DATE'},400);
- const until=Math.max(570,Math.min(959,Number(url.searchParams.get('until')||959)));
- const pages=Math.max(1,Math.min(390,Number(url.searchParams.get('minutes')||(url.searchParams.has('format')?'390':'10'))));
+ const until=Math.max(570,Math.min(960,Number(url.searchParams.get('until')||(url.searchParams.has('format')?960:959))));
+ const pages=Math.max(1,Math.min(391,Number(url.searchParams.get('minutes')||(url.searchParams.has('format')?'391':'10'))));
  const store=injectedStore||(await import('@netlify/blobs')).getStore('dynamic-trading'),prefix=kind==='scanner'?'scanner-audit':'ai-parallel-audit';
  const minutes=[];for(let i=until;i>=570&&minutes.length<pages;i--)minutes.push(i);
  const docs=[];for(let i=0;i<minutes.length;i+=20){const part=await Promise.all(minutes.slice(i,i+20).map(m=>store.get(`${prefix}-${day}-${String(m).padStart(4,'0')}`,{type:'json',consistency:'strong'}).catch(()=>null)));docs.push(...part.filter(Boolean));}

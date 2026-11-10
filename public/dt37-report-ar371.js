@@ -1,6 +1,12 @@
 /* Arabic presentation only. Backend field names, codes, decisions, exports and storage are unchanged. */
 (()=>{'use strict';
 const statuses={
+ BACKGROUND_PENDING:'التقرير لدى المزود ولم يكتمل',BACKGROUND_WINDOW_EXCEEDED_NOT_VERIFIED:'انتهت نافذة المتابعة والنتيجة غير متحققة',
+ BACKGROUND_PREREQUISITES_NOT_VERIFIED:'الخلفية تنتظر تحقق الحساب والخصوصية والتكلفة',
+ PERSISTENCE_PENDING_NOT_ACTIONABLE:'الحفظ قيد الاستكمال؛ لا توصية قابلة للاعتماد',
+ NET_REWARD_NOT_GREATER_THAN_RISK:'صافي الربح لا يتجاوز الخسارة المحتملة بعد التكاليف',
+ NET_REWARD_BELOW_RISK:'صافي العائد أقل من المخاطرة بعد التكاليف',WAIT_RECLAIM_ASK:'بانتظار سعر طلب صالح بعد استعادة الدعم',
+ RECLAIM_LOST:'فقد السعر مستوى الدعم المستعاد',MOMENTUM_LOST:'لم يستمر الزخم المطلوب',
  NO_REVIEW:'لا توجد مراجعة محفوظة',NOT_RECORDED:'لم تُسجّل بيانات',RECORDED:'مسجّل',READY:'الأدلة جاهزة',
  LOCAL_DAILY_REPORT:'تقرير يومي محلي',LOCAL_RESEARCH_ONLY:'بحث محلي فقط',LOCAL_EVIDENCE_REVIEW:'مراجعة محلية للأدلة',
  REVIEW_CREATED_NOT_APPLIED:'مراجعة محفوظة ولم تُطبّق',REVIEW_CREATED_NOT_VALIDATED:'مراجعة محفوظة ولم تُعتمد',
@@ -17,7 +23,7 @@ const statuses={
  PAPER:'ورقي',TRACKING:'قيد المتابعة',NO_TRADES:'لا توجد صفقات',UNKNOWN:'غير معروف',
  LOW:'منخفضة',MEDIUM:'متوسطة',HIGH:'مرتفعة',NOT_ENOUGH_EVIDENCE:'الأدلة غير كافية',
  SCANNER_COVERAGE_TOO_LOW:'تغطية أرشيف الماسح الأساسي غير كافية',AI_COVERAGE_TOO_LOW:'تغطية أرشيف ماسح AI غير كافية',
- SCALP_COVERAGE_TOO_LOW:'تغطية السكالب غير كافية',DATA_UNAVAILABLE:'البيانات غير متاحة',
+ DATA_UNAVAILABLE:'البيانات غير متاحة',
  LOCAL_REPORT:'تقرير محلي',DAILY:'يومي',WEEKLY:'أسبوعي',MONTHLY:'شهري',
  FULL_EVIDENCE:'أدلة مكتملة',PARTIAL:'غير مكتمل',SKIPPED:'تم التجاوز',
  DATA_GAP:'فجوة بيانات',ERROR:'خطأ',TIMEOUT:'انتهت المهلة',PAID_REPORT_CREATED:'أُنشئ التقرير المدفوع',
@@ -110,17 +116,5 @@ function label(value,group='status'){
  if(/^[a-z][a-zA-Z0-9_]{2,}$/.test(key))return `معرّف فني: ${key}`;
  return raw;
 }
-function scalpAdvice(s,summary={}){
- const e=s?.evidence||{},area=s?.area||'';
- const num=(x)=>Number.isFinite(Number(x))?Number(x).toLocaleString('ar-AE'): 'غير محدد';
- switch(area){
-  case 'SCALP_ENTRY_GATES':return {observation:`تكرر سبب منع الدخول «${label(e.reason,'reason')}» في ${num(e.count)} رصداً؛ لا يعني ذلك ضياع عدد مماثل من الفرص الفريدة.`,hypothesis:'قد يكون السبب تأخر شموع الأسعار، أو تكاليف التنفيذ، أو طبيعة السوق، أو شرطاً مقيداً.',test:'مقارنة الأسهم المستبعدة بالشموع المكتملة اللاحقة وبعروض أسعار متزامنة، مع عدّ الحالات الفريدة فقط.',acceptanceMetric:'إثبات تقليل الفرص الجيدة الفائتة دون زيادة المخاطر أو تدهور العائد الورقي بعد التكاليف.'};
-  case 'SCALP_SAMPLE_SIZE':return {observation:`هناك ${num(e.count)} صفقات سكالب ورقية مغلقة ومسعّرة وفريدة؛ النتائج غير المعروفة لا تُحتسب أرباحاً.`,hypothesis:'العينة الحالية قد لا تكفي لإثبات ربحية صافية أو اعتماد نمط جديد.',test:'جمع نتائج ورقية غير مكررة عبر جلسات مستقلة من دون تغيير شروط التنفيذ.',acceptanceMetric:'60 نتيجة مغلقة مستقلة على الأقل لكل نمط مرشح، مع اختبار زمني لاحق وتدقيق مستقل.'};
-  case 'SCALP_RISK_COSTS':return {observation:`النمط ${label(e.type,'area')}: ${num(e.losses)} خسائر ورقية من ${num(e.sample)} نتائج؛ صافي النتيجة بعد التكلفة: ${Number.isFinite(summary?.bySetup?.[e.type]?.netUsd)?Number(summary.bySetup[e.type].netUsd).toFixed(2)+' دولار':'غير متاح'}.`,hypothesis:'قد ترتبط الخسائر بتوقيت الدخول أو السيولة والسبريد أو الانزلاق أو موضع الوقف.',test:'مقارنة افتراضات الانزلاق وظروف السوق وأقصى تحرك لصالح/ضد الصفقة وفحوص الدخول تاريخياً.',acceptanceMetric:'نتائج صافية موجبة بعد المخاطر في عينة اختبار مستقلة، دون زيادة الحد الأقصى للخسارة.'};
-  case 'SCALP_UNRESOLVED_POSITIONS':return {observation:`بقيت ${num(e.count)} مراكز ورقية مفتوحة في السجل؛ لا نفترض إغلاقها أو احتساب نتيجتها صفراً.`,hypothesis:'فقدان دورة مجدولة أو نقص بيانات الشموع بعد الإغلاق قد يترك النتيجة دون حسم.',test:'تتبع كل مركز إلى آخر شمعة مؤهلة مكتملة، أو توثيق عدم إمكانية تسعيره صراحةً.',acceptanceMetric:'نتيجة نهائية فريدة ومؤرخة لكل مركز ورقي، إما إغلاق مسعّر أو إغلاق غير مسعّر موثّق.'};
-  case 'SCALP_DATA_GAPS':return {observation:`سُجلت ${num(e.count)} أخطاء من مصدر البيانات؛ لا تعتبر دقائق الخطأ خالية من الفرص.`,hypothesis:'انقطاع البيانات أو قدمها قد يحجب فرص السكالب.',test:'تدقيق الشموع المفقودة وتوقيت عروض الأسعار وتأخر دورات المسح لكل دقيقة.',acceptanceMetric:'عدم وجود فجوات أرشيفية غير مفسرة، وقياس أسوأ زمن للمسح ضمن الميزانية.'};
-  default:return {observation:s?.observation||'لا توجد ملاحظة عربية موثقة لهذا التصنيف.',hypothesis:s?.hypothesis||'فرضية غير محددة',test:s?.test||'لم تُحدد تجربة',acceptanceMetric:s?.acceptanceMetric||'لم يُحدد معيار قبول'};
- }
-}
-window.DT37ReportArabic=Object.freeze({label,scalpAdvice});
+window.DT37ReportArabic=Object.freeze({label});
 })();
