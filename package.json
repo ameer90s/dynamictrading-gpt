@@ -1,6 +1,6 @@
 {
   "name": "dynamic-trading-web",
-  "version": "3.7.2",
+  "version": "3.8.0",
   "private": true,
   "type": "module",
   "engines": {
@@ -41,6 +41,7 @@
     "test:dependency-pins37": "node scripts/test-dependency-pins37.mjs",
     "test:request-dedup371": "node scripts/test-request-dedup371.mjs && node scripts/test-cockpit-archive-cache371.mjs",
     "test:weekly-profit371": "node scripts/test-weekly-profit-calc371.mjs",
-    "test:repair372": "node scripts/test-safety-repair372.mjs && node scripts/test-retirement372.mjs && node scripts/test-research-status-fallback37.mjs && node scripts/test-report-storage-adversarial37.mjs && node scripts/test-ai-report-visibility37.mjs && node scripts/test-background-lifecycle372.mjs && node scripts/test-local-activated-discovery-to-agent37.mjs && node scripts/test-sharia-daily-intensive.mjs"
+    "test:repair372": "node scripts/test-safety-repair372.mjs && node scripts/test-retirement372.mjs && node scripts/test-research-status-fallback37.mjs && node scripts/test-report-storage-adversarial37.mjs && node scripts/test-ai-report-visibility37.mjs && node scripts/test-background-lifecycle372.mjs && node scripts/test-local-activated-discovery-to-agent37.mjs && node scripts/test-sharia-daily-intensive.mjs",
+    "test:38": "node scripts/test-38-local.mjs && node scripts/test-38-cadence.mjs && node scripts/test-38-owner-decision-mock.mjs && node scripts/test-38-research-packing.mjs && node scripts/test-38-final-gates.mjs"
   }
 }

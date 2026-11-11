@@ -70,7 +70,8 @@ await test('3.7.2 retires scalp schedule and preserves both main scanners',()=>{
  const ai=readFileSync(new URL('../netlify/functions/ai-parallel-scan.mjs',import.meta.url),'utf8');
  assert.match(ai,/followAiOpenPositions37/);
  const main=readFileSync(new URL('../netlify/functions/daily-recommendation.mjs',import.meta.url),'utf8');
- assert.match(main,/sessionPlan37\(clock\)\.discovery/);
+ assert.match(main,/const plan=sessionPlan37\(clock\)/);
+ assert.match(main,/if\(!plan\.discovery\)/);
  assert.match(toml,/\[functions\."ai-parallel-scan"\]/);
  assert.match(toml,/\[functions\."daily-recommendation"\]/);
 });

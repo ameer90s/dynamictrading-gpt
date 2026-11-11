@@ -14,6 +14,7 @@ const fmtDate=t=>{try{return new Date(t).toLocaleString('ar-AE',{timeZone:'Asia/
 function render(data){
  if(data?.weekly||data?.monthly){periodCache={weekly:data.weekly,monthly:data.monthly}}
  else if(periodCache)data={...data,weekly:periodCache.weekly,monthly:periodCache.monthly};
+ window.DT38LastResearch=data;window.dispatchEvent(new CustomEvent("dt38:research",{detail:data}));
  const status=data?.status||'NO_REVIEW',r=document.querySelector('.desk-research-list');
  const hasLocal=Array.isArray(data?.localHypotheses)&&data.localHypotheses.length>0;
  const available=status==='REVIEW_CREATED_NOT_APPLIED'||status==='REVIEW_CREATED_NOT_VALIDATED'||status==='LOCAL_DAILY_REPORT'||status==='LOCAL_RESEARCH_ONLY'||hasLocal;

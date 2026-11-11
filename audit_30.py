@@ -15,6 +15,6 @@ scanner=(r/'netlify/functions/lib/dynamic.mjs').read_text()+(r/'netlify/function
 for bad in ['DEFAULT_UNIVERSE','slice(0,500)','slice(0, 500)']:
     if bad in scanner: raise SystemExit(f'Forbidden scanner fallback/cap found: {bad}')
 # cost rule and version
-for x in ['weeklyNetTargetPct:2.5','subscriptionCostUsd:10','3.5']:
+for x in ['weeklyNetTargetPct:2','subscriptionCostUsd:10','3.5']:
     if x not in alltxt: raise SystemExit(f'Missing {x}')
 print('STATIC_REGRESSION_PASS')

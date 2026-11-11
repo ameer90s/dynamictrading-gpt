@@ -3,7 +3,7 @@
   functions = "netlify/functions"
 
 [functions."daily-recommendation"]
-  # 09:30 ET onward: discovery cycles target full eligible-universe coverage within ~10m; persistent SMART revalidation continues every 1m through the regular-session close.
+  # 09:30 ET onward: discovery cycles target full eligible-universe coverage now sampled every 15m; persistent SMART revalidation continues every 1m through the regular-session close.
   # UTC range covers both EDT and EST; the function gates on America/New_York time.
   schedule = "* 13-21 * * 1-5"
 

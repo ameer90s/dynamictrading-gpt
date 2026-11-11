@@ -1,3 +1,4 @@
+import {reportStructureQuality38} from './research-quality38.mjs';
 /** Safe read-only public dashboard projection, no credentials or raw minute records. */
 export function publicResearchSummary({day,review,local,evidence,budget,learning,weekly,monthly,memory,daily,budgetLimitUsd=3}={}){
   const period=x=>x?{kind:x.kind,end:x.end,status:x.status,
@@ -12,7 +13,7 @@ export function publicResearchSummary({day,review,local,evidence,budget,learning
   const paid=review?.status==='REVIEW_CREATED_NOT_APPLIED';
   const status=paid?'REVIEW_CREATED_NOT_APPLIED':daily?'LOCAL_DAILY_REPORT':
     (review?.status|| (local?.hypotheses?.length?'LOCAL_RESEARCH_ONLY':'NO_REVIEW'));
-  return {day,status,mode:'PAPER_ONLY',updatedAt:paid?review.reviewedAt:daily?.generatedAt||local?.generatedAt||null,
+  return {reportQuality38:reportStructureQuality38({review:paid?review.review:null,source:paid?'OPENAI':'LOCAL_DIAGNOSTIC'}),day,status,mode:'PAPER_ONLY',updatedAt:paid?review.reviewedAt:daily?.generatedAt||local?.generatedAt||null,
       paidStatus:review?.status||'NOT_RUN',daily:daily?{status:daily.status,generatedAt:daily.generatedAt,
         summary:daily.summary_ar,engines:daily.engines,observations:daily.observations,
         recommendations:daily.recommendations,readFailures:daily.readFailures}:null,

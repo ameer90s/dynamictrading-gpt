@@ -17,7 +17,7 @@ ok('UI Scanner Learning 3.7', (index.includes('scannerLearning')||index.includes
 ok('Scanner Health Monitor UI',index.includes('scannerHealthState')&&app.includes('renderScannerHealth'));
 ok('Force Refresh is manual only label',index.includes('id="dailyBtn">تحديث يدوي / Force Refresh'));
 ok('Ask execution gate',selection.includes('validateExecutionQuote37(')&&read('netlify/functions/lib/execution-quote37.mjs').includes('EXECUTION_ASK_ABOVE_ENTRY')&&selection.includes('executableEntry'));
-ok('Service worker 3.7 cache',sw.includes('dynamic-trading-v3.7')); 
+ok('Service worker 3.8 cache',sw.includes('dynamic-trading-v3.8')); 
 ok('No operational v3.3/v3.4 refs',[daily,market,index,app,sw].every(x=>!(/v3\.[34]/.test(x))));
 console.log(checks.map(([n])=>`PASS ${n}`).join('\n'));console.log(`AUDIT_PASS ${checks.length}/${checks.length}`);
 const telemetry=read('netlify/functions/telemetry.mjs'),premarket=read('netlify/functions/premarket-memory.mjs'),push=read('netlify/functions/lib/push.mjs');
@@ -36,7 +36,7 @@ ok('Pre-market uses provider-safe batching',read('netlify/functions/lib/premarke
 console.log('AUDIT_V351_PASS 11/11');
 const sessionUniverse=read('netlify/functions/lib/session-universe.mjs');
 ok('Regular scanner pool has no 500-symbol truncation',!dynamic.includes('cleanList(input).slice(0,500)')&&!dynamic.includes('leaders:leaders.slice(0,80)'));
-ok('Regular scanner continues discovery after 10:10',daily.includes('discoveryBatchesNow=discoveryBatches(eligiblePool,clock.minuteOfDay,10)')&&market.includes('discoveryBatchesNow=discoveryBatches(eligiblePool,clock.minuteOfDay,10)'));
+ok('Regular scanner uses coverage-safe 15-minute discovery; manual refresh remains available',daily.includes('discoveryBatchesNow=isDiscoverySlot38(clock.minuteOfDay)?cadencedDiscoveryBatches38(')&&daily.includes('discoveryCutoff:plan.discoveryCutoff')&&market.includes('discoveryBatchesNow=discoveryBatches(eligiblePool,clock.minuteOfDay,10)')&&read('netlify/functions/lib/discovery-cadence38.mjs').includes('cadencedDiscoveryBatches38'));
 ok('Daily session universe price screen exists',daily.includes('getOrBuildSessionUniverse')&&market.includes('getOrBuildSessionUniverse')&&sessionUniverse.includes('quoteCoveragePct'));
 ok('Three agreed price bands are measured',dynamic.includes("'0-4.99'")&&dynamic.includes("'5-9.99'")&&dynamic.includes("'10-200'")&&!dynamic.includes("'10-49.99'"));
 ok('Same-session over-200 continuation is session scoped',dynamic.includes('watchPriceExceptionEligible:sessionEligible')&&sessionUniverse.includes('session-universe-${dateKey}'));

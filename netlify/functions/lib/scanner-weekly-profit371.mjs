@@ -121,9 +121,10 @@ export function summarizeScannerWeek371(week,dayDocs,{now=new Date(),capital=DAI
   week,through:nextDay371(week,4),capitalPerDay:capital,startingCapital:capital,
   commissionPerTrade,commissionAssumption:commissionPerTrade===0?'ZERO_NOT_VERIFIED':'USER_SCENARIO',
   weeklySubscription:subscription,grossPnl:gross,netAfterSubscriptionBeforeExecutionCosts:net,
+  netAfterConfiguredCommissionsBeforeSpreadSlippage:net,
   finalBalance,modeledDays,complete,notVerifiedDays:days.filter(x=>x.pnl===null).length,
-  weeklyReturnPct:net===null?null:100*net/capital,targetPct:2.5,
-  targetUsd:capital*0.025,targetReached:complete&&net!==null&&net>=capital*0.025,
+  weeklyReturnPct:net===null?null:100*net/capital,targetPct:2,
+  targetUsd:capital*0.02,targetReached:complete&&net!==null&&net>=capital*0.02,
   days,limitations:['NO_BROKER_FILLS','ENTRY_AT_SIGNAL_PRICE_NOT_EXECUTION_ASK',
    'FRACTIONAL_DOLLAR_ALLOCATION','COMMISSION_SCENARIO_NOT_VERIFIED','NO_SPREAD_OR_SLIPPAGE',
    'NO_ASSUMED_EXIT_ON_EXPIRED_OR_AMBIGUOUS','AUDIT_MINUTE_COVERAGE_NOT_VERIFIED']};

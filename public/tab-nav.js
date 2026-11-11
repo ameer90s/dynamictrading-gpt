@@ -7,7 +7,7 @@
     const panels = allPanels();
     if (!buttons.length || !panels.length) return;
     const valid = new Set(buttons.map(b => b.dataset.tab));
-    if (!valid.has(name)) name = 'today';
+    if (!valid.has(name) && name!=='tools' && name!=='today') name = 'market';
     buttons.forEach(b => {
       const on = b.dataset.tab === name;
       b.classList.toggle('active', on);
@@ -35,8 +35,8 @@
     nav.addEventListener('pointerup', (event) => {
       if (event.pointerType === 'touch' || event.pointerType === 'pen') handler(event);
     }, true);
-    let saved = 'today';
-    try { saved = localStorage.getItem(STORAGE_KEY) || 'today'; } catch {}
+    let saved = 'market';
+    try { saved = localStorage.getItem(STORAGE_KEY) || 'market'; } catch {}
     activate(saved, false);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, {once:true});

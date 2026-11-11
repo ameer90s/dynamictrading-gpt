@@ -7,7 +7,7 @@ assert.equal(count(page,'id="marketStatus"'),1,'one and only one market state');
 assert.equal(count(page,'id="uaeTime"'),1);assert.equal(count(page,'id="nyTime"'),1);
 assert.equal(count(page,'class="dt37-timezone"'),2,'two country clocks');
 assert(!page.includes('class="session-ribbon"'),'remove duplicate market phase strip');
-for(const t of ['today','market','research','performance','tools'])assert(page.includes(`data-tab="${t}"`));
+for(const t of ['market','ai','research','performance'])assert(page.includes(`data-tab="${t}"`));
 assert.equal(count(page,'class="desk-agent '),3);
 assert(page.indexOf('id="tab-market"')<page.indexOf('id="top5Section"'),'opportunity list belongs to opportunities page');
 assert(page.indexOf('id="tab-market"')<page.indexOf('id="dt36AuditSection"'),'decision audit under opportunities');
@@ -19,4 +19,6 @@ assert(script.includes('DynamicTradingTabNav'),'tab navigation linked to single 
 assert(!app.includes('dynamic_trading_ui_tab_v35'),'no old tab storage overriding new UI');
 assert(cache.includes('dt37-next.css?v=3752')&&cache.includes('dt37-next.js?v=3752'),'cached new design');
 assert(page.includes('dt37ArchiveMinutes')&&page.includes('dt37ResearchRuns'),'all archive counters retained');
-console.log('DT37_NEXT_UX_PASS 17/17');
+assert.equal((page.match(/class="tab-button(?: active)?" data-tab=/g)||[]).length,4,'v3.8 has four bottom tabs');
+assert(page.includes('id="dt38Settings"'),'settings must remain accessible');
+console.log('DT38_NEXT_UX_PASS 19/19');

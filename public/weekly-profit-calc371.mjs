@@ -29,6 +29,7 @@ export function mountWeeklyProfitCalculator(root=document.querySelector('#weekly
  }
  function display(report){
   if(report.week!==week||!Array.isArray(report.days)||report.days.length!==5)throw Error('INVALID_WEEKLY_RESPONSE');
+  window.DT38LastWeekly=report;window.dispatchEvent(new CustomEvent('dt38:weekly',{detail:report}));
   const states={PREVIOUS_DAY_UNVERIFIED:'الرصيد السابق غير متحقق',CAPITAL_EXHAUSTED:'نفاد رأس المال',FUTURE:'لم يبدأ',SESSION_OPEN:'الجلسة جارية',MISSING_HISTORY:'السجل غير متوفر',NO_RECORDED_CONFIRMED:'لا توجد CONFIRMED مسجلة',INCOMPLETE:'صفقات غير محسومة',MODELED:'نتيجة ورقية'};
   rows.forEach((row,i)=>{
    const day=report.days[i];row.querySelector('[data-weekly371-count]').textContent=String(day.count??0);

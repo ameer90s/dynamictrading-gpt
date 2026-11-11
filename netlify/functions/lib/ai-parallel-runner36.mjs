@@ -2,6 +2,7 @@
  * Logs every scanned as-of candidate in immutable-by-minute audit shards. No
  * dependency on 3.6's decisions or its prior shortlist; only shared Sharia master.
  */
+import {learnRegimePatterns38} from './ai-regime-lab38.mjs';
 import {buildAiInternalReport372} from './ai-internal-report372.mjs';
 import {reviewDecision372} from './ai-decision-review372.mjs';
 import {featureSet,adaptiveAiPolicy,evaluateIndependentAi,updateAiPaperOutcome,buildAiRecommendations} from './ai-parallel36.mjs';
@@ -118,6 +119,7 @@ export function independentCycle({dateKey,now,minute,universe=[],batch=[],barMap
  }
  const previouslyClosed=Object.values(records).filter(x=>x.position?.status==='CLOSED').map(x=>x.position);
  const historicalOutcomes=[...history,...previouslyClosed.filter(x=>x.closedAt&&String(x.closedAt)<String(dateKey))];
+ const regimeLab38=learnRegimePatterns38({closedPositions:history,asOfDay:dateKey,regime:marketContext37.regime});
  const researchOutcomeCounters={...(existing?.researchOutcomeCounters||{})};
  for(const e of lifecycleEvents)if(e.kind==='RESEARCH_PATTERN_OBSERVED_OUTCOME'){
   const key=`${e.type}:${e.outcome}`;
@@ -127,13 +129,13 @@ export function independentCycle({dateKey,now,minute,universe=[],batch=[],barMap
  recommendations.internalReport=buildAiInternalReport372({day:dateKey,now,records:Object.values(records),history,coverage,reasons:reasonCounters,recommendations,events:lifecycleEvents});
  return {state:{schemaVersion:'3.6-AI-PARALLEL-1',dateKey,updatedAt:now.toISOString(),records,cursor:existing?.cursor??0,
    retiredArchive372:existing?.retiredArchive372||null,
-   cycles:(existing?.cycles||0)+1,cumulativeScanned:[...new Set([...(existing?.cumulativeScanned||[]),...snapshots.filter(x=>x.features).map(x=>x.symbol)])],lastPolicy:policy,marketContext37,researchLearning37,discovery37,
+   cycles:(existing?.cycles||0)+1,cumulativeScanned:[...new Set([...(existing?.cumulativeScanned||[]),...snapshots.filter(x=>x.features).map(x=>x.symbol)])],lastPolicy:policy,marketContext37,researchLearning37,regimeLab38,discovery37,
    closedOutcomes:previouslyClosed,reasonCounters,stageCounters,
     researchPatternCatalog:{version:PATTERN_CATALOG_VERSION37,automaticallyTradeEligible:false,noAdditionalMarketDataRequests:true},
     researchOutcomeCounters,
     recentLifecycleEvents:[...(existing?.recentLifecycleEvents||[]),...lifecycleEvents].slice(-120),
     lifecycleEventCount:(existing?.lifecycleEventCount||0)+lifecycleEvents.length},audit:{schemaVersion:'3.6-AI-PARALLEL-1',dateKey,minute,at:now.toISOString(),
-   symbolCount:candidates.length,eligibleUniverseSize:universe.length,parameters:policy,marketContext37,discovery37,snapshots,transitions,closedNew,lifecycleEvents,coverage,
+   symbolCount:candidates.length,eligibleUniverseSize:universe.length,parameters:policy,marketContext37,regimeLab38,discovery37,snapshots,transitions,closedNew,lifecycleEvents,coverage,
    researchPatternCatalog:{version:PATTERN_CATALOG_VERSION37,researchOnly:true,authorizedForPaperEntry:false},
    source:'INDEPENDENT_ALPACA_1MIN_AND_L1',quoteMode:'REAL_AUTHENTIC_ONLY_FOR_AI_CONFIRMED',
   },recommendations,historicalOutcomes};
