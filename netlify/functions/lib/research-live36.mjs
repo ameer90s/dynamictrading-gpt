@@ -9,7 +9,9 @@
  */
 import {evaluateResearch36,completedSessionRows,shadowSix,RESEARCH36_POLICY} from './research36.mjs';
 import {tradeEconomics372,selectExecutablePlan372,sizePaperPosition372} from './market-economics372.mjs';
-const R=Object.freeze({openMin:.5,openMax:6.5,volumeRatioMin:.5,openingMomentum5Min:.15,relativeStrengthMin:.1,usdVolumeMin:500000,earliestRetest:600,latestRetest:900,retentionBars:3,discoveryCooldownMinutes:10,minSignalVolume:.75,minReclaimPct:.08,minPullbackPct:.55,maxPullbackPct:3.5,minHodGapPct:.35,maxHodGapPct:3.5,maxBarRangePct:1.0,maxSpreadBps:12,maxQuoteAgeSec:7,maxEntryJumpPct:.35,minEntryHodGapPct:.8,minRiskPct:.45,maxRiskPct:1.10,minHodRoomR:1.35,minRawRewardR:1.0,minNetRewardR:1.0,feeUsd:2,paperCapitalUsd:1000});
+// Conservative 3.8 tuning: allow slightly lighter completed-bar volume evidence
+// for the candidate stage only. All hard execution gates are unchanged.
+const R=Object.freeze({openMin:.5,openMax:6.5,volumeRatioMin:.5,openingMomentum5Min:.15,relativeStrengthMin:.1,usdVolumeMin:500000,earliestRetest:600,latestRetest:900,retentionBars:3,discoveryCooldownMinutes:10,minSignalVolume:.70,minReclaimPct:.08,minPullbackPct:.55,maxPullbackPct:3.5,minHodGapPct:.35,maxHodGapPct:3.5,maxBarRangePct:1.0,maxSpreadBps:12,maxQuoteAgeSec:7,maxEntryJumpPct:.35,minEntryHodGapPct:.8,minRiskPct:.45,maxRiskPct:1.10,minHodRoomR:1.35,minRawRewardR:1.0,minNetRewardR:1.0,feeUsd:2,paperCapitalUsd:1000});
 const round=(x,n=5)=>x!=null&&Number.isFinite(x)?Number(x.toFixed(n)):null;
 const px=(a,b)=>a>0&&b>0?100*(a/b-1):null;
 const median=x=>{const a=[...x].sort((a,b)=>a-b);return a.length?(a.length%2?a[a.length>>1]:(a[a.length/2-1]+a[a.length/2])/2):null;};
@@ -69,7 +71,7 @@ function asofCandidate(rows,s,opening,p=R){
   // Reuse the identical fresh L1, spread, Sharia, stop and net-economics gates below.
   const atrBreak=atrAsOf(rows,k),breakVolume=b.volume/Math.max(prior6||1,1);
   if(b.close>formerHod*1.001&&prev.close<=formerHod&&b.close>pv&&b.close>ma&&
-     closePosition>=.75&&breakVolume>=1.5&&barRange<=p.maxBarRangePct&&
+     closePosition>=.75&&breakVolume>=1.4&&barRange<=p.maxBarRangePct&&
      atrBreak>0&&atrBreak<cl*.035){
     found.push({date:b._time.day,minute:m,sourceModel:'FRESH_HOD_BREAKOUT',sourceMinute:m,
      retestModel:'BREAKOUT',support:formerHod,signalHigh:b.high,signalClose:b.close,
@@ -178,7 +180,14 @@ export function evaluateLiveResearch36(symbol,candles,spy,quote,opts={}){
   check('retest_from_1000',candidate.minute,'>=',600,'BEFORE_1000'),check('new_retest_before_1500',candidate.minute,'<=',p.latestRetest,'AFTER_1500')]:[check('retest_candidate',0,'==',1,'WAIT_RETEST')]),...(ex?.checks||[])];
  let state='WAIT',reason='WAIT_OPENING';
  if(currentMinute>=585){state='WAIT';reason=open.find(x=>!x.passed)?.reason||(canEnter?(expiredRetests.length?'PENDING_EXPIRED_WAIT_NEW_RETEST':'OPENING_WATCH_ONLY'):'DISCOVERY_WINDOW_CLOSED');}
+ // SMART is a pre-confirmation watch: a recent, completed-bar discovery
+ // can create a WATCH even before a final entry candidate forms. CONFIRMED
+ // still requires the ORIGINAL candidate and every execution/risk check.
+ const recentDiscovery=openingPassed&&canEnter&&currentMinute>=585
+  ?det.discovery.filter(x=>x.eventKey.startsWith(`${f.day}:`)&&x.minute<=currentMinute&&currentMinute-x.minute<=45).at(-1)
+  :null;
  if(openingPassed&&candidate){state='SMART';reason=ex?.checks.find(x=>!x.passed)?.reason||'PAPER_CONFIRMED';if(ex?.checks.every(x=>x.passed))state='CONFIRMED';}
+ else if(recentDiscovery){state='SMART';reason='EARLY_DISCOVERY_WAIT_CONFIRMATION';}
  const risk=state==='CONFIRMED'?{entry:quote.ask,stop:ex.stop,exitTarget:ex.target,qty:ex.qty,
   netRewardR:round(ex.netR),netGainUsd:round(ex.netGainUsd,2),netLossUsd:round(ex.netLossUsd,2),rawRewardR:round(ex.rawR),
   costModel:ex.economics,entryPath:candidate.entryPath||'FRESH_HOD_BREAKOUT',
@@ -197,8 +206,8 @@ export function evaluateLiveResearch36(symbol,candles,spy,quote,opts={}){
    checks:x.checks,selected:x===selected,targetBasis:x.candidate.retestModel==='BREAKOUT'?'COMPLETED_ATR_PROJECTION':'ATR_CAPPED_BY_OBSERVED_HOD'})),
   pendingId:candidate?`${symbol}:${candidate.date}:${candidate.sourceMinute}:${candidate.minute}:${candidate.retestModel}`:null,
   selectedPendingAgeMinutes:candidate?executionMinute-candidate.minute:null,expiredRetestCount:expiredRetests.length,
-  smartStage:state==='CONFIRMED'?'CONFIRMED':candidate?'PENDING_VALID':openingPassed?(canEnter?(expiredRetests.length?'PENDING_EXPIRED':'OPENING_WATCH'):'EXPIRED'):'NOT_ELIGIBLE',
-  canConfirmNow:!!candidate,confirmationPolicy:{openMin:p.openMin,maxSpreadBps:p.maxSpreadBps,minHodRoomR:p.minHodRoomR,quoteAgeSec:p.maxQuoteAgeSec,latestRetest:p.latestRetest},
+  smartStage:state==='CONFIRMED'?'CONFIRMED':candidate?'PENDING_VALID':recentDiscovery?'EARLY_DISCOVERY':openingPassed?(canEnter?(expiredRetests.length?'PENDING_EXPIRED':'OPENING_WATCH'):'EXPIRED'):'NOT_ELIGIBLE',
+  canConfirmNow:!!candidate,earlySmartEvidence:recentDiscovery?{...recentDiscovery,ageMinutes:currentMinute-recentDiscovery.minute}:null,confirmationPolicy:{openMin:p.openMin,maxSpreadBps:p.maxSpreadBps,minHodRoomR:p.minHodRoomR,quoteAgeSec:p.maxQuoteAgeSec,latestRetest:p.latestRetest},
   recentDiscoveredSetups:det.discovery.slice(-8),seenRetestEvents:det.found.length,
   researchPolicy:opts.modeConfig?.id==='active'?'ACTIVE_FLEXIBLE_LIVE_QUOTE_GATES_V37':'RESEARCH36_REFERENCE_LIVE_QUOTE_GATES',
   candidateDetector:'ASOF_RETEST_AND_FRESH_HOD_BREAKOUT_WITH_NET_R_GATES_372',

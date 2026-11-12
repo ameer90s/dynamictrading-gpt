@@ -3,8 +3,8 @@
   "short_name": "DT PULSE",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#08111a",
-  "theme_color": "#0d1c25",
+  "background_color": "#061915",
+  "theme_color": "#061915",
   "lang": "ar",
   "dir": "rtl",
   "icons": [

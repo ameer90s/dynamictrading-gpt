@@ -53,9 +53,9 @@ await t('Weekly target is 2 percent rather than 2.5 percent',()=>{
  const x=summarizeScannerWeek371('2026-11-09',[null,null,null,null,null],{now:new Date('2026-11-12T18:00:00Z')});
  assert.equal(x.targetPct,2);assert.equal(x.targetUsd,20);
 });
-await t('Exactly four bottom tabs and settings in header',()=>{
+await t('Exactly five approved bottom tabs and settings in header',()=>{
  const html=readFileSync('public/index.html','utf8');const count=(html.match(/class="tab-button(?: active)?" data-tab=/g)||[]).length;
- assert.equal(count,4);for(const t of ['market','ai','research','performance'])assert(html.includes(`data-tab="${t}"`));assert(html.includes('id="dt38Settings"'));assert(!html.includes('data-tab="today"'));
+ assert.equal(count,5);for(const t of ['today','market','ai','research','performance'])assert(html.includes(`data-tab="${t}"`));assert(html.includes('id="dt38Settings"'));
 });
 await t('Research decisions require owner token, not applied automatically',()=>{
  const js=readFileSync('netlify/functions/research-decision38.mjs','utf8');assert(js.includes('DT38_DECISION_ADMIN_TOKEN'));assert(js.includes('onlyIfNew:true'));assert(js.includes('productionApplied:false'));assert(!js.includes('sendOrder'));

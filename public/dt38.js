@@ -44,19 +44,52 @@ async function recordDecision(payload,card){
 }
 function provider(name,status,at){const r=el('div','dt38-provider');const state=['LIVE','ok'].includes(status)?'live':['FALLBACK','fallback','DEGRADED'].includes(status)?'fallback':status==='NOT_CONFIGURED'||status==='not_configured'?'missing':'error';r.append(el('strong',null,name),el('span','dt38-provider-'+state,({live:'● LIVE',fallback:'● افتراضي / متراجع',missing:'● غير مهيأ',error:'● غير متحقق'}[state])+(at?` · ${at}`:'')));return r}
 async function refreshProviders(){const box=$('dt38ProviderStatus');if(!box)return;try{const r=await fetch('/api/provider-status38',{cache:'no-store'});if(!r.ok)throw Error('HTTP_ERROR');const data=await r.json();box.replaceChildren(provider('Alpaca',data.alpaca?.status,data.alpaca?.lastVerifiedAt),provider('Finnhub',data.finnhub?.status,data.finnhub?.lastVerifiedAt));}catch{box.textContent='تعذر التحقق من الحالة المحفوظة؛ لن نفترض أن الاتصال LIVE.'}}
+function updateTodaySummary(){
+ const rows=Array.isArray(window.DT38LastScannerRows)?window.DT38LastScannerRows:scannerRows;
+ const confirmed=rows.filter(x=>x?.recommendationState==='CONFIRMED').length;
+ T('dt38TodayConfirmed',rows.length?String(confirmed):'—');
+ const snapshot=window.DT38LastScannerMeta||{};
+ const lastMarket=document.getElementById('marketStatus')?.textContent?.trim();
+ T('dt38TodayMarket',lastMarket&& !/جاري|بانتظار/.test(lastMarket)?lastMarket:'غير متحقق');
+ const research=window.DT38LastResearch;
+ T('dt38TodayDataQuality',research?.delivery?.status==='DELIVERED'?'آخر تقرير محفوظ':'غير متحقق');
+}
 function boot(){
  if(window.DT38LastScannerRows)scannerRows=window.DT38LastScannerRows;if(window.DT38LastScannerMeta){T('dt38ShariaSource',window.DT38LastScannerMeta.source||'غير متوفر');T('dt38ShariaUpdated',window.DT38LastScannerMeta.updatedAt||'غير متوفر')}if(window.DT38LastResearch)drawReport(window.DT38LastResearch);if(window.DT38LastWeekly)showWeek(window.DT38LastWeekly);if(window.DT38LastAiPaper)showPaper(window.DT38LastAiPaper);
+ updateTodaySummary();
  $('dt38Settings')?.addEventListener('click',()=>window.DynamicTradingTabNav?.activate('tools',true));
  document.querySelectorAll('[data-dt38-filter]').forEach(b=>b.addEventListener('click',()=>{activeFilter=b.dataset.dt38Filter;document.querySelectorAll('[data-dt38-filter]').forEach(x=>x.classList.toggle('active',x===b));filterCards()}));
  $('top5')?.addEventListener('click',e=>{if(e.target.closest('button'))return;const card=e.target.closest('.mini-rec');if(!card)return;const index=[...card.parentElement.querySelectorAll('.mini-rec')].indexOf(card);if(scannerRows[index]&&['SMART','CONFIRMED'].includes(scannerRows[index].recommendationState))showSignal(scannerRows[index])});
  $('top5')?.addEventListener('keydown',e=>{if(e.key!=='Enter'&&e.key!==' ')return;const card=e.target.closest('.mini-rec');if(!card)return;e.preventDefault();card.click()});
- window.addEventListener('dt38:scanner-rows',e=>{scannerRows=e.detail||[];filterCards()});
+ window.addEventListener('dt38:scanner-rows',e=>{scannerRows=e.detail||[];filterCards();updateTodaySummary()});
  window.addEventListener('dt38:scanner-meta',e=>{T('dt38ShariaSource',e.detail.source||'غير متوفر');T('dt38ShariaUpdated',e.detail.updatedAt||'غير متوفر')});
  window.addEventListener('dt38:ai-paper',e=>{aiPaper=e.detail;showPaper(aiPaper)});
  window.addEventListener('dt38:weekly',e=>showWeek(e.detail));
- window.addEventListener('dt38:research',e=>drawReport(e.detail||{}));
+ window.addEventListener('dt38:research',e=>{drawReport(e.detail||{});updateTodaySummary()});
  window.addEventListener('dynamic-trading:tabchange',e=>{if(e.detail?.tab==='tools')refreshProviders()});
  const ai=document.querySelector('#tab-ai .dt37-section-intro');if(ai&&!$('dt38AiScannerPaper'))ai.insertAdjacentHTML('afterend','<section class="card dt38-strategic"><h2>نتائج الصفقات الورقية — تلقائي</h2><p id="dt38AiScannerPaper">لا توجد بيانات موثقة بعد</p><details><summary>التفاصيل الإحصائية والمخاطرة</summary><p>تظهر بيانات المصدر الموثقة في سجل ماسح AI القابل للطي أسفل القسم.</p></details></section>');
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+})();
+
+/* Read-only visual mirrors of the existing weekly calculator; no independent accounting. */
+(() => {
+ const read = (sel) => (document.querySelector(sel)?.textContent || '').trim();
+ const write = (id,val) => { const n=document.getElementById(id);if(n)n.textContent=val||'—'; };
+ const recalc = () => {
+   write('dt38PerformanceRate',read('[data-weekly371-rate]'));
+   write('dt38PerformanceNet',read('[data-weekly371-net]'));
+   write('dt38PerformanceTrades',read('#statTotal'));
+   write('dt38PerformanceStatus',read('[data-weekly371-completeness]') || 'بانتظار النتائج');
+ };
+ function init(){
+  const n=document.querySelector('#weekly371Calculator');
+  if(!n)return;
+  recalc();
+  const o=new MutationObserver(recalc);
+  o.observe(n,{subtree:true,childList:true,characterData:true});
+  const total=document.querySelector('#statTotal');
+  if(total)new MutationObserver(recalc).observe(total,{childList:true,characterData:true,subtree:true});
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();

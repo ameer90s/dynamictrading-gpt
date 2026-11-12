@@ -1,5 +1,5 @@
 (() => {
-  const STORAGE_KEY = "dynamic_trading_ui_tab_v37";
+  const STORAGE_KEY = "dynamic_trading_ui_tab_v38";
   function allButtons(){ return [...document.querySelectorAll('.main-tabs .tab-button[data-tab]')]; }
   function allPanels(){ return [...document.querySelectorAll('.tab-panel[data-panel]')]; }
   function activate(name, scroll=false){
@@ -7,7 +7,7 @@
     const panels = allPanels();
     if (!buttons.length || !panels.length) return;
     const valid = new Set(buttons.map(b => b.dataset.tab));
-    if (!valid.has(name) && name!=='tools' && name!=='today') name = 'market';
+    if (!valid.has(name) && name!=='tools' && name!=='today') name = 'today';
     buttons.forEach(b => {
       const on = b.dataset.tab === name;
       b.classList.toggle('active', on);
@@ -35,8 +35,8 @@
     nav.addEventListener('pointerup', (event) => {
       if (event.pointerType === 'touch' || event.pointerType === 'pen') handler(event);
     }, true);
-    let saved = 'market';
-    try { saved = localStorage.getItem(STORAGE_KEY) || 'market'; } catch {}
+    let saved = 'today';
+    try { saved = localStorage.getItem(STORAGE_KEY) || 'today'; } catch {}
     activate(saved, false);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, {once:true});

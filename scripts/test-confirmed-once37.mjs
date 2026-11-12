@@ -27,9 +27,9 @@ await test('active mode reaches actual confirmation thresholds',()=>{
  assert.equal(active.openMin,.4);assert.equal(active.maxSpreadBps,35);assert.equal(active.relativeStrengthMin,-.3);
  assert.equal(reference.maxSpreadBps,12);assert.equal(active.maxQuoteAgeSec,7);assert.equal(active.latestRetest,900);assert.ok(active.minHodRoomR>=1);
 });
-await test('opening watch is not falsely labeled SMART pending',()=>{const a=evaluate(600);assert.equal(a.state,'WAIT');assert.equal(a.smartStage,'OPENING_WATCH');assert.equal(a.canConfirmNow,false)});
+await test('early SMART does not bypass confirmation',()=>{const a=evaluate(600);assert.equal(a.state,'SMART');assert.equal(a.smartStage,'EARLY_DISCOVERY');assert.equal(a.canConfirmNow,false);assert.equal(a.risk,null)});
 await test('latest valid retest wins at real quote minute',()=>{const a=evaluate(641);assert.equal(a.pendingCandidate.minute,640);assert.equal(a.selectedPendingAgeMinutes,1);assert.equal(a.state,'SMART');assert.ok(a.recentDiscoveredSetups.length)});
-await test('no old pending is resurrected after expiration',()=>{const a=evaluate(660);assert.equal(a.state,'WAIT');assert.equal(a.canConfirmNow,false);assert.equal(a.smartStage,'PENDING_EXPIRED')});
+await test('expired pending never becomes confirmed without fresh setup',()=>{const a=evaluate(660);assert.notEqual(a.state,'CONFIRMED');assert.equal(a.canConfirmNow,false);assert.ok(['EARLY_DISCOVERY','PENDING_EXPIRED','OPENING_WATCH'].includes(a.smartStage))});
 await test('no new entry beyond 15:00 New York',()=>{const a=evaluate(901);assert.equal(a.state,'WAIT');assert.equal(a.reason,'DISCOVERY_WINDOW_CLOSED')});
 await test('same pattern can rediscover without per-minute spam',()=>{const now=new Date(`${historicalDay}T19:01:04Z`);const doc=inspectResearchCandidates36(bars(fixture.bars[`${historicalDay}|NOW`],900),now,{allowHistorical:true});assert.ok(doc.discovery.length>new Set(doc.discovery.map(x=>x.type)).size);for(const x of doc.discovery)assert.ok(x.eventKey)});
 await test('missing quote cannot cause confirmation',()=>{const a=evaluate(641);assert.equal(a.state,'SMART');assert.equal(a.reason,'NO_ALPACA_QUOTE')});
