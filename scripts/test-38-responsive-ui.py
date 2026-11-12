@@ -26,7 +26,7 @@ try:
   for w in [360,390,430]:
    page.set_viewport_size({'width':w,'height':844})
    res[f'width_{w}']=not page.evaluate('document.documentElement.scrollWidth>window.innerWidth')
-  for tab in ['ai','research','performance','market']:
+  for tab in ['today','ai','research','performance','market']:
    page.locator(f'.main-tabs [data-tab={tab}]').click();res[f'tab_{tab}']=page.locator('#tab-'+tab).evaluate('(n)=>n.classList.contains("active")')
   page.evaluate('''const box=document.querySelector('#top5');box.innerHTML='<article class="mini-rec"><h3>NVDA</h3></article>';window.dispatchEvent(new CustomEvent('dt38:scanner-rows',{detail:[{symbol:'NVDA',recommendationState:'CONFIRMED',price:101,target1:106,stopLoss:99,entryLow:100,entryHigh:101,stateReason:'Valid entry conditions'}]}))''')
   page.locator('#top5 .mini-rec').click();res['popup_open']=page.locator('#dt38SignalDialog').evaluate('(d)=>d.open')
@@ -37,4 +37,4 @@ try:
   browser.close()
 except Exception as e:res['failure']=str(e)
 print(json.dumps(res,ensure_ascii=False,indent=2))
-assert all(v is True for k,v in res.items() if k.startswith('tab_') or k in ('popup_open','settings_visible')) and res.get('tabs')==4 and not res.get('width_overflow') and all(res.get(f'width_{w}') for w in [320,360,390,430]) and not res.get('errors') and not res.get('failure'), 'Chromium interactive UI test failed'
+assert all(v is True for k,v in res.items() if k.startswith('tab_') or k in ('popup_open','settings_visible')) and res.get('tabs')==5 and not res.get('width_overflow') and all(res.get(f'width_{w}') for w in [320,360,390,430]) and not res.get('errors') and not res.get('failure'), 'Chromium interactive UI test failed'

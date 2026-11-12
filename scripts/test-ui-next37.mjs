@@ -19,6 +19,6 @@ assert(script.includes('DynamicTradingTabNav'),'tab navigation linked to single 
 assert(!app.includes('dynamic_trading_ui_tab_v35'),'no old tab storage overriding new UI');
 assert(cache.includes('dt37-next.css?v=3752')&&cache.includes('dt37-next.js?v=3752'),'cached new design');
 assert(page.includes('dt37ArchiveMinutes')&&page.includes('dt37ResearchRuns'),'all archive counters retained');
-assert.equal((page.match(/class="tab-button(?: active)?" data-tab=/g)||[]).length,4,'v3.8 has four bottom tabs');
+assert.equal((page.match(/class="tab-button(?: active)?" data-tab=/g)||[]).length,5,'approved v3.8 navigation has five tabs including Today');
 assert(page.includes('id="dt38Settings"'),'settings must remain accessible');
 console.log('DT38_NEXT_UX_PASS 19/19');

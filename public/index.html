@@ -7,10 +7,11 @@
 <meta content="#061915" name="theme-color"/>
 <meta content="Dynamic Trading - لوحة تحليل ديناميكي للأسهم الشرعية وأفضل فرص التداول" name="description"/>
 <link href="/manifest.webmanifest" rel="manifest"/>
-<link href="/dt-pulse-approved-pwa.jpg" rel="icon" type="image/jpeg"/>
+<link href="/dt-pulse-approved-pwa-192.png?v=3811" rel="icon" type="image/png"/>
+<link href="/apple-touch-icon.png?v=3811" rel="apple-touch-icon" sizes="180x180"/>
 <link href="/styles.css?v=3752" rel="stylesheet"/><link href="/dt372-brand.css?v=1" rel="stylesheet"/>
 <title>DT PULSE — Dynamic Trading 3.8</title>
-<link href="/dt37-next.css?v=3752" rel="stylesheet"/><link href="/weekly-profit-calc371.css?v=2" rel="stylesheet"/><link href="/dt38.css?v=3804" rel="stylesheet"/></head>
+<link href="/dt37-next.css?v=3752" rel="stylesheet"/><link href="/weekly-profit-calc371.css?v=2" rel="stylesheet"/><link href="/dt38.css?v=3810" rel="stylesheet"/><link href="/pulse-rebuild.css?v=3" rel="stylesheet"/></head>
 <body>
 <div class="app-shell dt37-next dt38-neon"><header class="dt37-header" role="banner"><div class="dt38-header-pwa" aria-label="أيقونة تطبيق DT PULSE"><span class="dt38-pwa-dot">●</span> PWA<small>تطبيق مثبت</small></div><div class="dt38-header-alert" aria-label="تنبيهات CONFIRMED فقط" title="تنبيهات الفرص المؤكدة"><svg viewBox="0 0 24 24" aria-hidden="true" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg></div>
 <div class="dt37-brand"><img src="/dt-pulse-approved-wordmark.jpg" class="dt372-approved-brand" alt="DT PULSE — Dynamic Trading"/><div><div class="dt37-product"><b>DT PULSE</b><span class="dt37-version">3.8</span></div><p>Dynamic Trading · تداول ورقي</p></div></div>
@@ -159,7 +160,7 @@
 <div class="muted">⚡ السكالب الورقي المستقل موجود في تبويب «الباحث» تحت Research Agent، وليس ضمن ماسح AI.</div>
 <div class="muted">تحليل إحصائي متكيف؛ ليس نموذج LLM ولا احتمال ربح معايراً. يشترط عروض أسعار حقيقية حديثة لإشارة AI مؤكدة. لا يرسل أوامر تداول.</div>
 </section></details></section><section class="tab-panel" data-panel="research" id="tab-research" role="tabpanel"><section class="dt37-section-intro"><p class="dt37-kicker">AI RESEARCH</p><h1>الباحث الذكي</h1><p>أدلة واضحة، فرضيات قابلة للاختبار، وميزانية مراقبة.</p></section>
-<details class="card dt38-daily-report" open><summary>تقرير OpenAI اليومي — الحالة والتفاصيل</summary><div id="dt38ReportDetail" aria-live="polite">جاري قراءة التقرير المحفوظ…</div></details><details class="card"><summary>سجل التوصيات وقرارات الموافقة والرفض</summary><div id="dt38ResearchDecisions">لا توجد توصيات محفوظة بعد.</div></details><section class="desk-research-hero"><div><span class="desk-overline">03 / INDEPENDENT RESEARCH</span><h2>باحث الأداء</h2><p>يراجع الأدلة ويقترح تجارب، ولا يتدخل في التداول.</p></div><div class="desk-research-actions"><span class="desk-research-mode">PAPER · READ ONLY</span><button class="secondary" id="dt37ResearchRefresh" type="button">↻ تحديث التقرير</button></div></section>
+<details class="card dt38-daily-report"><summary>تقرير OpenAI اليومي — الحالة والتفاصيل</summary><div id="dt38ReportDetail" aria-live="polite">جاري قراءة التقرير المحفوظ…</div></details><details class="card"><summary>سجل التوصيات وقرارات الموافقة والرفض</summary><div id="dt38ResearchDecisions">لا توجد توصيات محفوظة بعد.</div></details><section class="desk-research-hero"><div><span class="desk-overline">03 / INDEPENDENT RESEARCH</span><h2>باحث الأداء</h2><p>يراجع الأدلة ويقترح تجارب، ولا يتدخل في التداول.</p></div><div class="desk-research-actions"><span class="desk-research-mode">PAPER · READ ONLY</span><button class="secondary" id="dt37ResearchRefresh" type="button">↻ تحديث التقرير</button></div></section>
 <div class="desk-research-stats"><article><span>حالة المراجعة</span><strong id="researchStatusValue">بانتظار الأرشيف</strong></article><article><span>سلامة الأدلة</span><strong id="researchEvidenceValue">غير متحققة</strong></article><article><span>تجارب مقترحة</span><strong id="researchHypothesesValue">—</strong></article><article><span>استخدام OpenAI</span><strong id="researchBudgetValue">—</strong><small>سقف حجز تقديري: $3 / شهر؛ ليس سقف فوترة لدى المزود</small></article></div>
 <section aria-label="نتيجة التحليل" class="card desk-research-section"><div class="section-title"><div><span class="tag">EVIDENCE REVIEW</span><h2>الملخص والتحليل</h2><p class="muted" id="researchLastRun">لم تُسجّل مراجعة بحثية بعد</p></div></div><div class="desk-research-summary" id="researchSummary">بانتظار جلسة مكتملة وأرشيف كافٍ. لا تُعرض نتائج تخمينية.</div><div class="desk-evidence-warn" id="researchEvidenceWarning">الدقائق المفقودة تُصنف MISSING، ولا تعتبر صفراً من الفرص.</div></section>
 <section aria-label="التوصيات البحثية" class="card desk-research-section"><div class="section-title"><div><span class="tag">PROPOSED · NOT APPLIED</span><h2>فرضيات وتحسينات مقترحة</h2><p class="muted">كل توصية مرتبطة بدليل وتجربة قبول، ولا تُطبق تلقائياً.</p></div></div><div class="desk-research-list" id="researchHypotheses"><div class="empty-state">لا توجد فرضيات محفوظة لهذا اليوم بعد.</div></div></section>
@@ -235,6 +236,6 @@
 <script src="/ui-backtest-market37.js?v=3752"></script>
 <script src="/ui-presentation37.js?v=3752"></script>
 <script src="/app.js?v=3752"></script>
-<script src="/ai-parallel-panel.js?v=3753"></script>
-<script defer="True" src="/dt37-next.js?v=3752"></script><script type="module" src="/weekly-profit-calc371.mjs?v=3"></script><script defer src="/dt38.js?v=3804"></script></body>
+<script src="/ai-parallel-panel.js?v=3754"></script>
+<script defer="True" src="/dt37-next.js?v=3752"></script><script type="module" src="/weekly-profit-calc371.mjs?v=3"></script><script defer src="/dt38.js?v=3804"></script><script defer src="/pulse-rebuild.js?v=3"></script></body>
 </html>

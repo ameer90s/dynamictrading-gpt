@@ -60,7 +60,7 @@ export function mountWeeklyProfitCalculator(root=document.querySelector('#weekly
    if(!r.ok)throw Error(`HTTP_${r.status}`);
    const data=await r.json();if(requestWeek!==week)return;
    display(data);lastWeek=week;lastAt=Date.now();lastReport=data;
-  }catch{if(requestWeek===week){clear();put('[data-weekly371-error]','تعذرت قراءة سجل الماسح. النتائج غير متحققة؛ لم تُنشأ أي أرباح افتراضية.');put('[data-weekly371-source-status]','فشل جلب بيانات الخادم');}}
+  }catch{if(requestWeek===week){clear();window.DT38LastWeekly=null;window.dispatchEvent(new CustomEvent('dt38:weekly',{detail:null}));put('[data-weekly371-error]','تعذرت قراءة سجل الماسح. النتائج غير متحققة؛ لم تُنشأ أي أرباح افتراضية.');put('[data-weekly371-source-status]','فشل جلب بيانات الخادم');}}
   finally{busy=false;if(queued){queued=false;refresh();}}
  }
  function changeWeek(newWeek){try{week=mondayOf(newWeek);labelWeek();clear();refresh();}catch{put('[data-weekly371-error]','تاريخ الأسبوع غير صالح.');}}

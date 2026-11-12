@@ -157,3 +157,76 @@ body{background:radial-gradient(ellipse at 50% 0,#063629 0%,transparent 38%),lin
 .dt38-neon #tab-performance .performance-stats .stat{min-width:0!important;padding:9px 5px!important}
 .dt38-neon #tab-performance .performance-stats .stat strong{font-size:clamp(12px,4vw,20px)!important}
 @media(max-width:345px){.dt38-performance-overview{grid-template-columns:38% 1fr;gap:6px}.dt38-performance-ring{border-width:9px;min-height:135px}.dt38-performance-results article{padding:5px 6px}}
+
+
+/* DT PULSE: approved five-screen proportions; cosmetics only, no signal logic. */
+:root{--dt38-gap:8px;--dt38-radius:12px}
+html,body{overflow-x:hidden}
+.dt38-neon{max-width:520px!important;margin:0 auto!important;font-family:system-ui,"Noto Sans Arabic",sans-serif!important;padding-bottom:98px!important}
+.dt38-neon .dt37-header{border:0!important;border-bottom:1px solid #126745!important;border-radius:0!important;background:linear-gradient(165deg,#02141b,#012423 80%)!important;box-shadow:none!important;margin-bottom:7px!important}
+.dt38-neon .dt37-brand img{max-height:65px!important;object-fit:contain!important}
+.dt38-neon .dt38-header-pwa{font-size:10px!important}
+.dt38-neon .tab-panel{padding-top:0!important}
+.dt38-neon .tab-panel .dt37-section-intro{margin:0 0 9px!important;padding:3px 2px 7px!important;border:0!important;text-align:center!important}
+.dt38-neon .tab-panel .dt37-section-intro h1{font-size:clamp(19px,5.6vw,26px)!important;line-height:1.25!important;margin:2px 0 3px!important}
+.dt38-neon .tab-panel .dt37-section-intro p{font-size:clamp(10px,2.75vw,12px)!important;line-height:1.35!important;margin:3px 0!important}
+.dt38-neon .tab-panel .dt37-section-intro .dt37-kicker{display:none!important}
+.dt38-neon .tab-panel:not(#tab-today) .card,.dt38-neon .tab-panel:not(#tab-today) .dt37-detail-fold,.dt38-neon .tab-panel:not(#tab-today) .desk-research-section,.dt38-neon .tab-panel:not(#tab-today) .hero-grid{border-radius:11px!important;padding:9px!important;margin:0 0 9px!important;box-shadow:inset 0 1px 4px #37eb5622!important}
+.dt38-neon .tab-panel:not(#tab-today) .section-title{gap:6px!important;margin-bottom:6px!important}
+.dt38-neon .tab-panel:not(#tab-today) .section-title h2{font-size:clamp(14px,3.9vw,18px)!important;line-height:1.3!important;margin:3px 0!important}
+.dt38-neon .tab-panel:not(#tab-today) p,.dt38-neon .tab-panel:not(#tab-today) .muted{font-size:clamp(10px,2.75vw,12px)!important;line-height:1.38!important}
+.dt38-neon .tab-panel:not(#tab-today) .tag,.dt38-neon .tab-panel:not(#tab-today) .sample-badge{font-size:9px!important;padding:3px 6px!important}
+.dt38-neon .tab-panel:not(#tab-today) details>summary{min-height:0!important;padding:9px 10px!important;font-size:clamp(11px,3.15vw,14px)!important;line-height:1.35!important;border:1px solid #227e55!important;background:linear-gradient(160deg,#06412e,#031b20)!important;color:#f2fff4!important;border-radius:10px!important}
+.dt38-neon .tab-panel:not(#tab-today) details:not([open]){padding:0!important;background:transparent!important;border:0!important;box-shadow:none!important}
+.dt38-neon .tab-panel:not(#tab-today) details:not([open])>summary{margin:0!important}
+.dt38-neon .tab-panel:not(#tab-today) button{min-height:30px;font-size:clamp(10px,2.9vw,12px);padding:5px 8px}
+.dt38-neon .tab-panel:not(#tab-today) .stat{padding:8px!important;border-radius:9px!important}
+.dt38-neon .main-tabs.dt37-nav{max-width:510px!important;left:50%!important;right:auto!important;width:calc(100% - 16px)!important;transform:translateX(-50%);padding:4px!important;border-radius:14px!important;box-shadow:0 0 7px #34f76a30!important}
+.dt38-neon .main-tabs.dt37-nav .tab-button{min-height:51px!important;padding:5px 1px!important;border-radius:10px!important}
+.dt38-neon .main-tabs.dt37-nav .tab-icon{font-size:20px!important}
+.dt38-neon .main-tabs.dt37-nav .tab-label{font-size:clamp(9px,2.6vw,12px)!important}
+/* Compact header in scanner, AI, researcher, performance: the clock and market data remain on Today. */
+.dt38-neon:has(.tab-panel:not(#tab-today).active) .dt37-header-right{display:none!important}
+.dt38-neon:has(.tab-panel:not(#tab-today).active) .dt37-header{grid-template-areas:'left logo right'!important;margin-bottom:8px!important}
+/* Scanner screenshot: two opportunity groups plus the same compact card and detail drawer. */
+.dt38-neon #tab-market .quick-actions{padding:8px!important;margin-bottom:8px!important}
+.dt38-neon #tab-market .quick-actions .section-title h2{font-size:15px!important}
+.dt38-neon #tab-market .hero-grid{gap:6px!important}
+.dt38-neon #tab-market #top5Section{padding:8px!important}
+.dt38-neon #tab-market #top5Section .mini-rec{padding:6px!important;margin-bottom:5px!important;min-height:0!important}
+.dt38-neon #tab-market #top5Section .mini-rec strong{font-size:12px!important}
+/* AI: a compact dashboard, keep all dynamic results and internal report readable when expanded. */
+.dt38-neon #tab-ai .dt37-detail-fold[open]>summary{background:linear-gradient(135deg,#08452f,#021c21)!important}
+.dt38-neon #tab-ai #aiParallelCandidates{display:grid;gap:5px}
+.dt38-neon #tab-ai #aiParallelCandidates>*{margin:0!important;padding:6px!important}
+.dt38-neon #tab-ai .history-toolbar{display:flex;flex-wrap:wrap;gap:4px!important}
+.dt38-neon #tab-ai .dt36-audit-card{padding:7px!important}
+/* Research: lightweight daily summary first, detailed report remains accessible on expansion. */
+.dt38-neon #tab-research .desk-research-hero{padding:8px!important;margin-bottom:7px!important}
+.dt38-neon #tab-research .desk-research-stats{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:3px!important;margin:5px 0 9px!important}
+.dt38-neon #tab-research .desk-research-stats article{padding:7px 2px!important;min-width:0!important;text-align:center!important}
+.dt38-neon #tab-research .desk-research-stats article span{font-size:9px!important}
+.dt38-neon #tab-research .desk-research-stats article strong{font-size:clamp(10px,2.7vw,13px)!important;overflow-wrap:anywhere!important}
+.dt38-neon #tab-research .desk-research-section{padding:8px!important}
+.dt38-neon #tab-research .dt38-daily-report #dt38ReportDetail{white-space:pre-wrap;overflow-wrap:anywhere;max-height:58vh;overflow:auto;font-size:12px;line-height:1.55}
+/* Performance: approved ring and P/L cards stay first, verbose historical data is folded. */
+.dt38-neon #tab-performance .dt38-performance-quick{margin:4px 0 9px!important;padding:8px!important;border-radius:12px!important}
+.dt38-neon #tab-performance .dt38-performance-settings{padding:3px 0 7px!important}
+.dt38-neon #tab-performance .dt38-performance-overview{gap:7px!important;padding-top:8px!important;grid-template-columns:39% minmax(0,1fr)!important}
+.dt38-neon #tab-performance .dt38-performance-ring{min-height:130px!important;border-width:10px!important}
+.dt38-neon #tab-performance .dt38-performance-results{gap:5px!important}
+.dt38-neon #tab-performance .dt38-performance-results article{min-height:40px!important;padding:4px 8px!important}
+.dt38-neon #tab-performance .performance-stats{gap:5px!important}
+.dt38-neon #tab-performance .performance-stats .stat{padding:7px 4px!important}
+/* Today content is unchanged; only trims outer padding and card height to reference. */
+.dt38-neon #tab-today .dt38-today-summary,.dt38-neon #tab-today .dt38-today-research,.dt38-neon #tab-today .dt38-today-ai{padding:10px!important;margin-bottom:9px!important;border-radius:12px!important}
+.dt38-neon #tab-today .dt38-today-heading{font-size:18px!important;margin-bottom:7px!important}
+.dt38-neon #tab-today .dt38-today-stats{gap:5px!important}
+.dt38-neon #tab-today .dt38-today-stats article{padding:7px 3px!important;min-height:75px!important;gap:3px!important;border-radius:9px!important}
+.dt38-neon #tab-today .dt38-today-stats article>span{font-size:18px!important}
+.dt38-neon #tab-today .dt38-today-stats strong{font-size:clamp(11px,3vw,16px)!important}
+.dt38-neon #tab-today .dt37-action-panel{padding:10px!important;margin-bottom:9px!important;border-radius:12px!important}
+.dt38-neon #tab-today .dt38-today-research{gap:7px!important;grid-template-columns:30% minmax(0,1fr)!important}
+.dt38-neon #tab-today .dt38-today-illustration{min-height:79px!important}
+.dt38-neon #tab-today .dt38-today-ai{min-height:92px!important}
+@media(max-width:370px){.dt38-neon #tab-research .desk-research-stats{grid-template-columns:repeat(2,minmax(0,1fr))!important}.dt38-neon #tab-performance .dt38-performance-ring{min-height:115px!important;border-width:8px!important}}

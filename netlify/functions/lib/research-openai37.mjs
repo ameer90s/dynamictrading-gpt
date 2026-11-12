@@ -4,6 +4,7 @@
  * on a dedicated OpenAI API project, because storage is not a distributed lock.
  */
 import {packEvidence38} from './research-budget38.mjs';
+import {registerPendingResearch38} from './research-recovery38.mjs';
 import {createHash,randomUUID} from 'node:crypto';
 import {pairedDailyResearch,ledgerKey,researchHours,combineLedgerShards} from './research-ledger37.mjs';
 import {researchAgent37FromAudit} from './research-agent37.mjs';
@@ -35,7 +36,7 @@ export function newYorkDay(now=new Date()){
  * original raw per-minute records stay available by archiveKey. The difference
  * between complete aggregation and sampled full-row traces is always explicit.
  */
-export function buildEvidence({day,aiState,stats,scanner,stage3,audit,previousResearch=[]}={}){
+export function buildEvidence({day,aiState,stats,scanner,stage3,audit,previousResearch=[],aiInternalReport=null}={}){
  if(!/^\d{4}-\d{2}-\d{2}$/.test(day||''))throw Error('BAD_DAY');
  if(!aiState?.updatedAt) return null;
  const finite=v=>typeof v==='number'&&Number.isFinite(v)?v:null;
@@ -107,6 +108,24 @@ export function buildEvidence({day,aiState,stats,scanner,stage3,audit,previousRe
   metric(`archive.${key}`,{scannerMinutes:scS?.storedMinutes,aiMinutes:aiS?.storedMinutes,
     scannerRowsAggregated:scS?.attemptedRows,aiRowsAggregated:aiS?.attemptedRows}[key]);
  for(const item of summaryStats.topBlockers||[])metric(`blocker.${String(item.reason).replace(/[^A-Za-z0-9_]/g,'').slice(0,50)}`,item.count);
+ // Bounded AI daily handoff: independently archived report, not raw unbounded JSON.
+ // Agent reads it alongside existing minute-ledger evidence; there is no new job or paid call.
+ const aiReport=aiInternalReport?.day===day&&aiInternalReport?.schema==='DT372-AI-INTERNAL-REPORT-1'?{
+  schema:aiInternalReport.schema,day,generatedAt:s(aiInternalReport.generatedAt,40),
+  stageStates:Object.fromEntries(Object.entries(aiInternalReport.stageStates||{}).slice(0,7).map(([k,v])=>[s(k,40),s(v,75)])),
+  outcomes:{uniqueClosed:safeNum(aiInternalReport.outcomes?.uniqueClosed),priced:safeNum(aiInternalReport.outcomes?.priced),
+   winners:safeNum(aiInternalReport.outcomes?.winners),losers:safeNum(aiInternalReport.outcomes?.losers),
+   netPaperUsd:safeNum(aiInternalReport.outcomes?.netPaperUsd)},
+  rejectionReasons:(aiInternalReport.rejectionReview||[]).slice(0,5).map(x=>({reason:s(x.reason,65),evaluations:safeNum(x.evaluations)})),
+  experiments:(aiInternalReport.proposedExperiments||[]).slice(0,4).map(x=>({id:s(x.id,60),area:s(x.area,40),hypothesis:s(x.hypothesis,120),
+   proposedExperiment:s(x.proposedExperiment,120),status:s(x.status,35)})),
+  archiveKey:`ai-parallel-recommendations-${day}`,paperOnly:true,proposalsUnverified:true,
+  notes:'Observed internal AI report. Research review does not approve or activate strategies.'
+ }:null;
+ if(aiReport){
+  for(const key of ['uniqueClosed','priced','winners','losers','netPaperUsd'])
+   metric(`aiDailyReport.${key}`,aiReport.outcomes[key],key==='netPaperUsd'?'USD':'COUNT');
+ }
  const evidence={sourceId:`DT37_${day}`,day,mode:'PAPER_ONLY',
   evidenceIndex:[`DT37_${day}`,...sampleIds],verifiedMetrics,
   sourceDigest:audit?.sourceDigest||null,sourceCompleteness:{
@@ -126,7 +145,7 @@ export function buildEvidence({day,aiState,stats,scanner,stage3,audit,previousRe
     'AI paper net profit and scanner shadow target hits are NOT equivalent profitability metrics',
     'A daily review cannot infer causal improvements without a controlled out-of-sample test',
     'Historical independent scalp outcomes are not part of the current research scope'],
-  scanner:base,ai:aiSummary,statistics:summaryStats,
+  scanner:base,ai:aiSummary,aiDailyReport:aiReport,statistics:summaryStats,
   archive:audit?{mode:audit.mode,digest:audit.sourceDigest,complete:audit.complete,
     scanner:scS,ai:aiS,crossScanner:audit.comparison,
     rawArchivePrefixes:[`scanner-audit-${day}-`,`ai-parallel-audit-${day}-`]}:null,
@@ -244,7 +263,7 @@ export async function pollOpenAiResearch37({store,env=process.env,day,now=new Da
  if(!env.OPENAI_RESEARCH_API_KEY)return {status:'NO_API_KEY',phase:'FAILED_WITH_REASON',reason:'MISSING_PROVIDER_KEY_NO_NEW_POST',day};
  const checkpoint=await read(store,backgroundEvidenceKey(day));
  if(checkpoint?.evidenceHash!==old.evidenceHash||!checkpoint.evidence)return {status:'BACKGROUND_EVIDENCE_MISSING_NO_RETRY',phase:'FAILED_WITH_REASON',day};
- const expired=finalPoll||Date.parse(old.requestedAt)+8*60000<=now.getTime();
+ const expired=finalPoll||(Number.isFinite(Date.parse(old.requestedAt))&&Date.parse(old.requestedAt)+90*60000<=now.getTime());
  const mark=async(status,reason)=>{
   const record={...old,status,phase:expired||status==='FAILED_NO_RETRY'?'FAILED_WITH_REASON':'PROVIDER_PENDING',reason,
    lastPolledAt:now.toISOString(),retrievableBySameResponseId:true,noNewPaidRequest:true};
@@ -284,8 +303,16 @@ export async function pollOpenAiResearch37({store,env=process.env,day,now=new Da
    saved=await persistPaidReview(store,day,doc);
   }
  }
+ // Persist the research learning link after the paid report, without another provider request.
+ let learningStatus='DISABLED';
+ if(env.DT37_RESEARCH_LEARNING_ENABLED==='true'){
+  try{const context=await loadResearchLearningContext37({store,day});
+   const linked=await persistResearchLearning37({store,context,review:doc,now,env});learningStatus=linked.status;}
+  catch(e){learningStatus='LEARNING_PERSIST_FAILED_RETRY_NEXT_RUN';
+   console.error('DT37_BACKGROUND_LEARNING_LINK_FAILED',day,String(e?.message||'unknown').slice(0,70));}
+ }
  return {status:doc.status,phase:doc.phase,day,experiments:doc.review.experiments.length,usage:doc.usage,
-  notification:doc.notification,recoveryKey:saved.recovered?saved.key:null};
+  learningStatus,notification:doc.notification,recoveryKey:saved.recovered?saved.key:null};
 }
 
 export const researchBudgetKey37=day=>day.slice(0,7)==='2026-11'
@@ -332,7 +359,6 @@ async function runScheduledResearchCore({store,env=process.env,now=new Date(),fe
   if(!env.OPENAI_RESEARCH_API_KEY)return learningEnabled?runLocalStrategyLearning37({store,day,now,env}):{status:'NO_API_KEY',day};
   if(env.OPENAI_RESEARCH_MODEL&&env.OPENAI_RESEARCH_MODEL!==PILOT.model)return {status:'UNAPPROVED_MODEL',day};
   if(!store)throw Error('NO_PERSISTENT_STORE');
-  if(env.DT372_RESEARCH_BACKGROUND_ENABLED==='true'&&env.DT372_RESEARCH_BACKGROUND_VERIFIED!=='true')return {status:'BACKGROUND_PREREQUISITES_NOT_VERIFIED',phase:'FAILED_WITH_REASON',day,reason:'MODEL_ACCOUNT_RETENTION_AND_COST_APPROVAL_REQUIRED'};
   // Persistent store failures fail closed; never assume failure means missing key.
   // Prefer the verified primary record. Read recovery only if the primary
   // is incomplete/unavailable, so a damaged recovery key cannot hide an
@@ -366,9 +392,10 @@ async function runScheduledResearchCore({store,env=process.env,now=new Date(),fe
     if(existingReview.status==='RESERVED')return {status:'REVIEW_RESERVED_NOT_COMPLETED',day};
     return {status:'PREVIOUS_REVIEW_STATE',day,previousStatus:existingReview.status||'UNKNOWN'};
   }
-  const [aiState,scanner,stage3,ledgerOld]=await Promise.all([
+  const [aiState,scanner,stage3,ledgerOld,aiDailyAdvice]=await Promise.all([
     read(store,`ai-parallel-state-${day}`),
-    read(store,`signal-history-${day}`),read(store,`research-agent-stage3-${day}`),read(store,budgetKey)]);
+    read(store,`signal-history-${day}`),read(store,`research-agent-stage3-${day}`),read(store,budgetKey),
+    read(store,`ai-parallel-recommendations-${day}`).catch(()=>null)]);
   // Read and validate real minute archive BEFORE reserving or spending any API budget.
   if(!aiState?.updatedAt)return {status:'NO_SESSION_EVIDENCE',day};
   if(aiState.publication372)return {status:'AI_PUBLICATION_PENDING_NO_API_SPEND',day};
@@ -402,7 +429,20 @@ async function runScheduledResearchCore({store,env=process.env,now=new Date(),fe
     streams:Object.fromEntries(Object.entries(audit.streams).map(([kind,v])=>[kind,{...v,
       readErrors:[],quote:{...v.quote,missing:v.quote.missing||0,invalidCrossed:v.quote.invalid||0,withSizes:v.quote.withSize||0},
       reasonCounts:v.reasonCounts,missingMinutes:v.missingMinutes}]))},generatedAt:now.toISOString(),expectedMinutes});
-  await store.setJSON(`dt37-research-agent-daily-${day}`,localResearch);
+  const aiInternalReport=aiDailyAdvice?.internalReport?.day===day?aiDailyAdvice.internalReport:null;
+  // Attach a compact verified AI daily report to the existing daily local Agent record.
+  // The archive itself remains independent and unchanged.
+  const aiHandoff=aiInternalReport?{
+    status:'RECEIVED_IN_AGENT_EVIDENCE',day,source:`ai-parallel-recommendations-${day}`,
+    schema:aiInternalReport.schema,generatedAt:aiInternalReport.generatedAt,
+    outcomes:aiInternalReport.outcomes?{
+      uniqueClosed:aiInternalReport.outcomes.uniqueClosed,
+      winners:aiInternalReport.outcomes.winners,losers:aiInternalReport.outcomes.losers,
+      netPaperUsd:aiInternalReport.outcomes.netPaperUsd}:null,
+    proposedExperimentsCount:(aiInternalReport.proposedExperiments||[]).length,
+    proposalsApproved:false
+  }:{status:'AI_INTERNAL_REPORT_UNAVAILABLE',day};
+  await store.setJSON(`dt37-research-agent-daily-${day}`,{...localResearch,aiHandoff});
   const stage3Research=stage3&&stage3.hypotheses?.length?stage3:localResearch;
   // Limited prior reviews are read-only; recommendations remain UNTESTED unless
   // a separate, measured out-of-sample experiment establishes their outcomes.
@@ -414,19 +454,21 @@ async function runScheduledResearchCore({store,env=process.env,now=new Date(),fe
   }
   const pastReviews=(await Promise.all(priorDays.map(d=>read(store,runKey(d)).catch(()=>null))))
     .filter(x=>x?.status==='REVIEW_CREATED_NOT_APPLIED').slice(0,5);
-  const rawEvidence=buildEvidence({day,aiState,stats:null,scanner,stage3:stage3Research,audit,previousResearch:pastReviews});
+  const rawEvidence=buildEvidence({day,aiState,stats:null,scanner,stage3:stage3Research,audit,previousResearch:pastReviews,aiInternalReport});
   if(!rawEvidence)return {status:'NO_SESSION_EVIDENCE',day};
   const packed38=packEvidence38(rawEvidence,{softChars:PILOT.softInputChars,hardChars:PILOT.maxInputChars});
   await store.setJSON(`dt38-research-evidence-size-${day}`,{
     day,originalChars:packed38.originalChars,chars:packed38.chars,softLimit:PILOT.softInputChars,
     hardLimit:PILOT.maxInputChars,status:packed38.status,compressed:packed38.compressed,
-    compressionSteps:packed38.changes,paidExtraCalls:0});
+    compressionSteps:packed38.changes,paidExtraCalls:0,aiHandoff:aiHandoff.status});
   if(packed38.status!=='SINGLE_REQUEST')return {status:'EVIDENCE_ESSENTIAL_DATA_OVER_BUDGET_NO_API_SPEND',day,
     reason:`EVIDENCE_ESSENTIAL_DATA_OVER_BUDGET_${packed38.chars}`};
   const evidence=packed38.evidence;
   const ledger=ledgerOld||{start:PILOT.start,endExclusive:PILOT.endExclusive,reservedUsd:0,calls:0,history:[]};
   if((ledger.calls||0)>=PILOT.maxCalls||(ledger.reservedUsd||0)+PILOT.reservePerCallUsd>PILOT.budgetUsd)
     return {status:'BUDGET_GUARD',day,calls:ledger.calls,reservedUsd:ledger.reservedUsd};
+  if(env.DT372_RESEARCH_BACKGROUND_ENABLED!=='true')return {status:'BACKGROUND_NOT_ENABLED_NO_API_SPEND',phase:'FAILED_WITH_REASON',day,reason:'SET_DT372_RESEARCH_BACKGROUND_ENABLED_TRUE'};
+   if(env.DT372_RESEARCH_BACKGROUND_VERIFIED!=='true')return {status:'BACKGROUND_PREREQUISITES_NOT_VERIFIED',phase:'FAILED_WITH_REASON',day,reason:'VERIFY_BACKGROUND_RETENTION_COST_AND_SET_DT372_RESEARCH_BACKGROUND_VERIFIED_TRUE'};
   const evidenceHash=createHash('sha256').update(JSON.stringify(evidence)).digest('hex');
   // Record irrevocable reservation BEFORE the billed request. No retries on errors.
   const nextLedger={...ledger,calls:(ledger.calls||0)+1,
@@ -453,7 +495,7 @@ async function runScheduledResearchCore({store,env=process.env,now=new Date(),fe
   // closed rather than risking duplicate paid attempts.
   if(!await preflightPaidReportStorage(store,day,claimId,evidenceHash))
     return {status:'REPORT_STORAGE_NOT_VERIFIED_NO_API_SPEND',day};
-  if(env.DT372_RESEARCH_BACKGROUND_ENABLED==='true'){
+  {
     const backgroundCheckpoint={day,evidenceHash,evidence,phase:'REQUEST_PREPARED',archiveCoverage:{ai:audit.streams.ai.storedMinutes,
       scanner:audit.streams.scanner.storedMinutes,complete:audit.complete}};
     // A restart cannot recreate evidence from memory: persist before the provider request.
@@ -461,6 +503,15 @@ async function runScheduledResearchCore({store,env=process.env,now=new Date(),fe
     const savedCheckpoint=await read(store,backgroundEvidenceKey(day));
     if(savedCheckpoint?.evidenceHash!==evidenceHash||!savedCheckpoint.evidence)
       return {status:'BACKGROUND_EVIDENCE_WRITE_NOT_VERIFIED_NO_API_SPEND',day};
+    // Durable recovery registration is a prerequisite to a billable POST.
+    // If the index cannot be verified, the reserved claim remains consumed: fail closed.
+    // Indexing before the provider call means a later index-write outage cannot
+    // orphan an otherwise durably saved response ID.
+    try{await registerPendingResearch38({store,day,now});}
+    catch(e){
+     console.error('DT38_BACKGROUND_RECOVERY_PRECHECK_FAILED',day,String(e?.message||e).slice(0,80));
+     return {status:'BACKGROUND_RECOVERY_INDEX_NOT_VERIFIED_NO_API_SPEND',phase:'FAILED_WITH_REASON',day};
+    }
     const requestInfo=makeOpenAiResearchRequest37(evidence,{background:true,reasoningEffort:env.DT372_RESEARCH_MEDIUM_APPROVED==='true'?'medium':'low'});
     const startedMarker={...verifiedClaim,phase:'STARTED',requestedAt:now.toISOString(),phases:[...(verifiedClaim.phases||[]),{phase:'STARTED',at:now.toISOString()}]};
     await store.setJSON(runKey(day),startedMarker);

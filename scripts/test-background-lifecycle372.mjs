@@ -24,6 +24,8 @@ async function launch(store,extra={}){
  let posts=0;
  const r=await runScheduledResearch({store,env,now:at,fetchFn:async(u,o)=>{
   posts++;assert.equal(o.method,'POST');assert.equal(store.map.get(key).data.phase,'STARTED');
+  assert(store.map.get('dt38-research-pending-days')?.data?.days?.includes(day),
+    'a durable recovery index must exist BEFORE any paid POST');
   const req=JSON.parse(o.body);assert.equal(req.reasoning.effort,'low','medium requires separate approval');
   return {ok:true,json:async()=>({id:'resp_lifecycle',status:'queued'})};},...extra});
  return {r,posts};
@@ -32,11 +34,11 @@ test('background start/pending/window exceeded/completion uses one POST and froz
  const s=evidenceStore();const {r,posts}=await launch(s);assert.equal(r.status,'BACKGROUND_PENDING');assert.equal(posts,1);
  const checkpoint=structuredClone(s.map.get(`dt372-research-background-evidence-${day}`).data);
  let gets=0;const pending=async(u,o)=>{gets++;assert.equal(o.method,'GET');return {ok:true,json:async()=>({status:'in_progress'})}};
- assert.equal((await pollOpenAiResearch37({store:s,env,day,now:new Date(day+'T22:17:00Z'),fetchFn:pending})).status,'BACKGROUND_PENDING');
- const late=await pollOpenAiResearch37({store:s,env,day,now:new Date(day+'T22:23:00Z'),fetchFn:pending,finalPoll:true});
+ assert.equal((await pollOpenAiResearch37({store:s,env,day,now:new Date(day+'T22:30:00Z'),fetchFn:pending})).status,'BACKGROUND_PENDING');
+ const late=await pollOpenAiResearch37({store:s,env,day,now:new Date(day+'T23:45:00Z'),fetchFn:pending,finalPoll:true});
  assert.equal(late.status,'BACKGROUND_WINDOW_EXCEEDED_NOT_VERIFIED');assert.equal(late.phase,'FAILED_WITH_REASON');
  assert.equal(s.map.get(key).data.responseId,'resp_lifecycle');assert.deepEqual(s.map.get(`dt372-research-background-evidence-${day}`).data,checkpoint);
- const saved=await pollOpenAiResearch37({store:s,env,day,now:new Date(day+'T22:25:00Z'),fetchFn:async(u,o)=>{gets++;assert.equal(o.method,'GET');return completed();}});
+ const saved=await pollOpenAiResearch37({store:s,env,day,now:new Date(day+'T22:26:00Z'),fetchFn:async(u,o)=>{gets++;assert.equal(o.method,'GET');return completed();}});
  assert.equal(saved.phase,'PERSISTED');assert.equal(s.map.get(key).data.phase,'PERSISTED');
  assert(s.map.get(key).data.phases.some(x=>x.phase==='COMPLETED'));assert.equal(saved.notification.status,'NOT_AUTHORIZED');
  assert.equal((await runScheduledResearch({store:s,env,now:at,fetchFn:async()=>{throw Error('NO_REBILL')}})).status,'ALREADY_REVIEWED');assert.equal(gets,3);
@@ -45,7 +47,7 @@ test('a pending response ID survives primary write failure in the verified recov
  const s=evidenceStore();s.beforeSet=async(k,v)=>{if(k===key&&v.status==='BACKGROUND_PENDING')throw Error('PRIMARY_PENDING_WRITE_DOWN')};
  await launch(s);assert.equal(s.map.get(`dt37-openai37-review-recovery-${day}`).data.responseId,'resp_lifecycle');
  assert.equal((await runScheduledResearch({store:s,env,now:at,fetchFn:async()=>{throw Error('NO_REPOST')}})).status,'BACKGROUND_PENDING');
- const r=await pollOpenAiResearch37({store:s,env,day,now:new Date(day+'T22:17:00Z'),fetchFn:completed});assert.equal(r.phase,'PERSISTED');
+ const r=await pollOpenAiResearch37({store:s,env,day,now:new Date(day+'T22:30:00Z'),fetchFn:completed});assert.equal(r.phase,'PERSISTED');
 });
 test('provider transport uncertainty records a reason and permanently prevents a second paid POST',async()=>{
  const s=evidenceStore();let posts=0;
@@ -71,8 +73,45 @@ test('missing key/evidence and unverified background prerequisites never spend',
 });
 test('an authorized separate notifier rejection is recorded once; never claims phone delivery',async()=>{
  const s=evidenceStore();await launch(s);let sends=0;
- const args={store:s,env,day,now:new Date(day+'T22:17:00Z'),fetchFn:completed,notificationAuthorized:true,
+ const args={store:s,env,day,now:new Date(day+'T22:30:00Z'),fetchFn:completed,notificationAuthorized:true,
   notifyFn:async()=>{sends++;throw Error('LOCAL_PROVIDER_REJECTED')}};
  const r=await pollOpenAiResearch37(args);assert.equal(r.notification.status,'FAILED_WITH_REASON');assert.equal(r.notification.phoneDeliveryVerified,false);
  await pollOpenAiResearch37(args);assert.equal(sends,1);
+});
+test('missing background enablement fails closed with zero provider POSTs',async()=>{
+ const s=evidenceStore();let posts=0;
+ const r=await runScheduledResearch({store:s,env:{OPENAI_RESEARCH_ENABLED:'true',OPENAI_RESEARCH_API_KEY:'LOCAL_FAKE'},now:at,
+  fetchFn:async()=>{posts++;throw Error('FOREGROUND_POST_MUST_NOT_HAPPEN')}});
+ assert.equal(r.status,'BACKGROUND_NOT_ENABLED_NO_API_SPEND');assert.equal(posts,0);
+ assert.equal([...s.map.keys()].some(k=>k.includes('openai37-review-')),false,'no charged reservation for misconfiguration');
+});
+test('90-minute window stays open before deadline and marks pending at minute 90',async()=>{
+ const s=evidenceStore();await launch(s);let gets=0;
+ const pending=async(u,o)=>{gets++;assert.equal(o.method,'GET');return {ok:true,json:async()=>({status:'queued'})}};
+ const before=await pollOpenAiResearch37({store:s,env,day,now:new Date(day+'T23:30:00Z'),fetchFn:pending});
+ assert.equal(before.status,'BACKGROUND_PENDING');assert.equal(before.phase,'PROVIDER_PENDING');
+ const end=await pollOpenAiResearch37({store:s,env,day,now:new Date(day+'T23:45:00Z'),fetchFn:pending,finalPoll:true});
+ assert.equal(end.status,'BACKGROUND_WINDOW_EXCEEDED_NOT_VERIFIED');assert.equal(gets,2);
+ assert.equal(s.map.get(key).data.responseId,'resp_lifecycle','provider ID retained after deadline');
+});
+
+test('index write failure before provider start prevents any billable POST and cannot retry',async()=>{
+ const s=evidenceStore();let posts=0;
+ s.beforeSet=async k=>{if(k==='dt38-research-pending-days')throw Error('INDEX_WRITE_SIMULATED_OUTAGE')};
+ const args={store:s,env,now:at,fetchFn:async()=>{posts++;throw Error('MUST_NOT_SEND')} };
+ const first=await runScheduledResearch(args);
+ assert.equal(first.status,'BACKGROUND_RECOVERY_INDEX_NOT_VERIFIED_NO_API_SPEND');
+ assert.equal(posts,0);
+ assert.equal(s.map.has('dt38-research-pending-days'),false);
+ const second=await runScheduledResearch(args);
+ assert.equal(second.status,'REVIEW_RESERVED_NOT_COMPLETED');
+ assert.equal(posts,0);
+});
+
+test('index read-after-write failure prevents provider POST',async()=>{
+ const s=evidenceStore();let posts=0;
+ s.beforeRead=async k=>{if(k==='dt38-research-pending-days')throw Error('INDEX_READ_SIMULATED_OUTAGE')};
+ const r=await runScheduledResearch({store:s,env,now:at,fetchFn:async()=>{posts++;throw Error('MUST_NOT_SEND')}});
+ assert.equal(r.status,'BACKGROUND_RECOVERY_INDEX_NOT_VERIFIED_NO_API_SPEND');
+ assert.equal(posts,0);
 });
