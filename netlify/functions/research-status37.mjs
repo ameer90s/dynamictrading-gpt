@@ -47,6 +47,7 @@ export default async function handler(request){
     try{budget=await store.get(researchBudgetKey37(day),{type:'json',consistency:'strong'});}catch{ /* Optional budget status only */ }
     return json({...publicResearchSummary({day,review,local,evidence,budget,learning,weekly,monthly,memory,daily,budgetLimitUsd:PILOT.budgetUsd}),
       periodWarnings,
-      delivery:delivery||{status:'NO_DAILY_RUN_RECEIPT',day}});
+      delivery:delivery||{status:'NO_DAILY_RUN_RECEIPT',day},
+      aiHandoff:local?.aiHandoff||{status:'NOT_VERIFIED',day}});
   }catch(e){return json({day,status:'ARCHIVE_UNAVAILABLE',error:'READ_FAILED',mode:'PAPER_ONLY'},503)}
 }

@@ -3,6 +3,7 @@
  * discovery record of a completed minute and includes REGULAR/WAIT exclusions.
  */
 import {recordResearchMinute} from './research-ledger37.mjs';
+import {gateEvidence39, summarizeGateEvidence39} from './gate-evidence39.mjs';
 export async function writeScannerAudit36(store,dateKey,minute,rows,{eligibleCount=0,attempted=[],errors=[],shariaEvidence=null}={}){
  const key=`scanner-audit-${dateKey}-${String(minute).padStart(4,'0')}`;
  const latest=(rows||[]).filter(x=>x?.symbol).map(x=>({symbol:x.symbol,at:x.research36?.features?.completedBarAt||null,
@@ -17,10 +18,12 @@ export async function writeScannerAudit36(store,dateKey,minute,rows,{eligibleCou
     stopLoss:x.stopLoss??null,tp1:x.target1??null,tp2:x.target2??null,tp3:x.target3??null,
     targetConfidence:x.targetConfidence||null,recommendedTarget:x.recommendedTarget||null,shadowTargets:x.shadowTargets||null}:null,
   observer:'BASE_3.7',confidenceUncalibrated:true}));
+ // Additional evidence derives only from data already captured; no extra API calls.
+ for(const rec of latest){const e=gateEvidence39(rec);rec.gateEvidence39={classification:e.classification,openingState:e.opening.state,quoteStatus:e.quote.status,checksRecorded:e.checksRecorded};}
  const seen=new Set(latest.map(r=>r.symbol));
- for(const symbol of [...new Set(attempted)].filter(Boolean)){if(!seen.has(symbol))latest.push({symbol,state:'UNRESOLVED',reason:'ATTEMPTED_NO_RESULT',attempted:true,source:null,features:null,openingChecks:[],confirmationChecks:[],executionChecks:[],quote:null,price:null,focusRank:null,observer:'BASE_3.7',confidenceUncalibrated:true});}
+ for(const symbol of [...new Set(attempted)].filter(Boolean)){if(!seen.has(symbol))latest.push({symbol,state:'UNRESOLVED',reason:'ATTEMPTED_NO_RESULT',attempted:true,source:null,features:null,openingChecks:[],confirmationChecks:[],executionChecks:[],quote:null,price:null,focusRank:null,observer:'BASE_3.7',confidenceUncalibrated:true,gateEvidence39:{classification:'UNDETERMINED',openingState:'UNVERIFIED',quoteStatus:'MISSING',checksRecorded:0}});}
  const obj={version:'3.7',cycleStatus:'COMPLETED',day:dateKey,minute,storedAt:new Date().toISOString(),eligibleCount,attemptedSymbols:attempted,
-  records:latest,errors,shariaEvidence,coverage:{attempted:[...new Set(attempted)].length,completed:seen.size,missing:[...new Set(attempted)].filter(x=>!seen.has(x)),unresolvedCount:[...new Set(attempted)].filter(x=>!seen.has(x)).length}};
+  records:latest,gateSummary39:summarizeGateEvidence39(latest),errors,shariaEvidence,coverage:{attempted:[...new Set(attempted)].length,completed:seen.size,missing:[...new Set(attempted)].filter(x=>!seen.has(x)),unresolvedCount:[...new Set(attempted)].filter(x=>!seen.has(x)).length}};
  await store.setJSON(key,obj);
  // Best-effort secondary research index. Raw per-minute archive remains authoritative.
  // A missing ledger minute blocks paid daily research; never interrupt user alerts.

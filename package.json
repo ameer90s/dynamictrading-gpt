@@ -11,7 +11,7 @@
     "web-push": "3.6.7"
   },
   "scripts": {
-    "test": "npm run test:syntax && npm run test:functional && npm run test:regression && npm run test:improvements && npm run test:36 && npm run test:ai-parallel && npm run test:archive37 && npm run test:ui37 && npm run test:ui-next37 && npm run test:research-deep37 && npm run test:api-json37 && npm run test:routing37 && npm run test:local-safety37 && npm run test:research-learning37 && npm run test:research-memory37 && npm run test:experiments37 && npm run test:historical-replay37 && npm run test:cost37 && npm run test:dynamic-ai-local37 && npm run test:dynamic-ai-adversarial37 && npm run test:research-patterns37 && npm run test:confirmation37 && npm run test:research-daily37 && npm run test:unified-session37 && npm run test:post-t3-release37 && npm run test:dependency-pins37 && npm run test:request-dedup371 && npm run test:372 && npm run test:weekly-profit371 && npm run test:repair372 && npm run test:38 && node scripts/test-38-background-recovery90.mjs",
+    "test": "npm run test:syntax && npm run test:functional && npm run test:regression && npm run test:improvements && npm run test:36 && npm run test:ai-parallel && npm run test:archive37 && npm run test:ui37 && npm run test:ui-next37 && npm run test:research-deep37 && npm run test:api-json37 && npm run test:routing37 && npm run test:local-safety37 && npm run test:research-learning37 && npm run test:research-memory37 && npm run test:experiments37 && npm run test:historical-replay37 && npm run test:cost37 && npm run test:dynamic-ai-local37 && npm run test:dynamic-ai-adversarial37 && npm run test:research-patterns37 && npm run test:confirmation37 && npm run test:research-daily37 && npm run test:unified-session37 && npm run test:post-t3-release37 && npm run test:dependency-pins37 && npm run test:request-dedup371 && npm run test:372 && npm run test:weekly-profit371 && npm run test:repair372 && npm run test:38 && node scripts/test-38-background-recovery90.mjs && npm run test:39-signals && npm run test:39-gates && npm run test:39-sip-audit",
     "test:372": "node scripts/test-background372.mjs && node scripts/test-ai-internal372.mjs && node scripts/test-372-invariants.mjs && node scripts/test-ai-audit-hardening372.mjs",
     "test:syntax": "find netlify public scripts -type f \\( -name '*.js' -o -name '*.mjs' \\) -print0 | xargs -0 -n1 node --check && node --check verify_35.mjs",
     "test:functional": "node verify_35.mjs && node scripts/test-sharia-local.mjs && node scripts/test-premarket-full-universe.mjs && node scripts/test-dynamic-full-universe.mjs && node scripts/test-delivery-stress.mjs && node scripts/test-sharia-daily.mjs",
@@ -42,6 +42,10 @@
     "test:request-dedup371": "node scripts/test-request-dedup371.mjs && node scripts/test-cockpit-archive-cache371.mjs",
     "test:weekly-profit371": "node scripts/test-weekly-profit-calc371.mjs",
     "test:repair372": "node scripts/test-safety-repair372.mjs && node scripts/test-retirement372.mjs && node scripts/test-research-status-fallback37.mjs && node scripts/test-report-storage-adversarial37.mjs && node scripts/test-ai-report-visibility37.mjs && node scripts/test-background-lifecycle372.mjs && node scripts/test-local-activated-discovery-to-agent37.mjs && node scripts/test-sharia-daily-intensive.mjs",
-    "test:38": "node scripts/test-38-local.mjs && node scripts/test-38-cadence.mjs && node scripts/test-38-owner-decision-mock.mjs && node scripts/test-38-research-packing.mjs && node scripts/test-38-final-gates.mjs"
+    "test:38": "node scripts/test-38-local.mjs && node scripts/test-38-cadence.mjs && node scripts/test-38-owner-decision-mock.mjs && node scripts/test-38-research-packing.mjs && node scripts/test-38-final-gates.mjs",
+    "test:39-signals": "node scripts/test-39-signal-preservation.mjs",
+    "test:offline": "node scripts/offline-test/run.mjs",
+    "test:39-gates": "node scripts/test-39-gate-evidence.mjs",
+    "test:39-sip-audit": "node scripts/test-39-sip-audit.mjs"
   }
 }

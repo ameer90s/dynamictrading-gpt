@@ -1,0 +1,43 @@
+{
+  "fixtureOnly": true,
+  "scannerAudits": [
+    {
+      "day": "2026-11-12",
+      "minute": 610,
+      "decisionAt": "2026-11-12T15:10:00Z",
+      "records": [
+        {
+          "symbol": "DEMO",
+          "state": "WAIT",
+          "reason": "INCOMPLETE_OPENING",
+          "openingChecks": [
+            {
+              "gate": "OPENING_BARS",
+              "passed": false,
+              "observed": 9,
+              "threshold": 15
+            }
+          ],
+          "features": {
+            "openingBars": 9
+          },
+          "quote": {
+            "bid": 10,
+            "ask": 10.01,
+            "ageSec": 5
+          }
+        }
+      ]
+    }
+  ],
+  "researchRecommendations": [
+    {
+      "day": "2026-11-12",
+      "symbol": "DEMO",
+      "minute": 610,
+      "status": "PROPOSED_NOT_APPLIED"
+    }
+  ],
+  "positions": [],
+  "barsByDaySymbol": {}
+}

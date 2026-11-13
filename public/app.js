@@ -189,14 +189,27 @@ function showMessage(text,type="ok"){const el=$("message");el.hidden=false;el.te
 function hideMessage(){$("message").hidden=true;}
 
 function dailyDisplayIdeas(data){
-  if(data?.stale||data?.actionable===false)return [];
-  if(Array.isArray(data?.display8)&&data.display8.length)return data.display8;
-  if(Array.isArray(data?.display5)&&data.display5.length)return data.display5.slice(0,5);
-  const rows=Array.isArray(data?.all)?data.all:[];
-  if(rows.length){return rows.map(r=>r.tradeable?r:{...r,side:"LONG",badTrade:true,paperOnly:true,tradeable:false,quality:"BAD TRADE — فرصة ضعيفة/غير مكتملة",filters:{...(r.filters||{}),rejectedReason:r.filters?.rejectedReason||`Setup ${r.metrics?.setupState||"غير مكتمل"}`}});}
-  return data?.fallbackTrade?[data.fallbackTrade]:(data?.top5||[]);
+  // Historical signals remain visible, but NEVER actionable if stale/closed.
+  const history=(data?.sessionSignalArchiveDate===data?.tradeDate&&Array.isArray(data?.sessionSignalArchive))
+    ? data.sessionSignalArchive.filter(r=>['SMART','CONFIRMED'].includes(r?.recommendationState))
+      .map(r=>({...r,historicalOnly:true,tradeable:false,confirmationLocked:true,paperOnly:true,side:'WAIT'})) : [];
+  if(data?.stale||data?.actionable===false)return history;
+  const live=Array.isArray(data?.display8)?data.display8.filter(r=>['SMART','CONFIRMED'].includes(r?.recommendationState)):[];
+  const liveSymbols=new Set(live.map(r=>r.symbol));
+  return [...live,...history.filter(r=>!liveSymbols.has(r.symbol))];
+}
+function scannerVisibilityExplanation(data){
+  if(data?.stale || data?.actionable===false)return 'بيانات سابقة — لا تصلح للدخول الآن';
+  const observed=Array.isArray(data?.display8) ? data.display8.filter(r=>['SMART','CONFIRMED'].includes(r?.recommendationState)).length : 0;
+  if(observed)return 'فرص مسجلة من آخر دورة';
+  const errors=Array.isArray(data?.errors)?data.errors:[];
+  if(errors.length || data?.scannerHealth?.endpointHealth==='DEGRADED')return 'بيانات ناقصة أو فشل مصدر أثناء الفحص — ليست نتيجة صفر فرص مؤكدة';
+  const attempted=Number(data?.scannerHealth?.attempted ?? data?.scanHealth?.attemptedCount ?? data?.scannerFunnel?.discoveryAttempted ?? 0);
+  if(attempted>0)return 'اكتمل فحص مرصود، ولم تتأهل إشارات SMART أو CONFIRMED في الدورة الأخيرة';
+  return 'لا توجد نتيجة فحص موثقة كافية لتحديد سبب غياب الفرص';
 }
 function render(data){
+  window.DT39ScannerVisibilityNote=scannerVisibilityExplanation(data);
   if(data?.stale||data?.actionable===false)showMessage(`STALE — DO NOT TRADE · آخر تحليل ناجح ${data?.lastSuccessfulAnalysisAt?formatDubai(data.lastSuccessfulAnalysisAt):"غير معروف"} · عمر البيانات ${Number(data?.dataAgeSec||0)}ث`,"error");
   if(!data?.stale&&data?.actionable!==false)logRevalidationViews(data);
   const dailyIdeas=dailyDisplayIdeas(data);
@@ -244,7 +257,7 @@ function renderTop5(items){
   if($("dailyIdeasCount"))$("dailyIdeasCount").textContent=`${rows.length}`;
   if(!rows.length){box.innerHTML='<div class="empty-state">لا توجد فرصة واضحة حالياً — البرنامج مستمر في المراقبة.</div>';return;}
   const meta={BAD:["🔴 BAD TRADE","bad-trade-card"],WAIT:["🟡 WAIT","wait-v32"],SMART:["🟠 SMART","smart-v32"],CONFIRMED:["🟢 CONFIRMED BUY","confirmed-v32"]};
-  box.innerHTML=rows.map((r,i)=>{const st=r.recommendationState,[rawLabel,cls]=meta[st],label=r.confirmationLocked?'🔒 CONFIRMED محفوظ — ليس دخولاً جديداً':rawLabel,setup=r.metrics?.setupFamilyLabel||r.metrics?.setupFamily||"Setup",showLevels=st==="CONFIRMED";return `<article class="mini-rec ${cls}"><div class="v32-state">${label}</div><div class="top"><h3>${esc(r.symbol)}</h3><b>${r.profitPotentialScore!=null?`${Number(r.profitPotentialScore).toFixed(0)}/100 جودة`:`${r.confidence}%`}</b></div><div class="mini-price">$${money(r.price)}</div><div class="v32-essential"><b >${esc(setup)}</b><br>${showLevels?`الدخول <b>${money(r.entryLow)}–${money(r.entryHigh)}</b><br>T1 <b>${money(r.target1)}</b> · T2 <b>${money(r.target2)}</b> · T3 <b>${money(r.target3)}</b><br>SL <b>${money(r.stopLoss)}</b>${r.signalAgeSec!=null?`<br><small>عمر الإشارة ${Math.round(Number(r.signalAgeSec))}s${r.recommendedTarget?` · هدف بحثي ${esc(r.recommendedTarget)}`:""}</small>`:""}`:`${esc(r.stateReason||r.filters?.rejectedReason||"بانتظار وضوح أفضل")}`}</div>${showLevels&&!r.confirmationLocked?`<button class="select-trade" data-select-index="${i}">اعتماد الصفقة</button>`:''}</article>`}).join("");
+  box.innerHTML=rows.map((r,i)=>{const st=r.recommendationState,[rawLabel,cls]=meta[st],label=r.historicalOnly?"🗂 إشارة تاريخية — ليست دخولاً حالياً":r.confirmationLocked?'🔒 CONFIRMED محفوظ — ليس دخولاً جديداً':rawLabel,setup=r.metrics?.setupFamilyLabel||r.metrics?.setupFamily||"Setup",showLevels=st==="CONFIRMED"&&!r.historicalOnly;return `<article class="mini-rec ${cls}"><div class="v32-state">${label}</div><div class="top"><h3>${esc(r.symbol)}</h3><b>${r.profitPotentialScore!=null?`${Number(r.profitPotentialScore).toFixed(0)}/100 جودة`:`${r.confidence}%`}</b></div><div class="mini-price">$${money(r.price)}</div><div class="v32-essential"><b >${esc(setup)}</b><br>${showLevels?`الدخول <b>${money(r.entryLow)}–${money(r.entryHigh)}</b><br>T1 <b>${money(r.target1)}</b> · T2 <b>${money(r.target2)}</b> · T3 <b>${money(r.target3)}</b><br>SL <b>${money(r.stopLoss)}</b>${r.signalAgeSec!=null?`<br><small>عمر الإشارة ${Math.round(Number(r.signalAgeSec))}s${r.recommendedTarget?` · هدف بحثي ${esc(r.recommendedTarget)}`:""}</small>`:""}`:`${esc(r.stateReason||r.filters?.rejectedReason||"بانتظار وضوح أفضل")}`}</div>${showLevels&&!r.confirmationLocked?`<button class="select-trade" data-select-index="${i}">اعتماد الصفقة</button>`:''}</article>`}).join("");
   box.querySelectorAll("[data-select-index]").forEach(btn=>btn.addEventListener("click",()=>selectTrade(rows[Number(btn.dataset.selectIndex)])));
   window.DT38LastScannerRows=rows;window.dispatchEvent(new CustomEvent("dt38:scanner-rows",{detail:rows}));
 }

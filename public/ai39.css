@@ -1,0 +1,126 @@
+/* Independent 3.9 AI scanner surface; all selectors scoped to its root. */
+#pulse-app .a39-root{direction:rtl;text-align:right;color:#f0fff5;font-family:Tahoma,Arial,sans-serif;padding:0 0 3px;--a39-border:#267a54;--a39-lime:#aeff32;--a39-bg:#001e22}
+#pulse-app .a39-root svg{width:21px;height:21px;flex:none;color:#b0ff44;vertical-align:middle}
+#pulse-app .a39-head{text-align:center;margin:0 0 10px;padding:1px 0 0}
+#pulse-app .a39-head h1{font-size:clamp(21px,5.3vw,28px);font-weight:850;margin:0;line-height:1.3}
+#pulse-app .a39-head h1 span svg{width:26px;height:26px}
+#pulse-app .a39-head p{font-size:clamp(10px,2.6vw,13px);margin:0;color:#cbded5;line-height:1.5}
+#pulse-app .a39-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1px solid #277659;background:linear-gradient(160deg,#07372f,#001921);border-radius:12px;min-height:70px;box-shadow:0 0 13px #42fc7333;margin-bottom:10px;overflow:hidden}
+#pulse-app .a39-metric{min-width:0;text-align:center;padding:5px 2px 6px;border-left:1px solid #206247;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
+#pulse-app .a39-metric:last-child{border-left:0}
+#pulse-app .a39-metric svg{height:19px;width:19px}
+#pulse-app .a39-metric small{font-size:clamp(8px,2.15vw,11px);color:#dfecde;line-height:1.35}
+#pulse-app .a39-metric strong{font-size:clamp(11px,2.9vw,16px);color:var(--a39-lime);line-height:1.2;overflow-wrap:anywhere}
+#pulse-app .a39-decision{display:flex;align-items:center;justify-content:space-between;gap:5px;padding:9px 10px 8px;margin:0 0 10px;border:1px solid #2e9856;border-radius:12px;background:linear-gradient(120deg,#003325,#001e24);box-shadow:inset 0 0 8px #59fc7136,0 0 9px #38ff5533;min-height:61px}
+#pulse-app .a39-decision-main{min-width:0;flex:1}
+#pulse-app .a39-decision h2{margin:0;font-size:clamp(12px,3.1vw,17px);font-weight:800;line-height:1.3}
+#pulse-app .a39-decision h2 svg{width:20px;height:20px}
+#pulse-app .a39-decision p{font-size:clamp(9px,2.2vw,12px);margin:3px 0 0;line-height:1.4;color:#dcece0}
+#pulse-app .a39-trend-pill{font-size:clamp(10px,2.4vw,13px);white-space:nowrap;border:1px solid #52b969;color:#b6ff8c;border-radius:20px;background:linear-gradient(135deg,#13582d,#042321);padding:5px 9px;display:flex;align-items:center;gap:3px;max-width:42%}
+#pulse-app .a39-trend-pill svg{width:18px;height:18px}
+#pulse-app .a39-board{margin:0;border:1px solid #237c55;border-radius:14px;background:linear-gradient(130deg,#00372b,#001d24);box-shadow:inset 0 0 12px #38ec6c24,0 0 10px #38ff4d38;padding:10px 9px 8px}
+#pulse-app .a39-board h2{display:flex;align-items:center;gap:6px;font-size:clamp(13px,3.4vw,18px);font-weight:850;margin:0 0 8px}
+#pulse-app .a39-opportunities{min-height:38px}
+#pulse-app .a39-opportunities.a39-empty{font-size:12px;text-align:center;color:#c7e4d1;padding:10px}
+#pulse-app .a39-row{display:grid;direction:rtl;grid-template-columns:24px 29px minmax(52px,1fr) 24px 54px 48px 78px;align-items:center;gap:3px;border:1px solid #226548;border-radius:9px;padding:4px 7px;min-height:39px;margin:4px 0;background:linear-gradient(115deg,#00332a,#001a20);box-shadow:0 0 5px #18b44c33}
+#pulse-app .a39-rank{grid-column:1;grid-row:1/3;text-align:center;font-size:14px;color:#c9d3ce;background:linear-gradient(#526c62,#293936);border-radius:50%;width:22px;height:22px;display:grid;place-items:center;font-weight:800}
+#pulse-app .a39-row-mark{grid-column:2;grid-row:1/3;font-size:23px;color:#90ff29;text-align:center}
+#pulse-app .a39-symbol{grid-column:3;grid-row:1;font-size:clamp(12px,3.4vw,17px);font-weight:900;line-height:1.1}
+#pulse-app .a39-company{grid-column:3;grid-row:2;min-width:0;font-size:clamp(7px,1.95vw,10px);color:#c5d6ce;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#pulse-app .a39-row-chart{grid-column:4;grid-row:1/3;display:grid;place-items:center}#pulse-app .a39-row-chart svg{width:19px;height:19px}
+#pulse-app .a39-score{grid-column:5;grid-row:1/3;text-align:center;color:#aaff49;font-size:clamp(11px,2.7vw,14px);font-weight:900}
+#pulse-app .a39-rr{grid-column:6;grid-row:1/3;font-size:clamp(10px,2.6vw,13px);font-weight:650;text-align:center;color:#ecfbf0}
+#pulse-app .a39-action{grid-column:7;grid-row:1/3;min-width:0;white-space:nowrap;font-size:clamp(9px,2.3vw,12px);border:1px solid #64a355;color:#d4ffb0;background:linear-gradient(#155e36,#063025);border-radius:18px;padding:5px 2px}
+#pulse-app .a39-row .a39-score::before{content:'التقييم';display:block;font-size:9px;color:#c8ddcc;font-weight:400}
+#pulse-app .a39-row .a39-rr::before{content:'R/R';display:block;font-size:9px;color:#b6d2c0;font-weight:400}
+#pulse-app .a39-accordion{margin-top:8px}
+#pulse-app .a39-accordion details{overflow:hidden;border:1px solid #276b4f;border-radius:9px;margin:5px 0;background:linear-gradient(125deg,#044336,#001c21)}
+#pulse-app .a39-accordion summary{list-style:none;display:flex;align-items:center;gap:7px;padding:7px 10px;cursor:pointer;font-size:clamp(10px,2.55vw,13px);font-weight:750;line-height:1.35}
+#pulse-app .a39-accordion summary::-webkit-details-marker{display:none}
+#pulse-app .a39-accordion summary svg:last-child{margin-right:auto;color:#dcece2;width:17px;height:17px}
+#pulse-app .a39-accordion details[open] summary svg:last-child{transform:rotate(180deg)}
+#pulse-app .a39-foldbody{padding:9px 12px;border-top:1px solid #255c45;max-height:190px;overflow:auto;font-size:12px;line-height:1.7;color:#dbeae0}
+#pulse-app .a39-foldline{padding:4px 0;border-bottom:1px solid #225442}
+#pulse-app .a39-disclaimer{margin:10px 0 5px;text-align:center;display:flex;align-items:center;justify-content:center;gap:7px;font-size:clamp(8px,2.18vw,11px);color:#b9d6c5;line-height:1.5}
+#pulse-app .a39-disclaimer svg{width:16px;height:16px}
+@media(max-width:380px){#pulse-app .a39-row{grid-template-columns:20px 24px minmax(46px,1fr) 17px 48px 36px 61px;gap:1px;padding:4px}#pulse-app .a39-row-mark{font-size:18px}#pulse-app .a39-action{font-size:9px}}
+
+/* 3.9 optical calibration, 473px master reference: AI page only. */
+#pulse-app:has(.pu-screen[data-screen="ai"]:not([hidden])) .pu-top{
+  aspect-ratio:473/68!important;
+  min-height:0!important;
+  height:auto!important;
+  border-bottom-color:#46fb55!important;
+  box-shadow:0 2px 8px #20ff5999!important;
+}
+#pulse-app:has(.pu-screen[data-screen="ai"]:not([hidden])) .pu-screen[data-screen="ai"]{
+  padding:0 11px 4px!important;
+}
+#pulse-app .a39-root{--a39-border:#38bd6b;--a39-lime:#a8ff21;--a39-bg:#00151a;
+  font-family:Tahoma,Arial,sans-serif!important;color:#f7fff9!important;
+}
+#pulse-app .a39-head{margin:0 0 7px!important;padding:0 0 2px!important;
+ background:radial-gradient(ellipse at 6% 90%,#0a8a41a8,transparent 32%),radial-gradient(ellipse at 94% 90%,#13af42a3,transparent 32%);
+}
+#pulse-app .a39-head:after{content:"";display:block;position:absolute;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#50ff56,transparent);opacity:.23}
+#pulse-app .a39-head h1{font-size:clamp(21px,5.7vw,27px)!important;line-height:1.19!important;font-weight:900!important;text-shadow:0 0 9px #a4ffa73b}
+#pulse-app .a39-head h1 span svg{width:25px;height:25px;filter:drop-shadow(0 0 4px #40ff44c8)}
+#pulse-app .a39-head p{font-size:clamp(11px,2.7vw,13px)!important;color:#d3e6db!important}
+#pulse-app .a39-metrics{min-height:70px!important;margin-bottom:7px!important;
+ border-color:#3a9663!important;border-radius:12px!important;
+ background:linear-gradient(180deg,#062c28 0%,#032723 36%,#02171c 100%)!important;
+ box-shadow:inset 0 0 17px #1aef6b21,0 0 9px #23f85f58,0 0 2px #7eff5099!important}
+#pulse-app .a39-metric{padding:4px 2px 5px!important;border-left-color:#2c7553!important}
+#pulse-app .a39-metric svg{filter:drop-shadow(0 0 3px #80ff53aa)}
+#pulse-app .a39-metric small{font-size:clamp(9px,2.35vw,11px)!important;line-height:1.25!important}
+#pulse-app .a39-metric strong{font-size:clamp(12px,3.05vw,16px)!important;line-height:1.16!important}
+#pulse-app .a39-decision{min-height:62px!important;margin-bottom:8px!important;padding:8px 9px!important;
+ border-color:#4cbb67!important;border-radius:12px!important;
+ background:linear-gradient(110deg,#062821,#06322b 65%,#03191f)!important;
+ box-shadow:inset 0 0 12px #55ff542b,0 0 12px #2eff5480,0 0 2px #b6ff5f99!important}
+#pulse-app .a39-decision h2{font-size:clamp(13px,3.45vw,17px)!important;text-shadow:0 0 4px #6fff5b55}
+#pulse-app .a39-decision p{font-size:clamp(10px,2.35vw,12px)!important}
+#pulse-app .a39-trend-pill{border-color:#65c368!important;background:linear-gradient(#176d32,#063025)!important;color:#e4ffab!important;
+ box-shadow:inset 0 0 6px #65ff3733,0 0 5px #63ff4b55!important}
+#pulse-app .a39-board{padding:7px 7px 7px!important;border-color:#3c9f60!important;
+ border-radius:13px!important;background:linear-gradient(155deg,#06312a,#021a20 85%)!important;
+ box-shadow:inset 0 0 17px #41ff6326,0 0 12px #26ff6070,0 0 2px #baff6999!important}
+#pulse-app .a39-board h2{font-size:clamp(14px,3.48vw,18px)!important;margin:0 0 6px!important}
+#pulse-app .a39-row{min-height:34px!important;padding:2px 5px!important;margin:3px 0!important;gap:3px!important;border-color:#327653!important;
+ background:linear-gradient(125deg,#05352d 0%,#031b21 100%)!important;
+ box-shadow:inset 0 0 8px #29cb5b22,0 0 4px #1bfa5944!important}
+#pulse-app .a39-symbol{font-size:clamp(13px,3.5vw,17px)!important}
+#pulse-app .a39-rank{background:linear-gradient(#5e685e,#273634)!important;box-shadow:0 0 5px #d0fff466!important}
+#pulse-app .a39-row-mark{filter:drop-shadow(0 0 3px #72ff61b3)}
+#pulse-app .a39-action{padding:3px 2px!important;background:linear-gradient(#16743d,#043020)!important;
+ border-color:#79d341!important;box-shadow:inset 0 0 5px #81ff3c55,0 0 5px #83ff4377!important}
+#pulse-app .a39-accordion{margin-top:5px!important}
+#pulse-app .a39-accordion details{margin:4px 0!important;border-color:#398a5d!important;
+ background:linear-gradient(125deg,#04362f,#021b21)!important;box-shadow:inset 0 0 5px #49ff5322,0 0 4px #26f75d36!important}
+#pulse-app .a39-accordion summary{padding:5px 8px!important;font-size:clamp(11px,2.75vw,13px)!important;line-height:1.25!important}
+#pulse-app .a39-disclaimer{margin:9px 0 3px!important;color:#c8dcd0!important;font-size:clamp(9px,2.3vw,11px)!important}
+#pulse-app:has(.pu-screen[data-screen="ai"]:not([hidden])) .pu-scrolltabs{
+ border-color:#56b56b!important;box-shadow:0 0 10px #56ff5479,inset 0 0 12px #30fd3f29!important;
+ background:linear-gradient(#00352ac9,#001e25f0)!important;
+}
+#pulse-app:has(.pu-screen[data-screen="ai"]:not([hidden])) .pu-scrolltabs button.selected{
+ background:linear-gradient(145deg,#c6ff64,#80fb12)!important;
+ box-shadow:0 0 10px #aaff3d9c,inset 0 0 4px #edffaaff!important;
+}
+#pulse-app:has(.pu-screen[data-screen="ai"]:not([hidden])) .pu-top{height:68px!important;min-height:68px!important;max-height:68px!important;aspect-ratio:auto!important;overflow:hidden!important;background-size:100% 100%!important}
+#pulse-app .a39-accordion summary{padding:3px 8px!important;min-height:26px!important}
+#pulse-app .a39-accordion details{margin:3px 0!important}
+#pulse-app#pulse-app:has(.pu-screen[data-screen="ai"]:not([hidden])) .pu-top{min-height:68px!important;height:68px!important;max-height:68px!important}
+
+/* DT 3.9: SMART/follow-up is orange, separate from green confirmed AI signals. */
+#pulse-app #dt39-ai-scanner .a39-action.a39-follow-orange{color:#ffe6a8!important;border:1px solid #ffa82a!important;background:linear-gradient(145deg,#8c4905,#4b2906)!important;box-shadow:inset 0 0 7px #ffbe423e,0 0 9px #ffa12286!important;text-shadow:0 0 4px #ffbb4d88!important;font-weight:850!important}
+#pulse-app #dt39-ai-scanner .a39-action.a39-follow-orange:hover,#pulse-app #dt39-ai-scanner .a39-action.a39-follow-orange:focus-visible{background:linear-gradient(145deg,#b46a0b,#6b3707)!important;outline-color:#ffd179!important}
+
+/* 3.9 AI report readability: preserve the approved palette and existing four folds. */
+#pulse-app #dt39-ai-scanner .a39-updated{margin:3px 0 0;font-size:10px;line-height:1.5;color:#cbebd8;font-weight:600}
+#pulse-app #dt39-ai-scanner .a39-report-brief{margin:7px 0 4px;border-top:1px solid #276b4f;padding:5px 2px 1px;font-size:11px;line-height:1.5;overflow-wrap:anywhere}
+#pulse-app #dt39-ai-scanner .a39-evidence-line{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:3px 9px}
+#pulse-app #dt39-ai-scanner .a39-evidence-key{color:#b6d7c5;min-width:0}
+#pulse-app #dt39-ai-scanner .a39-evidence-value{color:#eaffec;font-weight:700;overflow-wrap:anywhere;unicode-bidi:plaintext;max-width:100%}
+#pulse-app #dt39-ai-scanner .a39-evidence-heading{margin-top:6px;padding:5px 2px 2px;color:#afff6b;font-weight:800;border-bottom:1px solid #276b4f}
+#pulse-app #dt39-ai-scanner .a39-foldbody{max-height:300px}

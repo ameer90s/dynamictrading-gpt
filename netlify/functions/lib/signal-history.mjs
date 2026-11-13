@@ -96,5 +96,5 @@ export async function updateSignalHistory(store,data,dateKey){
    for(const group of [data.all,data.display8,data.top5])for(const other of (group||[]))if(other?.symbol===s&&other!==r)
     for(const k of keys)other[k]=r[k];}
   rec.lastSeenAt=now;rec.lastState=state;rec.lastPrice=Number(r.price||0);payload.signals[s]=rec;}
- payload.events=payload.events.slice(-4000);payload.updatedAt=now;await store.setJSON(key,payload);await store.setJSON('signal-history-latest',payload);await indexSession(store,dateKey,now);
+ payload.events=payload.events.slice(-4000);payload.updatedAt=now;await store.setJSON(key,payload);await store.setJSON('signal-history-latest',payload);await indexSession(store,dateKey,now);return payload;
 }

@@ -60,7 +60,7 @@ await t('Exactly five approved bottom tabs and settings in header',()=>{
 await t('Research decisions require owner token, not applied automatically',()=>{
  const js=readFileSync('netlify/functions/research-decision38.mjs','utf8');assert(js.includes('DT38_DECISION_ADMIN_TOKEN'));assert(js.includes('onlyIfNew:true'));assert(js.includes('productionApplied:false'));assert(!js.includes('sendOrder'));
 });
-await t('PWA approved assets and cache version belong to 3.8',()=>{
- const pwa=JSON.parse(readFileSync('public/manifest.webmanifest','utf8'));assert(pwa.icons.some(x=>x.src.includes('dt-pulse-approved-pwa-512')));assert(readFileSync('public/service-worker.js','utf8').includes('dynamic-trading-v3.8'));
+await t('PWA approved assets and 3.9 researcher cache update',()=>{
+ const pwa=JSON.parse(readFileSync('public/manifest.webmanifest','utf8'));assert(pwa.icons.some(x=>x.src.includes('dt-pulse-pwa39-512')));const cache=readFileSync('public/service-worker.js','utf8');assert(cache.includes('dt-pulse-pwa39-512.png'));assert(cache.includes('/research39.js?v=39research1'));assert(cache.includes('/research39.css?v=39research1'));
 });
 console.log(`DT38_LOCAL_TESTS_PASS ${n}/${n}`);

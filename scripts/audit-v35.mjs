@@ -17,7 +17,7 @@ ok('UI Scanner Learning 3.7', (index.includes('scannerLearning')||index.includes
 ok('Scanner Health Monitor UI',index.includes('scannerHealthState')&&app.includes('renderScannerHealth'));
 ok('Force Refresh is manual only label',index.includes('id="dailyBtn">تحديث يدوي / Force Refresh'));
 ok('Ask execution gate',selection.includes('validateExecutionQuote37(')&&read('netlify/functions/lib/execution-quote37.mjs').includes('EXECUTION_ASK_ABOVE_ENTRY')&&selection.includes('executableEntry'));
-ok('Service worker 3.8 cache',sw.includes('dynamic-trading-v3.8')); 
+ok('Service worker current 3.9 cache',sw.includes('dynamic-trading-v3.9-release-candidate-r3')); 
 ok('No operational v3.3/v3.4 refs',[daily,market,index,app,sw].every(x=>!(/v3\.[34]/.test(x))));
 console.log(checks.map(([n])=>`PASS ${n}`).join('\n'));console.log(`AUDIT_PASS ${checks.length}/${checks.length}`);
 const telemetry=read('netlify/functions/telemetry.mjs'),premarket=read('netlify/functions/premarket-memory.mjs'),push=read('netlify/functions/lib/push.mjs');

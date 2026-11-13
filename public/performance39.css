@@ -1,0 +1,68 @@
+/* Isolated, reference-derived 3.9 PERFORMANCE screen. Dark emerald shared palette. */
+#pulse-app .pu-screen[data-screen="performance"]{padding:0!important;min-height:0!important;background:#001719!important}
+#pulse-app .p39{--lime:#96ff24;--stroke:#237e57;--font:#f1fff4;--dark:#001719;background:#001719;color:var(--font);font-family:"Tajawal","Cairo",Tahoma,system-ui,sans-serif;direction:rtl;min-height:0;padding:0 9px 10px}
+#pulse-app .p39 *{box-sizing:border-box}
+#pulse-app .p39 svg{width:19px;height:19px;flex:none;vertical-align:middle}
+#pulse-app .p39-head{height:65px;display:grid;grid-template-columns:1fr 1.15fr 1fr;gap:5px;align-items:center;position:relative}
+#pulse-app .p39-heading{text-align:center;min-width:0}
+#pulse-app .p39-heading h1{display:flex;align-items:center;justify-content:center;gap:6px;font-size:23px;margin:0;font-weight:900;line-height:1.1}
+#pulse-app .p39-heading h1 svg{width:24px;height:24px;color:#9dff48;filter:drop-shadow(0 0 4px #68ef40)}
+#pulse-app .p39-heading p{font-size:10px;margin:3px 0 0;color:#b4c6bf;white-space:nowrap}
+#pulse-app .p39-headbtn{display:flex;gap:4px;align-items:center;justify-content:center;font-size:10px;font-weight:750;height:29px;background:linear-gradient(170deg,#033b31,#012226)!important;border:1px solid #268557!important;border-radius:13px!important;padding:3px 4px!important;white-space:nowrap;color:#efffee!important;min-width:0}
+#pulse-app .p39-headbtn svg{width:14px;height:14px;color:#9aff46}
+#pulse-app .p39-topnums{height:59px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid #1a7754;border-radius:10px;background:linear-gradient(165deg,#002d2b,#041f24);box-shadow:0 0 8px #2bea4933,inset 0 1px 6px #3bef3230;overflow:hidden;margin-bottom:11px}
+#pulse-app .p39-topnums>div{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-width:0;position:relative}
+#pulse-app .p39-topnums>div:not(:last-child)::after{position:absolute;content:"";height:38px;left:0;top:10px;width:1px;background:#39685c}
+#pulse-app .p39-topnums small{font-size:10px;display:flex;align-items:center;justify-content:center;gap:3px;color:#c4dfd0;white-space:nowrap}
+#pulse-app .p39-topnums small svg{width:14px;height:14px;color:#a6fe4d}
+#pulse-app .p39-topnums strong{font-size:15px;direction:ltr;white-space:nowrap;color:#f1fff2}
+#pulse-app .p39-summary{display:grid;grid-template-columns:1fr 1.15fr;direction:ltr;gap:10px;height:172px;margin:0 2px 12px}
+#pulse-app .p39-gaugebox{display:flex;justify-content:center;align-items:center;min-width:0}
+#pulse-app .p39-gauge{--p39-gauge:0deg;width:min(39vw,174px);height:min(39vw,174px);border-radius:50%;background:conic-gradient(from 200deg,#97ff22 0deg,#30ff16 var(--p39-gauge),#133f3c var(--p39-gauge),#123736 280deg,transparent 281deg);display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 0 7px #51ed374d);position:relative}
+#pulse-app .p39-gauge::after{content:"";position:absolute;inset:14px;border-radius:50%;background:#001c1e;box-shadow:inset 0 0 13px #023e29}
+#pulse-app .p39-gauge>div{z-index:1;position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;direction:rtl}
+#pulse-app .p39-gauge small{font-size:11px;color:#ebfff5}
+#pulse-app .p39-gauge strong{font-size:32px;color:#a1ff29;line-height:1.1;text-shadow:0 0 8px #40fb376d;direction:ltr}
+#pulse-app .p39-gauge span{font-size:11px;color:#dcf3e5}
+#pulse-app .p39-results{display:flex;flex-direction:column;gap:6px;direction:rtl}
+#pulse-app .p39-result{height:52px;border:1px solid #216f50;border-radius:9px;background:linear-gradient(135deg,#063832,#011e27);display:flex;align-items:center;justify-content:space-between;gap:7px;padding:4px 9px;box-shadow:inset 0 1px 8px #1ddc4b24}
+#pulse-app .p39-result.net{border-color:#75d529;background:linear-gradient(135deg,#10482c,#052523);box-shadow:0 0 7px #91ff2a55,inset 0 0 10px #7be33025}
+#pulse-app .p39-result>span:nth-child(2){display:flex;flex-direction:column;gap:2px;align-items:flex-start;flex:1;font-size:10px;color:#d8eee3}
+#pulse-app .p39-result strong{font-size:16px;color:#9cff50;direction:ltr;align-self:flex-start}
+#pulse-app .p39-result:nth-child(2) strong{color:#ff7c84}
+#pulse-app .p39-resulticon{height:41px;width:43px;border-radius:8px;border:1px solid #1b6953;background:#093d31;display:grid;place-items:center;color:#a6fe42}
+#pulse-app .p39-resulticon svg{width:26px;height:26px}
+#pulse-app .p39-resulticon.negative{color:#fe697b;background:#33212c}
+#pulse-app .p39-footstats{height:60px;border:1px solid #2a7b55;border-radius:10px;display:grid;grid-template-columns:1.12fr .9fr;background:linear-gradient(155deg,#013a32,#051f24);margin-bottom:13px;box-shadow:0 0 7px #29d65e39,inset 0 0 7px #5ee85a22}
+#pulse-app .p39-footstats>div{display:flex;align-items:center;gap:6px;min-width:0;padding:7px}
+#pulse-app .p39-footstats svg{width:21px;height:21px;color:#a1fe56}
+#pulse-app .p39-goal{position:relative}
+#pulse-app .p39-goal:after{content:"";position:absolute;left:0;height:39px;width:1px;background:#417963}
+#pulse-app .p39-goal>div{flex:1;min-width:0}
+#pulse-app .p39-footstats small{font-size:10px;color:#ccdbd1;white-space:nowrap}
+#pulse-app .p39-footstats strong{font-size:16px;color:#afff6d;direction:ltr}
+#pulse-app .p39-progress{height:9px;border-radius:10px;background:#0d3c33;margin-top:5px;overflow:hidden}
+#pulse-app .p39-progress span{display:block;background:linear-gradient(90deg,#6fff20,#bdff3b);height:100%;width:0%;border-radius:inherit;box-shadow:0 0 7px #a3ff40}
+#pulse-app .p39-balance>div{display:flex;flex-direction:column;gap:3px}
+#pulse-app .p39-balance strong{color:#f4fff4}
+#pulse-app .p39-accordion{display:flex;flex-direction:column;gap:9px}
+#pulse-app .p39-accordion details{border-radius:10px;border:1px solid #267855;background:linear-gradient(170deg,#03362e,#001e25);box-shadow:0 0 7px #1abf5038,inset 0 0 8px #55d95220;overflow:hidden}
+#pulse-app .p39-accordion summary{height:35px;padding:6px 11px!important;display:flex;align-items:center;gap:7px;list-style:none;font-size:13px;font-weight:800;color:#edfdee!important;cursor:pointer;background:transparent!important}
+#pulse-app .p39-accordion summary::-webkit-details-marker{display:none}
+#pulse-app .p39-accordion summary svg{color:#a1fb5d;width:18px;height:18px}
+#pulse-app .p39-accordion summary svg:last-child{margin-inline-start:auto}
+#pulse-app .p39-accordion summary b{font-size:11px;font-weight:500}
+#pulse-app .p39-foldbody{padding:10px 11px;border-top:1px solid #1d674c;line-height:1.7;font-size:11px;color:#d7efe0}
+#pulse-app .p39-row{display:flex;justify-content:space-between;gap:8px;padding:6px;border-bottom:1px solid #1a6248}
+#pulse-app .p39-refresh{border:1px solid #329f64;border-radius:8px;padding:7px 10px;background:#063e30!important;color:#ceffaa!important}
+#pulse-app .p39-disclaimer{font-size:9px;color:#869e93;text-align:center;margin:9px 0 0}
+/* Shared darkening only: same restrained emerald background for the four earlier screens. */
+#pulse-app .pu-screen[data-screen="today"],#pulse-app .pu-screen[data-screen="market"],#pulse-app .pu-screen[data-screen="ai"],#pulse-app .pu-screen[data-screen="research"]{background-color:#001719!important}
+#pulse-app .pu-top{background-color:#001719!important}
+@media(max-width:370px){#pulse-app .p39{padding-inline:6px}#pulse-app .p39-heading h1{font-size:19px}#pulse-app .p39-heading p{font-size:9px}#pulse-app .p39-headbtn{font-size:9px}#pulse-app .p39-topnums small{font-size:8px}#pulse-app .p39-summary{gap:4px}#pulse-app .p39-result{padding-inline:4px}#pulse-app .p39-result strong{font-size:14px}#pulse-app .p39-footstats{grid-template-columns:1.1fr .9fr}#pulse-app .p39-footstats small{font-size:9px}}
+
+#pulse-app .p39-controls{display:grid;grid-template-columns:1fr 1fr auto;gap:6px;align-items:end;padding:8px;margin-bottom:9px;background:#042a28;border:1px solid #227653;border-radius:9px}
+#pulse-app .p39-controls[hidden]{display:none!important}
+#pulse-app .p39-controls label{display:flex;flex-direction:column;gap:3px;color:#deeee4;font-size:10px;min-width:0}
+#pulse-app .p39-controls input{width:100%;border-radius:6px;padding:5px 3px;background:#0a302e;color:white;border:1px solid #35765d;font-size:10px}
+#pulse-app .p39-controls button{background:#135b3b;color:#dbffa9;border:1px solid #56aa4f;border-radius:8px;padding:6px;font-size:11px}

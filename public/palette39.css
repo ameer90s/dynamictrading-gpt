@@ -1,0 +1,18 @@
+/* DT PULSE 3.9 — shared dark-emerald surfaces matched to the Research tab. */
+#pulse-app{--dt39-research-canvas:#001719;--dt39-research-panel:#002a29;--dt39-research-edge:#147d50;--dt39-research-accent:#9aff25;--dt39-research-text:#edf9f0}
+#pulse-app .pu-screen[data-screen="today"],
+#pulse-app .pu-screen[data-screen="market"],
+#pulse-app .pu-screen[data-screen="ai"],
+#pulse-app .pu-screen[data-screen="research"],
+#pulse-app .pu-screen[data-screen="performance"]{background-color:var(--dt39-research-canvas)!important}
+#pulse-app .p39{--dark:var(--dt39-research-canvas);--stroke:var(--dt39-research-edge);--lime:var(--dt39-research-accent);--font:var(--dt39-research-text);background:var(--dt39-research-canvas)!important}
+#pulse-app .r39{--rbg:var(--dt39-research-canvas);--rpanel:var(--dt39-research-panel);--rb:var(--dt39-research-edge);--rgreen:var(--dt39-research-accent)}
+#dt39-today{--t39-edge:var(--dt39-research-edge);--t39-lime:var(--dt39-research-accent)}
+#dt39-scanner{--s39-bg:var(--dt39-research-canvas);--s39-edge:var(--dt39-research-edge);--s39-neon:var(--dt39-research-accent)}
+#pulse-app .a39-root{--a39-bg:var(--dt39-research-canvas);--a39-border:var(--dt39-research-edge);--a39-lime:var(--dt39-research-accent)}
+/* Surface gradient endpoints share the research palette. Leave gradients' placement,
+   typography, and semantic orange/red/green signals unchanged. */
+#pulse-app .p39-topnums{background:linear-gradient(165deg,#06352f,#031d23)}
+#pulse-app .a39-metrics{background:linear-gradient(160deg,#06352f,#031d23)}
+#dt39-scanner .s39-counter{background:linear-gradient(145deg,#06352f,#031d23)}
+#dt39-today .t39-status-card{background:radial-gradient(ellipse at 62% 90%,#06352f,transparent 75%),linear-gradient(150deg,#042a29,#001f23)}

@@ -1,0 +1,69 @@
+/* DT PULSE 3.9 RESEARCH — isolated design system, independently authored. */
+#pulse-app .r39{--rbg:#00191b;--rpanel:#002a29;--rgreen:#9aff25;--rb:#147d50;--rtext:#edf9f0;--rmuted:#bed2c9;direction:rtl;color:var(--rtext);background:linear-gradient(180deg,#001719 0%,#00191b 100%);padding:0 9px 16px;min-height:480px;font-family:"Tajawal","Cairo",system-ui,sans-serif;isolation:isolate}
+#pulse-app .pu-screen[data-screen="research"]{background:#001719!important;padding:0!important}
+#pulse-app .r39 *{box-sizing:border-box}
+#pulse-app .r39 button{cursor:pointer;font-family:inherit}
+#pulse-app .r39 svg{width:17px;height:17px;vertical-align:middle;flex-shrink:0}
+#pulse-app .r39-heading{height:59px;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 0 8px;background:radial-gradient(ellipse at 10% 60%,#a56b1940 0%,transparent 20%),radial-gradient(ellipse at 90% 65%,#bc811545 0%,transparent 25%);text-align:center}
+#pulse-app .r39-heading:before,#pulse-app .r39-heading:after{content:"";position:absolute;top:35px;width:73px;height:2px;background:linear-gradient(90deg,transparent,#e59a2e,transparent);filter:drop-shadow(0 0 5px #e5a12c)}
+#pulse-app .r39-heading:before{left:0;transform:rotate(-17deg)}#pulse-app .r39-heading:after{right:0;transform:rotate(17deg)}
+#pulse-app .r39-heading h1{font-size:23px;line-height:1.2;font-weight:900;letter-spacing:0;margin:0;color:#f5fff8;display:flex;align-items:center;gap:8px;text-shadow:0 1px 4px #06130a}
+#pulse-app .r39-heading h1 svg{height:23px;width:23px;color:#bcff43;filter:drop-shadow(0 0 3px #75ed21)}
+#pulse-app .r39-heading p{margin:2px 0 0;font-size:10px;line-height:1.25;color:#dae4e2}
+#pulse-app .r39-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;margin:0 3px 9px;direction:rtl}
+#pulse-app .r39-tabs button{height:31px;min-width:0;padding:3px 2px;border-radius:9px;border:1px solid #236552!important;background:linear-gradient(180deg,#092e2c,#062426)!important;color:#dbebde!important;box-shadow:inset 0 1px 3px #2c8f5733!important;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:5px;white-space:nowrap}
+#pulse-app .r39-tabs button svg{height:16px;width:16px;color:#acc4bb}
+#pulse-app .r39-tabs button.selected{color:#073516!important;background:linear-gradient(180deg,#d6ff84,#78ff21 65%,#34ee22)!important;border:1px solid #b4ff5c!important;box-shadow:0 0 10px #74ff43ad,inset 0 1px 5px #ffffffa8!important}
+#pulse-app .r39-tabs button.selected svg{color:#154e23}
+#pulse-app .r39-overview{height:51px;display:grid;grid-template-columns:1.06fr .92fr .88fr 1.15fr;align-items:stretch;border:1px solid #21654f;border-radius:11px;background:linear-gradient(180deg,#06352f,#031d23);box-shadow:inset 0 0 6px #33ef5152,0 0 6px #1aa74e30;margin:0 1px 8px;overflow:hidden}
+#pulse-app .r39-overview-title{display:none}
+#pulse-app .r39-metric{display:flex;flex-direction:column;gap:1px;text-align:center;align-items:center;justify-content:center;min-width:0;position:relative;padding:2px 1px}
+#pulse-app .r39-metric:not(:last-child):after{content:"";position:absolute;left:0;top:5px;bottom:5px;width:1px;background:#2e594e}
+#pulse-app .r39-metric span{display:flex;align-items:center;gap:4px;justify-content:center;color:#c5d9d0;font-size:9px;white-space:nowrap}
+#pulse-app .r39-metric span svg{width:15px;height:15px;color:#80f36b}
+#pulse-app .r39-metric b{font-size:16px;color:#b9ff57;line-height:1.15;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#pulse-app .r39-metric.r39-date b{color:#d9efec;font-size:9px}
+#pulse-app .r39-pane{border:1px solid #1e7654;border-radius:11px;padding:4px 5px;background:linear-gradient(160deg,#042a29,#001f23);box-shadow:0 0 9px #2cff4552,inset 0 0 7px #247c5b4d;min-height:105px;margin-bottom:10px}
+#pulse-app .r39-pane[hidden]{display:none!important}
+#pulse-app .r39-row-heading{display:flex;align-items:center;gap:5px;padding:1px 2px 5px;min-height:18px;color:#f4fff6;font-size:11px}
+#pulse-app .r39-row-heading svg{height:17px;width:17px;color:#b3ff42}
+#pulse-app .r39-row-heading strong{font-size:12px}
+#pulse-app .r39-row-heading span{margin-inline-start:auto;font-size:8px;color:#b3d7b9}
+#pulse-app .r39-list{display:flex;flex-direction:column;gap:7px}
+#pulse-app .r39-list.r39-empty{align-items:center;justify-content:center;min-height:78px;color:#b8d5c9;font-size:11px}
+#pulse-app .r39-offer{display:grid;grid-template-columns:72px minmax(0,1fr) 46px 96px;grid-template-rows:23px 13px;align-items:center;gap:0 5px;padding:3px 7px;border:1px solid #2a7460;border-radius:8px;background:linear-gradient(175deg,#00302b,#001c25);box-shadow:inset 0 0 4px #29c15d55;color:white;min-height:43px}
+#pulse-app .r39-offer-symbol{font-size:13px;grid-column:1;grid-row:1;color:#fff;direction:ltr;text-align:center}
+#pulse-app .r39-offer-heading{font-size:10px;grid-column:2;grid-row:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:800}
+#pulse-app .r39-offer-badge{font-size:9px;grid-column:3;grid-row:1;color:#103b1d;background:#9dff59;border-radius:8px;text-align:center;padding:2px 1px}
+#pulse-app .r39-actions{grid-column:4;grid-row:1;display:flex;gap:3px}
+#pulse-app .r39-actions button{font-size:9px;border-radius:12px;padding:3px 5px;border:1px solid #75d952!important;background:linear-gradient(180deg,#b7ff76,#5eef34)!important;color:#073418!important;font-weight:900}
+#pulse-app .r39-actions button+button{background:linear-gradient(#56232d,#321923)!important;color:#f6d2d3!important;border:1px solid #a14b53!important}
+#pulse-app .r39-offer-summary{grid-column:1/-1;grid-row:2;font-size:8px;color:#c1d2ca;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
+#pulse-app .r39-report{font-size:11px;line-height:1.65;color:#e5f5ec;padding:12px 6px;min-height:90px}
+#pulse-app .r39-accordions{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+#pulse-app .r39-accordions details{background:linear-gradient(175deg,#013c35,#05232b)!important;border:1px solid #2a7658!important;border-radius:9px!important;overflow:hidden;box-shadow:0 0 6px #41ec5666,inset 0 0 8px #34ce4a2e!important}
+#pulse-app .r39-accordions summary{list-style:none;display:flex;align-items:center;gap:5px;height:29px;min-height:29px;font-weight:750;font-size:11px;color:#f1ffef!important;background:transparent!important;padding:4px 9px!important;cursor:pointer}
+#pulse-app .r39-accordions summary::-webkit-details-marker{display:none}
+#pulse-app .r39-accordions summary svg:first-child{color:#9afc64}#pulse-app .r39-accordions summary svg:last-child{margin-inline-start:auto;order:3;width:13px;height:13px}
+#pulse-app .r39-accordions details>div{padding:8px 12px 11px;background:#042522;color:#cfe5da;font-size:11px;line-height:1.65}
+#pulse-app .r39-history button{border-radius:9px;background:#1f6d45;color:#d5ffb0;border:1px solid #63b64c;padding:7px 10px}
+#pulse-app .r39-note{font-size:9px;color:#a6b9b5;text-align:center;margin:8px 0 0}
+@media(min-width:600px){#pulse-app .r39{max-width:700px;margin-inline:auto}#pulse-app .r39-heading{height:69px}#pulse-app .r39-pane{min-height:128px}#pulse-app .r39-offer{min-height:52px;grid-template-rows:26px 18px}}
+@media(max-width:370px){#pulse-app .r39{padding-inline:6px}#pulse-app .r39-tabs button{font-size:9px}#pulse-app .r39-tabs button svg{width:13px}#pulse-app .r39-offer{grid-template-columns:50px minmax(0,1fr) 42px 87px;gap:0 3px;padding-inline:3px}#pulse-app .r39-actions button{font-size:8px;padding:2px 4px}#pulse-app .r39-metric span{font-size:8px}#pulse-app .r39-accordions summary{font-size:10px}}
+/* Size-locked reference calibration: researcher only, not the other tabs. */
+body.pu-rebuilt:has(.pu-screen[data-screen="research"]:not([hidden])) #pulse-app .pu-top{height:66px!important;min-height:66px!important;padding-top:0!important;padding-bottom:0!important}
+body.pu-rebuilt:has(.pu-screen[data-screen="research"]:not([hidden])) #pulse-app .pu-brand{min-height:61px!important;background-size:contain!important}
+#pulse-app .r39-heading{height:47px;margin-bottom:5px}
+#pulse-app .r39-heading:before,#pulse-app .r39-heading:after{top:29px}
+#pulse-app .r39-tabs{margin-bottom:7px}
+#pulse-app .r39-overview{height:49px;margin-bottom:7px}
+#pulse-app .r39-pane{min-height:116px;margin-bottom:8px}
+#pulse-app .r39-accordions{gap:4px;margin-top:5px}
+#pulse-app .r39-accordions summary{height:27px;min-height:27px}
+#pulse-app .r39-note{margin-top:5px}
+@media(min-width:600px){#pulse-app .r39-heading{height:51px}#pulse-app .r39-pane{min-height:124px}}
+body.pu-rebuilt:has(.pu-screen[data-screen="research"]:not([hidden])) #pulse-app .pu-top{aspect-ratio:auto!important;height:66px!important;min-height:66px!important}
+#pulse-app .pu-screen[data-screen="research"]{min-height:0!important;padding-bottom:0!important}
+#pulse-app .r39-pane{min-height:116px!important}
+body.pu-rebuilt:has(.pu-screen[data-screen="research"]:not([hidden])) #pulse-app .pu-scrolltabs{min-height:59px!important;margin-top:8px!important;margin-bottom:6px!important;padding:5px 4px!important;border-radius:13px!important}
+body.pu-rebuilt:has(.pu-screen[data-screen="research"]:not([hidden])) #pulse-app .pu-scrolltabs button{min-height:45px!important;padding:2px 1px!important}

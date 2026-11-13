@@ -84,6 +84,7 @@ export function summarizeMinuteAudit({kind,day,doc}={}){
   return rank(b)-rank(a)||a.symbol.localeCompare(b.symbol);
  }).slice(0,5);
  return {minute,archiveKey:`${kind==='scanner'?'scanner-audit':'ai-parallel-audit'}-${day}-${String(minute).padStart(4,'0')}`,
+  gateSummary39:kind==='scanner'?doc.gateSummary39||null:null,
   archiveSha256:hash(doc),status:doc.cycleStatus||'COMPLETED',attemptedSymbols:(doc.attemptedSymbols||doc.coverage?.attemptedSymbols||[]).length||
     (typeof doc.coverage?.attempted==='number'?doc.coverage.attempted:rows.length),
   rowCount:rows.length,states,reasons,gatesFail,sources,features,quote,symbols,examples:selected,

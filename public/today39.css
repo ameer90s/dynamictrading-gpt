@@ -1,0 +1,107 @@
+/* Independent DT 3.9 TODAY visual system: no selectors inherited from old card structures. */
+#pulse-app:has(#dt39-today) {background:#001519;}
+#pulse-app .pu-screen[data-screen="today"] {padding:0 11px 0!important;min-height:auto!important}
+#dt39-today {--t39-lime:#a5ff12;--t39-edge:#22bb64;--t39-ink:#f4fff5;display:flex;flex-direction:column;gap:12px;width:100%;color:var(--t39-ink);font-family:Tahoma,Arial,system-ui,sans-serif;letter-spacing:0;font-size:15px;}
+#dt39-today * {box-sizing:border-box;}
+#dt39-today svg {width:24px;height:24px;flex:none;vertical-align:middle;}
+#dt39-today .t39-status-card {height:75px;border:1px solid #3acf78;border-radius:15px;background:radial-gradient(ellipse at 62% 90%,#064b34,transparent 75%),linear-gradient(150deg,#003027,#001f26);box-shadow:0 0 13px #23fd4250,inset 0 0 9px #67ff4426;padding:3px 8px 6px;display:flex;flex-direction:column;justify-content:space-between;}
+#dt39-today .t39-clocks {display:grid;grid-template-columns:1fr 1fr;gap:8px;direction:rtl;}
+#dt39-today .t39-clock {height:31px;display:flex;gap:7px;justify-content:center;align-items:center;border:1px solid #276e59;border-radius:14px;background:linear-gradient(120deg,#023e34,#083c36);box-shadow:inset 0 1px 5px #3dfa5b40;font-size:12px;white-space:nowrap;}
+#dt39-today .t39-clock b {direction:ltr;font:700 14px/1 Arial,system-ui,sans-serif;font-variant-numeric:tabular-nums}
+#dt39-today .t39-session-line {display:flex;align-items:center;gap:9px;min-height:29px;direction:rtl;padding:0 9px;font-size:15px;font-weight:750;}
+#dt39-today .t39-session-text {margin-inline-end:auto;}
+#dt39-today .t39-live-dot{width:10px;height:10px;border-radius:100%;background:#aaff21;box-shadow:0 0 8px #71fc1f;flex:none}
+#dt39-today .t39-spark-bars {font-size:20px;color:#a8ff24;letter-spacing:2px;line-height:1;}
+#dt39-today .t39-card {border:1.3px solid #3acb72;border-radius:17px;box-shadow:0 0 13px #37e74d55,inset 0 0 7px #28ec652a;background:radial-gradient(ellipse at 12% 22%,#086647b0,transparent 48%),linear-gradient(117deg,#034431,#001e26 95%);overflow:hidden;}
+#dt39-today .t39-section-symbol {color:#a3ff21;display:inline-flex;align-items:center;justify-content:center;}
+#dt39-today h2 {margin:0;font-size:20px;line-height:1.3;font-weight:850;color:#fafff7;}
+#dt39-today .t39-summary {height:143px;padding:10px 11px 11px;display:flex;flex-direction:column;}
+#dt39-today .t39-section-heading {display:flex;align-items:center;gap:9px;margin-bottom:11px;}
+#dt39-today .t39-summary-grid {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;flex:1;}
+#dt39-today .t39-stat {min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-align:center;background:linear-gradient(145deg,#08563a,#002d2a);border:1px solid #3dc875;border-radius:13px;box-shadow:inset 0 0 9px #73ff3832,0 0 8px #32ff2920;padding:4px 2px;}
+#dt39-today .t39-glyph {color:#aeff2e;line-height:1;}
+#dt39-today .t39-glyph svg {width:26px;height:26px;}
+#dt39-today .t39-stat>span:nth-child(2) {font-size:12px;line-height:1.38;font-weight:650;}
+#dt39-today .t39-stat strong {font-size:17px;line-height:1.27;font-weight:800;color:#f7fff8;overflow-wrap:anywhere;}
+#dt39-today .t39-stat:first-child strong {font-size:26px;color:#a8ff1d;}
+#dt39-today .t39-action {height:133px;display:flex;flex-direction:column;justify-content:space-between;padding:12px 13px 11px;background:radial-gradient(ellipse at 13% 42%,#06874490,transparent 34%),linear-gradient(105deg,#034331,#001f24);}
+#dt39-today .t39-action-title {display:flex;gap:7px;align-items:flex-start;}
+#dt39-today .t39-action-title>.t39-section-symbol svg {width:29px;height:29px;}
+#dt39-today .t39-action-title>div {flex:1;min-width:0;text-align:right;}
+#dt39-today .t39-action-title h2 {font-size:23px;white-space:nowrap;}
+#dt39-today .t39-action-title p {font-size:13px;line-height:1.35;margin:3px 0 0;color:#d7e9db;overflow-wrap:anywhere;}
+#dt39-today .t39-action-buttons {display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+#dt39-today .t39-action-buttons button {height:43px;display:flex;align-items:center;justify-content:center;gap:10px;padding:0 4px;border-radius:13px;font-size:16px;font-weight:850;white-space:nowrap;}
+#dt39-today .t39-action-buttons svg {width:25px;height:25px;}
+#dt39-today .t39-primary {background:linear-gradient(145deg,#c7ff74,#83fa07);color:#052514!important;border:1px solid #d5ff89;box-shadow:0 0 12px #81ff2760;}
+#dt39-today .t39-secondary {background:linear-gradient(140deg,#07583b,#002b2c);border:1px solid #3bc876;color:#fff!important;}
+#dt39-today .t39-research {height:158px;padding:8px 12px 5px;}
+#dt39-today .t39-research-head {display:flex;align-items:center;gap:9px;}
+#dt39-today .t39-research-head svg {width:25px;height:25px;}
+#dt39-today .t39-research-content {height:91px;display:grid;grid-template-columns:1.45fr 1fr;gap:7px;align-items:center;}
+#dt39-today .t39-research-lines {display:flex;flex-direction:column;gap:6px;min-width:0;}
+#dt39-today .t39-research-lines p {display:flex;align-items:center;gap:7px;min-width:0;font-size:12px;line-height:1.15;font-weight:650;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+#dt39-today .t39-research-lines p>span:last-child {overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+#dt39-today .t39-point {display:inline-flex;flex:none;width:18px;height:18px;}
+#dt39-today .t39-point svg {width:18px;height:18px;}
+#dt39-today .t39-point.okay {color:#72ff35;}
+#dt39-today .t39-point.caution {color:#ffcb46;}
+#dt39-today .t39-research-content img {width:100%;height:88px;object-fit:contain;filter:drop-shadow(0 0 9px #0fff6690);}
+#dt39-today .t39-research-details {width:100%;display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;padding:5px 0 0;line-height:1.25;border:0;border-top:1px solid #236d54;background:transparent;color:#cfe4d6!important;}
+#dt39-today .t39-research-details svg {width:16px;height:16px;}
+#dt39-today .t39-ai {height:110px;display:grid;grid-template-columns:1.4fr 1fr;align-items:center;padding:9px 12px;}
+#dt39-today .t39-ai-text {min-width:0;}
+#dt39-today .t39-ai-heading {display:flex;align-items:center;gap:7px;}
+#dt39-today .t39-ai-heading h2 {font-size:20px;direction:ltr;}
+#dt39-today .t39-ai strong {display:block;font-size:21px;color:#a6ff22;white-space:nowrap;font-weight:900;margin-top:7px;line-height:1.1;}
+#dt39-today .t39-ai p {font-size:12px;line-height:1.3;margin:5px 0 0;white-space:nowrap;}
+#dt39-today .t39-ai>img {width:100%;height:95px;object-fit:contain;filter:drop-shadow(0 0 9px #25fc4b70);}
+/* Today own exact nav geometry, while other screens preserve their existing navigation. */
+#pulse-app:has(#dt39-today:not([hidden])) .pu-top {min-height:83px!important;}
+#pulse-app:has(.pu-screen[data-screen="today"]:not([hidden])) .pu-scrolltabs {position:relative!important;bottom:auto!important;margin:12px 11px 0!important;padding:5px 4px!important;min-height:72px!important;border:1px solid #37d56e!important;border-radius:16px!important;box-shadow:0 0 13px #30ff435c!important;}
+#pulse-app:has(.pu-screen[data-screen="today"]:not([hidden])) .pu-scrolltabs button {padding:7px 1px!important;min-height:59px!important;font-size:11px!important;font-weight:750!important;}
+#pulse-app:has(.pu-screen[data-screen="today"]:not([hidden])) .pu-scrolltabs button.selected {border:1px solid #caff7d!important;box-shadow:0 0 12px #8cff3592!important;}
+@media(max-width:390px){#dt39-today{gap:10px}#dt39-today .t39-action-title h2{font-size:20px}#dt39-today .t39-stat strong{font-size:14px}#dt39-today .t39-ai strong{font-size:17px}#dt39-today .t39-action-buttons button{font-size:13px}#dt39-today .t39-research-lines p{font-size:11px}}
+
+/* Branded header rebuilt controls: replace embedded PWA badge with real session state. */
+#pulse-app:has(.pu-screen[data-screen="today"]:not([hidden])) .pu-top{position:relative!important;min-height:83px!important;}
+#pulse-app .pu-top .pu39-session{position:absolute!important;left:13px!important;top:20px!important;z-index:5!important;width:80px!important;max-width:80px!important;height:43px!important;min-width:0!important;display:flex!important;gap:4px!important;align-items:center!important;justify-content:center!important;border:1px solid #43d976!important;border-radius:12px!important;padding:3px 4px!important;background:linear-gradient(130deg,#044b36,#00291f)!important;box-shadow:0 0 6px #71ff4149!important;font-size:11px!important;text-align:center!important;}
+#pulse-app .pu-top .pu39-session b{font-size:11px!important;color:#f4fff4!important;white-space:normal!important;overflow-wrap:anywhere;}
+#pulse-app .pu-top .pu39-session-dot{background:#a8ff22;box-shadow:0 0 6px #a8ff22;flex:none;display:block;width:7px;height:7px;border-radius:50%;}
+#pulse-app .pu-top .pu39-session[data-state="closed"] .pu39-session-dot{background:#aeb9b2;box-shadow:none;}
+#pulse-app .pu-top .pu39-session[data-state="neutral"] .pu39-session-dot{background:#ffbe46;box-shadow:none;}
+#dt39-today .t39-research-content img,#dt39-today .t39-ai>img{mix-blend-mode:screen;}
+#pulse-app:has(.pu-screen[data-screen="today"]:not([hidden])){min-height:0!important;}
+#pulse-app:has(.pu-screen[data-screen="today"]:not([hidden])) #pu-main{flex:none!important;}
+body.pu-rebuilt{margin:0!important}
+#dt39-today .t39-stat>span:nth-child(2){font-size:13px}
+#dt39-today .t39-action-title p{font-size:14px}
+#dt39-today .t39-research-lines p{font-size:13.5px}
+#dt39-today .t39-ai p{font-size:13px}
+#pulse-app:has(.pu-screen[data-screen="today"]:not([hidden])) .pu-scrolltabs button{font-size:12px!important}
+@media(max-width:390px){#dt39-today .t39-research-lines p{font-size:11.5px}}
+/* v3.9 calibrated Today-only masthead to approved 473px reference geometry. */
+#pulse-app:has(.pu-screen[data-screen="today"]:not([hidden])) .pu-top{height:119px!important;min-height:119px!important;max-height:119px!important;aspect-ratio:auto!important;background-size:100% 100%!important}
+#dt39-today .t39-card{border-color:#33eb6e!important;box-shadow:0 0 12px #48ff5590,inset 0 0 11px #28f85825!important}
+#dt39-today .t39-action{background:radial-gradient(ellipse at 13% 42%,#078f449c,transparent 38%),linear-gradient(105deg,#034d35,#001c24)!important}
+#dt39-today .t39-status-card{box-shadow:0 0 16px #49ff5985,inset 0 0 12px #40ef4540!important}
+#dt39-today .t39-stat{box-shadow:inset 0 0 12px #30ec562d,0 0 8px #2cff4840!important}
+#dt39-today .t39-primary{box-shadow:0 0 16px #90ff34b0!important;background:linear-gradient(145deg,#d2ff77,#8dff0c)!important}
+
+/* 3.9 final typography pass: same compact visual hierarchy as AI / Research / Performance. */
+#dt39-today{font-size:13px!important;}
+#dt39-today h2{font-size:17px!important;}
+#dt39-today .t39-session-line{font-size:13px!important;}
+#dt39-today .t39-clock{font-size:11px!important;}
+#dt39-today .t39-clock b{font-size:12px!important;}
+#dt39-today .t39-stat>span:nth-child(2){font-size:11px!important;}
+#dt39-today .t39-stat strong{font-size:14px!important;}
+#dt39-today .t39-stat:first-child strong{font-size:21px!important;}
+#dt39-today .t39-action-title h2{font-size:18px!important;white-space:normal!important;}
+#dt39-today .t39-action-title p{font-size:12px!important;}
+#dt39-today .t39-action-buttons button{font-size:13px!important;}
+#dt39-today .t39-research-lines p{font-size:11px!important;}
+#dt39-today .t39-research-details{font-size:11px!important;}
+#dt39-today .t39-ai-heading h2{font-size:17px!important;}
+#dt39-today .t39-ai strong{font-size:17px!important;}
+#dt39-today .t39-ai p{font-size:11px!important;}

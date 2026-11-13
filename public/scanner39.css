@@ -1,0 +1,130 @@
+/* Dynamic Trading 3.9 scanner: independent design, no legacy scanner element classes. */
+#pulse-app .pu-screen[data-screen="market"]{padding:0 10px 15px!important;min-height:0!important}
+#dt39-scanner{--s39-neon:#a7ff13;--s39-edge:#4ee568;--s39-bg:#001b20;color:#f8fff8;font-family:Tahoma,Arial,system-ui,sans-serif;direction:rtl;min-height:0;display:flex;flex-direction:column;gap:11px;font-size:15px}
+#dt39-scanner *{box-sizing:border-box}#dt39-scanner svg{width:25px;height:25px;flex:none;vertical-align:middle}
+#dt39-scanner button{font:inherit;color:inherit;cursor:pointer}#dt39-scanner .s39-heading{height:74px;display:flex;align-items:flex-start;justify-content:center;position:relative;padding:6px 0 0}
+#dt39-scanner .s39-title{text-align:center;}#dt39-scanner .s39-title h1{font-size:29px;color:white;margin:0 0 1px;font-weight:900;line-height:1.2;display:flex;align-items:center;justify-content:center;gap:8px;text-shadow:0 0 5px #dfffbaa3}#dt39-scanner .s39-title h1 svg{color:#91ff17;width:33px;height:33px}#dt39-scanner .s39-title p{margin:0;font-size:13px;color:#d2dce0}
+#dt39-scanner .s39-sidelabel{position:absolute;top:4px;left:10px;direction:ltr;border:1.5px solid #63c851;border-radius:13px;padding:5px 8px 4px;background:#034134;color:#fff;font-size:14px;font-weight:800;text-align:center;box-shadow:0 0 8px #6afe4c88}#dt39-scanner .s39-sidelabel small{display:block;direction:rtl;font-size:10px}
+#dt39-scanner .s39-overview{height:75px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;direction:rtl}
+#dt39-scanner .s39-counter{border:1px solid #317e63;border-radius:14px;background:linear-gradient(145deg,#073e37,#01202a);box-shadow:inset 0 0 9px #1dff6030;display:grid;grid-template-rows:22px 1fr;grid-template-columns:34px 1fr;align-items:center;text-align:center;padding:6px 8px;min-width:0}
+#dt39-scanner .s39-counter span{grid-column:1/-1;font-size:13px;color:#d6eee2;white-space:nowrap}#dt39-scanner .s39-counter strong{grid-column:2;grid-row:2;font-size:21px;color:#b5ff23;font-weight:900;white-space:nowrap}#dt39-scanner .s39-counter i{grid-column:1;grid-row:2;color:#adff34}#dt39-scanner .s39-counter i svg{width:29px;height:29px}
+#dt39-scanner .s39-filters{display:grid;grid-template-columns:1fr 1fr;gap:5px;min-height:51px}
+#dt39-scanner .s39-filters button{height:49px;display:flex;align-items:center;justify-content:center;gap:10px;border:1px solid #33795f;background:linear-gradient(145deg,#023b35,#001e29);border-radius:13px;font-size:16px;font-weight:850;box-shadow:inset 0 0 6px #45d94a2c;white-space:nowrap}
+#dt39-scanner .s39-filters button.selected{background:linear-gradient(110deg,#d1ff7b,#99fb0d);color:#062915;border-color:#cbff7b;box-shadow:0 0 12px #95fa2890}
+#dt39-scanner .s39-filters button b{font-size:16px}#dt39-scanner .s39-filters button svg{width:25px;height:25px}
+#dt39-scanner .s39-board{border:1.5px solid #46976e;border-radius:18px;background:linear-gradient(145deg,#002725,#00151a);box-shadow:inset 0 0 22px #12613b50,0 0 12px #4dfa4940;min-height:480px;overflow:hidden;position:relative}
+#dt39-scanner .s39-board-title{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid #3a995b;color:#f6fff5;font-weight:850;font-size:20px}.s39-live-note{font-size:11px;color:#a7bcb0;font-weight:500}
+#dt39-scanner .s39-opportunity-list{display:flex;flex-direction:column;gap:11px;padding:12px 13px 8px;max-height:450px;overflow-y:auto;scrollbar-width:thin}
+#dt39-scanner .s39-result{height:66px;min-height:66px;width:100%;display:flex;align-items:center;gap:16px;border:1px solid #55a56c;border-radius:12px;background:linear-gradient(125deg,#0b5036,#032527 75%);padding:6px 12px;text-align:right;box-shadow:inset 0 0 10px #47ff4c22,0 0 6px #50ff453b}
+#dt39-scanner .s39-result-state{font-size:22px;color:#acff42;order:0}#dt39-scanner .s39-company{display:flex;flex-direction:column;min-width:0;flex:1}#dt39-scanner .s39-company strong{font-size:23px;font-weight:900;direction:ltr;text-align:right;line-height:1.1}#dt39-scanner .s39-company small{font-size:12px;color:#d4dcd6;direction:ltr;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#dt39-scanner .s39-result-mark{width:43px;height:43px;display:grid;place-items:center;border-radius:11px;background:#013b30;font-size:26px;color:#ceff75;font-weight:950;box-shadow:0 0 5px #7dff3d7d}
+#dt39-scanner .s39-board-foot{margin:4px 13px 12px;border:1px solid #507762;border-radius:12px;padding:10px 6px;text-align:center;font-size:13px;color:#d5e4dc;background:#042b2a}
+#dt39-scanner .s39-empty{border:1px dashed #39705c;border-radius:15px;text-align:center;color:#b8cec1;padding:35px 8px;font-size:15px;margin:18px 5px}
+#dt39-scanner .s39-archive{border:1px solid #478d68;border-radius:12px;background:#023329;padding:8px 10px;margin-top:0}#dt39-scanner .s39-archive summary{display:flex;gap:9px;align-items:center;font-size:14px;font-weight:700;cursor:pointer}#dt39-scanner .s39-archive>div{font-size:12px;padding:10px;color:#a7c7b8}
+#dt39-scanner .s39-detail-overlay[hidden]{display:none!important}#dt39-scanner .s39-detail-overlay{position:fixed;inset:0;z-index:11000;display:flex;align-items:center;justify-content:center;padding:15px;background:#0008}
+#dt39-scanner .s39-backdrop{position:absolute;inset:0}#dt39-scanner .s39-dialog{position:relative;width:min(450px,100%);max-height:85dvh;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;border:2px solid #96ff5c;border-radius:20px;background:radial-gradient(ellipse at 40% 0%,#054637 0%,#00181c 68%);padding:16px 12px 17px;box-shadow:0 0 13px #9dff41,0 0 31px #83ff3670,inset 0 0 10px #75ff4530}
+#dt39-scanner .s39-close{position:absolute;top:14px;left:12px;border:0;background:transparent;color:#fff;font-size:24px;padding:3px;z-index:2}
+#dt39-scanner .s39-modal-top{text-align:center;padding:0 22px 7px}#dt39-scanner .s39-save-pill{display:inline-flex;align-items:center;background:linear-gradient(125deg,#115930,#00311c);border:1px solid #82ff40;color:#caff9b;border-radius:22px;box-shadow:0 0 7px #75ff3977;padding:3px 14px;font-size:13px;font-weight:850}
+#dt39-scanner .s39-modal-top h2{font-size:20px;margin:8px 0 0;color:#f4fff4}#dt39-scanner .s39-modal-company{display:flex;align-items:center;gap:12px;border:1px solid #377e64;border-radius:11px;background:#042b2b;padding:9px;min-height:63px}
+#dt39-scanner .s39-modal-company>div{flex:1;min-width:0;display:flex;flex-direction:column;text-align:right}#dt39-scanner .s39-modal-company strong{font-size:28px;font-weight:950;direction:ltr;text-align:right}#dt39-scanner .s39-modal-company small{direction:ltr;font-size:13px;color:#d5e0d7;text-align:right}
+#dt39-scanner .s39-modal-logo{font-size:29px;font-weight:950;color:#d7ffc4;border-radius:12px;width:47px;height:47px;display:grid;place-items:center;background:#024636;box-shadow:0 0 7px #72fa4980}
+#dt39-scanner .s39-type{order:-1;border:1px solid #6fd73e;background:#10562e;padding:5px 9px;border-radius:17px;color:#d5ffbd;font-size:14px}
+#dt39-scanner .s39-prices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:9px 0}#dt39-scanner .s39-price{background:#032e2e;border:1px solid #368967;border-radius:10px;text-align:center;padding:7px 3px;display:flex;flex-direction:column;gap:3px}#dt39-scanner .s39-price span{font-size:13px;color:#d2ebdc}#dt39-scanner .s39-price strong{font-size:20px;color:#fafff8;direction:ltr}#dt39-scanner .s39-price:nth-child(2) strong{color:#b4ff41}#dt39-scanner .s39-price:nth-child(3) strong{color:#ff7777}
+#dt39-scanner .s39-reasons{border:1px solid #2b735c;border-radius:12px;background:#043029;padding:9px 10px;min-height:79px}#dt39-scanner .s39-reasons strong{font-size:15px;color:#efffed}#dt39-scanner .s39-reasons p{font-size:13px;margin:5px 0;color:#d9f2e4;overflow-wrap:anywhere}
+#dt39-scanner .s39-status{display:flex;justify-content:space-between;align-items:center;gap:6px;border:1px solid #39765e;border-radius:12px;background:#07382e;margin-top:7px;padding:7px 10px;font-size:13px;min-height:36px}#dt39-scanner .s39-status b{color:#b4ff36}
+#dt39-scanner .s39-fold{margin-top:7px;border:1px solid #2c775f;border-radius:12px;background:linear-gradient(130deg,#044938,#012425);overflow:hidden}#dt39-scanner .s39-fold summary{cursor:pointer;font-size:13px;font-weight:750;padding:9px 12px;list-style:none}#dt39-scanner .s39-fold summary:before{content:'⌄';float:left;color:#efffe5}#dt39-scanner .s39-fold p{border-top:1px solid #306b56;font-size:12px;overflow-wrap:anywhere;white-space:pre-wrap;padding:9px;margin:0;max-height:140px;overflow-y:auto}
+#pulse-app:has(.pu-screen[data-screen="market"]:not([hidden])) .pu-scrolltabs{margin:8px 8px 0!important;min-height:69px!important;border-color:#50ba71!important;background:linear-gradient(145deg,#033f33,#001b25)!important}#pulse-app:has(.pu-screen[data-screen="market"]:not([hidden])) .pu-scrolltabs button{font-size:12px!important;min-height:55px!important}#pulse-app:has(.pu-screen[data-screen="market"]:not([hidden])) .pu-scrolltabs button.selected{box-shadow:0 0 10px #a2ff3399!important}
+@media(max-width:480px){#dt39-scanner .s39-heading{height:69px}#dt39-scanner .s39-title h1{font-size:25px}#dt39-scanner .s39-counter{padding:6px 2px;grid-template-columns:25px 1fr}#dt39-scanner .s39-counter span{font-size:11px}#dt39-scanner .s39-counter strong{font-size:16px}#dt39-scanner .s39-counter i svg{width:22px;height:22px}#dt39-scanner .s39-filters button{font-size:12px;gap:4px}#dt39-scanner .s39-filters button svg{width:18px;height:18px}#dt39-scanner .s39-board{min-height:395px}#dt39-scanner .s39-opportunity-list{max-height:345px}#dt39-scanner .s39-company strong{font-size:20px}#dt39-scanner .s39-dialog{max-height:79dvh;padding:14px 10px}#dt39-scanner .s39-overview{gap:5px}#dt39-scanner .s39-sidelabel{left:1px;font-size:10px;padding:4px}#dt39-scanner .s39-sidelabel small{font-size:8px}}
+/* Exact 726px-wide reference composition: full-bleed header and left floating details,
+   while the underlying opportunity results remain visible on the right. */
+@media(min-width:600px){
+ body.pu-rebuilt:has(#dt39-scanner:not([hidden])) #pulse-app{max-width:none!important;width:100%!important}
+ #pulse-app:has(.pu-screen[data-screen="market"]:not([hidden])){max-width:none!important;width:100%!important}
+ #dt39-scanner .s39-heading{height:59px}
+ #dt39-scanner .s39-overview{height:64px}
+ #dt39-scanner .s39-filters{min-height:49px}
+ #dt39-scanner .s39-board{min-height:535px}
+ #dt39-scanner .s39-result{height:70px}
+ #dt39-scanner .s39-detail-overlay{align-items:flex-start;justify-content:flex-start;padding:326px 0 0 max(17px,3vw);background:transparent;pointer-events:none}
+ #dt39-scanner .s39-detail-overlay .s39-backdrop{background:transparent;pointer-events:auto}
+ #dt39-scanner .s39-dialog{width:min(452px,64vw);max-height:min(550px,calc(100dvh - 340px));padding:11px 11px;pointer-events:auto}
+ #dt39-scanner .s39-modal-top{padding-bottom:4px}
+ #dt39-scanner .s39-modal-top h2{font-size:19px;margin-top:5px}
+ #dt39-scanner .s39-modal-company{min-height:58px;padding:5px}
+ #dt39-scanner .s39-prices{margin:6px 0}
+ #dt39-scanner .s39-reasons{min-height:70px;padding:6px 9px}
+ #dt39-scanner .s39-reasons p{margin:3px 0}
+ #dt39-scanner .s39-status{min-height:31px;padding:5px 8px;margin-top:5px}
+ #dt39-scanner .s39-fold{margin-top:5px}
+ #dt39-scanner .s39-fold summary{padding:6px 11px}
+ #pulse-app:has(.pu-screen[data-screen="market"]:not([hidden])) .pu-scrolltabs{margin:8px 9px 0!important;min-height:76px!important}
+}
+
+#pulse-app .s39-header-settings{display:none}
+#pulse-app:has(.pu-screen[data-screen="market"]:not([hidden])) .pu39-session{display:none!important}
+#pulse-app:has(.pu-screen[data-screen="market"]:not([hidden])) .s39-header-settings{display:grid!important;place-items:center!important;position:absolute!important;left:18px!important;top:25%!important;z-index:6!important;width:48px!important;height:48px!important;border:1px solid #66cb59!important;border-radius:12px!important;color:white!important;background:linear-gradient(#054838,#002421)!important;box-shadow:0 0 9px #65ff556b!important;font-size:30px!important;line-height:1!important;cursor:pointer!important}
+@media(min-width:600px){
+ #dt39-scanner .s39-detail-overlay{direction:ltr}
+ #dt39-scanner .s39-detail-overlay .s39-dialog{direction:rtl;min-height:530px}
+ #pulse-app:has(.pu-screen[data-screen="market"]:not([hidden])) .pu-scrolltabs{position:fixed!important;left:9px!important;right:9px!important;bottom:16px!important;width:auto!important;margin:0!important;min-height:90px!important}
+ #pulse-app:has(.pu-screen[data-screen="market"]:not([hidden])) .pu-scrolltabs button{min-height:80px!important;font-size:15px!important}
+}
+@media(max-width:480px){#pulse-app:has(.pu-screen[data-screen="market"]:not([hidden])) .s39-header-settings{width:34px!important;height:34px!important;left:11px!important;font-size:23px!important}}
+/* Hide the obsolete PWA ornament baked into the shared masthead image on Scanner only.
+   The new Scanner badge is the accessible DOM element directly under the masthead. */
+#pulse-app:has(.pu-screen[data-screen="market"]:not([hidden])) .pu-top::after{content:"";position:absolute;left:0;top:0;width:min(21vw,125px);height:83%;background:linear-gradient(105deg,#001920 82%,transparent);z-index:4;pointer-events:none}
+#pulse-app:has(.pu-screen[data-screen="market"]:not([hidden])) .s39-header-settings{z-index:7!important}
+@media(min-width:600px){
+ #pulse-app:has(.pu-screen[data-screen="market"]:not([hidden])) .pu-top{aspect-ratio:726/125!important}
+ #pulse-app .pu-screen[data-screen="market"]{padding-inline:18px!important}
+ #dt39-scanner{gap:10px}
+ #dt39-scanner .s39-heading{height:66px}
+ #dt39-scanner .s39-overview{height:61px}
+ #dt39-scanner .s39-board{margin-top:-5px;min-height:537px}
+ #dt39-scanner .s39-detail-overlay{padding-left:20px}
+ #pulse-app:has(.pu-screen[data-screen="market"]:not([hidden])) .pu-scrolltabs{bottom:13px!important;min-height:88px!important}
+ #pulse-app:has(.pu-screen[data-screen="market"]:not([hidden])) .pu-scrolltabs button{min-height:77px!important}
+}
+
+#dt39-scanner .s39-result-mark>svg,#dt39-scanner .s39-modal-logo>svg{width:84%;height:84%}
+#dt39-scanner .s39-msft{display:grid;grid-template-columns:1fr 1fr;gap:2px;width:32px;height:32px}
+#dt39-scanner .s39-msft i:nth-child(1){background:#ed5537}#dt39-scanner .s39-msft i:nth-child(2){background:#78b945}#dt39-scanner .s39-msft i:nth-child(3){background:#49a2e1}#dt39-scanner .s39-msft i:nth-child(4){background:#efbe31}
+
+#dt39-scanner .s39-watch-preview{display:flex;flex-direction:column;gap:7px;margin:4px 0 2px;border-top:1px solid #2b684d;padding-top:8px}
+#dt39-scanner .s39-watch-preview h3{display:flex;justify-content:space-between;align-items:center;color:#fff;font-size:18px;margin:2px 4px 0;font-weight:850}
+#dt39-scanner .s39-watch-preview h3 span{color:#a7ff37;font-size:15px}
+#dt39-scanner .s39-preview-result{height:54px;min-height:54px;border-color:#6e9560}
+#dt39-scanner .s39-preview-result .s39-result-mark{width:35px;height:35px;font-size:21px}
+#dt39-scanner .s39-preview-result .s39-company strong{font-size:19px}
+#dt39-scanner .s39-preview-result .s39-result-state{color:#ffcb4c}
+@media(min-width:600px){
+ #dt39-scanner .s39-opportunity-list{gap:6px;padding:10px 13px 4px;max-height:480px}
+ #dt39-scanner .s39-result{height:69px;min-height:69px}
+ #dt39-scanner .s39-preview-result{height:54px;min-height:54px}
+ #dt39-scanner .s39-modal-top{padding-top:10px;padding-bottom:7px}
+ #dt39-scanner .s39-modal-top h2{margin-top:11px}
+ #dt39-scanner .s39-modal-company{min-height:63px}
+ #dt39-scanner .s39-reasons{min-height:82px}
+ #dt39-scanner .s39-fold summary{padding:9px 11px}
+}
+/* 3.9 scanner: measured small improvement in overlay edge glow, with unchanged dimensions. */
+#dt39-scanner .s39-dialog{box-shadow:0 0 30px #56ff4f9c,inset 0 0 15px #43ff4c22!important}
+
+/* Preserved prior scanner signals are evidence, never active recommendations. */
+.s39-historical-label{display:block;color:#ffc982;font-size:10px;font-weight:700;margin-top:3px}
+.s39-result:has(.s39-historical-label){border-color:#875b29;opacity:.83}
+
+/* 3.9 final typography pass: scale scanner text alongside the AI tab. */
+#dt39-scanner{font-size:13px!important;}
+#dt39-scanner .s39-title h1{font-size:22px!important;}
+#dt39-scanner .s39-title h1 svg{width:26px!important;height:26px!important;}
+#dt39-scanner .s39-title p{font-size:12px!important;}
+#dt39-scanner .s39-counter span{font-size:11px!important;}
+#dt39-scanner .s39-counter strong{font-size:16px!important;}
+#dt39-scanner .s39-filters button{font-size:12px!important;}
+#dt39-scanner .s39-board-title{font-size:16px!important;}
+#dt39-scanner .s39-board-foot{font-size:12px!important;}
+#dt39-scanner .s39-empty{font-size:13px!important;}
+#dt39-scanner .s39-result-state{font-size:18px!important;}
+#dt39-scanner .s39-company strong{font-size:18px!important;}
+#dt39-scanner .s39-company small{font-size:11px!important;}
+#dt39-scanner .s39-archive summary{font-size:12px!important;}

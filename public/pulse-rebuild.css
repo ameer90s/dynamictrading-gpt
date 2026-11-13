@@ -1,0 +1,176 @@
+/* DT PULSE independent rebuilt UI. Old application DOM remains running as data/action backend. */
+:root{--pu-lime:#a6ff38;--pu-bright:#64ff32;--pu-border:#21a966;--pu-dark:#001416;--pu-panel:#00372e;--pu-text:#effff6}
+body.pu-rebuilt{background:#001115!important;color:#effff6!important;overflow-x:hidden}
+body.pu-rebuilt>.app-shell,body.pu-rebuilt>#dx-visual-return,body.pu-rebuilt>#dt-exact-app{position:absolute!important;visibility:hidden!important;pointer-events:none!important;width:1px!important;height:1px!important;overflow:hidden!important;clip-path:inset(50%)!important}
+#pulse-app{direction:rtl;max-width:520px;margin:0 auto;min-height:100dvh;background:radial-gradient(ellipse at 65% 45%,#03413945,transparent 65%),linear-gradient(#001719,#001116);font-family:system-ui,'Segoe UI',Tahoma,sans-serif;color:var(--pu-text);font-size:12px;position:relative;padding-bottom:95px;isolation:isolate}
+#pulse-app *{box-sizing:border-box}
+#pulse-app button{font-family:inherit;cursor:pointer;color:inherit}
+#pulse-app [hidden]{display:none!important}
+#pulse-app .pu-top{height:90px;border-bottom:1px solid #27af60;background:#001a1b;position:relative;display:flex;justify-content:space-between;align-items:center;padding:8px 12px;gap:8px}
+#pulse-app .pu-brand{flex:1;min-width:0;height:70px;background:url('/dt-approved-header.png') center /contain no-repeat;filter:drop-shadow(0 0 8px #15ff3960)}
+#pulse-app .pu-topcontrol{border:1px solid #226e53;background:#012923;border-radius:11px;display:grid;place-items:center;min-width:35px;height:38px;font-size:17px;position:relative}
+#pulse-app .pu-alertdot{position:absolute;background:#ff4657;width:8px;height:8px;border-radius:50%;top:1px;right:2px}
+#pulse-app .pu-pwa{font-size:10px;line-height:1.2;border:1px solid #21a967;padding:5px 7px;border-radius:9px;background:#013324;text-align:center;white-space:nowrap}
+#pulse-app .pu-pwa b{color:#a3ff3c}
+#pulse-app .pu-screen{padding:10px 10px 16px;min-height:calc(100dvh - 165px)}
+#pulse-app .pu-title{text-align:center;margin:0 0 10px}
+#pulse-app .pu-title h1{font-size:20px;font-weight:850;margin:2px 0;line-height:1.25}
+#pulse-app .pu-title p{font-size:10px;color:#b0c5bf;margin:2px 0}
+#pulse-app .pu-green{color:#a6ff3c!important}
+#pulse-app .pu-red{color:#ff696e!important}
+#pulse-app .pu-orange{color:#ffd171!important}
+#pulse-app .pu-panel{background:linear-gradient(115deg,#034335,#001c20);border:1px solid #168a56;border-radius:13px;margin:9px 0;padding:10px;box-shadow:inset 0 1px 4px #21845230,0 0 6px #148e3b24}
+#pulse-app .pu-panel h2{font-size:15px;font-weight:800;display:flex;align-items:center;gap:6px;margin:0 0 9px}
+#pulse-app .pu-panel p{margin:4px 0;font-size:11px;line-height:1.7}
+#pulse-app .pu-muted{color:#b2c9be;font-size:10px;line-height:1.6}
+#pulse-app .pu-cells{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+#pulse-app .pu-cells.four{grid-template-columns:repeat(4,minmax(0,1fr))}
+#pulse-app .pu-cell{background:linear-gradient(#054135,#012420);border:1px solid #287b55;border-radius:10px;padding:8px 4px;text-align:center;min-width:0}
+#pulse-app .pu-cell .pu-ico{display:block;font-size:17px;line-height:1;margin-bottom:5px;color:#a1ff42}
+#pulse-app .pu-cell small{display:block;color:#d1e4da;font-size:9px;line-height:1.6}
+#pulse-app .pu-cell strong{font-size:15px;display:block;color:#a8ff38;overflow-wrap:anywhere}
+#pulse-app .pu-times{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+#pulse-app .pu-time{border:1px solid #197d50;background:#032b27;border-radius:16px;padding:7px 9px;font-size:10px;display:flex;align-items:center;justify-content:space-between;gap:5px}
+#pulse-app .pu-time b{font-size:12px}
+#pulse-app .pu-marketstate{border:1px solid #1e9058;border-radius:12px;padding:9px 13px;margin-top:6px;display:flex;justify-content:space-between;background:linear-gradient(95deg,#03472e,#002620);font-size:12px;font-weight:650}
+#pulse-app .pu-buttons{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}
+#pulse-app .pu-button{border:1px solid #2f9866;background:#014132;border-radius:10px;padding:10px 7px;font-weight:750;font-size:12px}
+#pulse-app .pu-button.accent{background:linear-gradient(120deg,#caff69,#80fa05);color:#062315;border-color:#ccff86}
+#pulse-app .pu-artpanel{display:grid;grid-template-columns:110px 1fr;align-items:center;gap:8px;direction:ltr}
+#pulse-app .pu-artpanel>div:last-child{direction:rtl}
+#pulse-app .pu-art{width:100%;height:105px;object-fit:contain}
+#pulse-app .pu-artpanel li{list-style:none;font-size:11px;line-height:1.8}
+#pulse-app .pu-artpanel ul{margin:0;padding:0}
+#pulse-app .pu-message{font-size:17px;color:#a9ff2c;font-weight:900;line-height:1.3}
+#pulse-app .pu-segments{display:flex;gap:5px;margin:8px 0}
+#pulse-app .pu-segments button{flex:1;border:1px solid #296d52;padding:8px 2px;border-radius:9px;background:#062d2b;font-size:10px;min-width:0}
+#pulse-app .pu-segments button.selected{background:linear-gradient(110deg,#b6ff52,#7efa13);color:#032110;font-weight:800}
+#pulse-app details.pu-fold{margin:7px 0;border:1px solid #287d58;background:linear-gradient(110deg,#034034,#001b21);border-radius:10px;overflow:hidden}
+#pulse-app details.pu-fold summary{padding:10px 12px;cursor:pointer;font-size:11px;font-weight:700;list-style:none;display:flex;justify-content:space-between;align-items:center}
+#pulse-app details.pu-fold summary::before{content:'⌄';font-size:16px;order:5}
+#pulse-app details.pu-fold[open] summary::before{content:'⌃'}
+#pulse-app .pu-foldbody{padding:10px;border-top:1px solid #165941;max-height:350px;overflow:auto}
+#pulse-app .pu-trade{width:100%;display:flex;align-items:center;justify-content:space-between;gap:7px;background:#022b26;border:1px solid #26634b;border-radius:9px;padding:8px;margin:6px 0;text-align:right}
+#pulse-app .pu-trade strong{font-size:14px}
+#pulse-app .pu-trade small{font-size:10px;color:#b7ddca}
+#pulse-app .pu-mark{border:1px solid #4ad94f;background:#085b2c;color:#baffb2;border-radius:19px;padding:4px 8px;font-size:10px}
+#pulse-app .pu-empty{color:#a2bbb1;text-align:center;padding:10px 3px;font-size:11px}
+#pulse-app .pu-scrolltabs{position:sticky;bottom:0;display:grid;grid-template-columns:repeat(5,1fr);gap:2px;padding:7px 5px;background:#00251fdc;backdrop-filter:blur(10px);border:1px solid #36865c;border-radius:14px;margin:10px 8px 0;box-shadow:0 0 14px #1cff4420;z-index:8}
+#pulse-app .pu-scrolltabs button{border:0;background:transparent;padding:6px 1px;border-radius:10px;font-size:10px;display:flex;align-items:center;flex-direction:column;gap:3px;min-width:0;white-space:nowrap}
+#pulse-app .pu-scrolltabs button b{font-size:19px;line-height:23px;font-weight:600}
+#pulse-app .pu-scrolltabs button.selected{background:linear-gradient(145deg,#c5ff65,#79f706);color:#051c0e;font-weight:850}
+#pulse-app .pu-gauge{height:146px;width:146px;max-width:100%;border-radius:50%;margin:auto;background:conic-gradient(from 205deg,#79ff18 0deg,var(--pu-gauge,180deg),#144941 var(--pu-gauge,180deg) 280deg,transparent 280deg 360deg);display:grid;place-items:center;position:relative}
+#pulse-app .pu-gauge:before{content:'';position:absolute;inset:15px;border-radius:50%;background:#002027}
+#pulse-app .pu-gauge>div{position:relative;text-align:center;font-size:10px}
+#pulse-app .pu-gauge strong{display:block;font-size:24px;color:#adff42}
+#pulse-app .pu-profitgrid{display:grid;grid-template-columns:1fr 1.3fr;gap:9px;align-items:center;margin:12px 0}
+#pulse-app .pu-profitline{border:1px solid #206d51;border-radius:9px;display:flex;justify-content:space-between;align-items:center;padding:7px;margin:5px 0;background:#062c28}
+#pulse-app .pu-profitline b{font-size:16px}
+#pulse-app .pu-progress{height:8px;border-radius:10px;background:#145344;overflow:hidden;margin-top:4px}
+#pulse-app .pu-progress i{height:100%;display:block;background:linear-gradient(90deg,#42ff37,#a9ff4b);width:0}
+#pulse-app .pu-balance{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+#pulse-app .pu-balance>div{padding:5px;border-left:1px solid #24694b}
+#pulse-app .pu-balance strong{font-size:16px}
+#pulse-app .pu-modal{position:fixed;inset:0;background:#000b;display:flex;align-items:center;justify-content:center;padding:18px;z-index:99}
+#pulse-app .pu-dialog{background:#002d29;border:2px solid #90ff49;box-shadow:0 0 25px #66ff455e;border-radius:17px;padding:14px;max-width:370px;width:100%;max-height:85vh;overflow:auto}
+#pulse-app .pu-dialog h2{font-size:18px}
+#pulse-app .pu-dialog .pu-close{float:left;border:1px solid #236e51;background:#00382d;border-radius:50%;height:32px;width:32px}
+#pulse-app .pu-dialog .pu-cells{margin:12px 0}
+#pulse-app .pu-actionrow{display:flex;gap:6px;margin-top:8px}
+@media(max-width:359px){#pulse-app .pu-top{height:75px}#pulse-app .pu-brand{height:55px}#pulse-app .pu-cell strong{font-size:12px}#pulse-app .pu-artpanel{grid-template-columns:82px 1fr}#pulse-app .pu-art{height:82px}#pulse-app .pu-gauge{height:110px;width:110px}#pulse-app .pu-gauge strong{font-size:18px}#pulse-app .pu-profitline b{font-size:13px}}
+/* Exact approved full-width brand artwork, without duplicated iconography. */
+#pulse-app .pu-top{height:auto;min-height:0;aspect-ratio:850/140;background:#001a1b url('/dt-approved-header.png') center / 100% 100% no-repeat;padding:0 3%}
+#pulse-app .pu-brand{display:none}
+#pulse-app .pu-topcontrol{background:transparent;border:none;color:transparent;font-size:0;width:9%;min-width:30px;height:100%;box-shadow:none}
+#pulse-app .pu-pwa{background:transparent;border:none;color:transparent;font-size:0;width:14%;padding:0}
+#pulse-app .pu-pwa b{color:transparent}
+#pulse-app .pu-alertdot{display:none}
+@media(max-width:359px){#pulse-app .pu-top{height:auto;aspect-ratio:850/140}}
+
+
+/* REFERENCE PASS — physical geometry, artwork, affordances and visual depth. */
+#pulse-app{--pu-lime:#a6ff19;--pu-border:#28d477;--pu-text:#f6fff8;background:#00171c;max-width:520px;font-family:Tahoma,Arial,system-ui,sans-serif;padding-bottom:10px;min-height:100dvh;display:flex;flex-direction:column}
+#pulse-app .pu-svg{width:19px;height:19px;vertical-align:middle;flex:none}
+#pulse-app .pu-title .pu-svg{width:25px;height:25px}
+#pulse-app .pu-panel .pu-svg{width:18px;height:18px}
+#pulse-app .pu-cells .pu-svg{width:23px;height:23px}
+#pulse-app .pu-scrolltabs .pu-svg{width:27px;height:27px}
+#pulse-app .pu-top{height:auto;aspect-ratio:852/151;flex:none;position:relative;border-bottom:2px solid #60f761;box-shadow:0 2px 7px #2ef9574d;background-color:#001c21}
+#pulse-app #pu-main{flex:1;min-height:0}
+#pulse-app .pu-screen{padding:12px 13px 10px;min-height:0}
+#pulse-app .pu-title{margin:0 0 12px;text-align:center}
+#pulse-app .pu-title h1{display:flex;align-items:center;justify-content:center;gap:8px;font-size:23px;color:#fff;line-height:1.4;margin:0}
+#pulse-app .pu-title p{font-size:11px;margin-top:0;color:#b6cfc7}
+#pulse-app .pu-panel{margin:10px 0;padding:11px;border:1.4px solid #2bcd78;background:radial-gradient(ellipse at 30% 0%,#0b5c4180,transparent 70%),linear-gradient(130deg,#024638,#001e25);border-radius:17px;box-shadow:inset 0 1px 4px #8aff862c,0 0 9px #45ff5f2e}
+#pulse-app .pu-panel h2{font-size:16px;line-height:1.4;gap:6px;margin-bottom:9px}
+#pulse-app .pu-panel h2 .pu-titleicon{display:inline-flex;align-items:center}
+#pulse-app .pu-panel p{font-size:12px;line-height:1.6}
+#pulse-app .pu-cells{gap:7px}
+#pulse-app .pu-cell{padding:11px 3px 9px;border:1px solid #39c574;border-radius:13px;background:linear-gradient(145deg,#075a3d 0%,#002d2b 95%);box-shadow:inset 0 0 8px #12ff4840}
+#pulse-app .pu-cell .pu-ico{line-height:1;display:block;margin:0 0 5px}
+#pulse-app .pu-cell small{font-size:10px;line-height:1.45;white-space:normal}
+#pulse-app .pu-cell strong{font-size:16px;line-height:1.5;font-weight:800}
+#pulse-app .pu-times{gap:7px}
+#pulse-app .pu-time{border:1px solid #38d973;border-radius:18px;padding:7px 11px;background:linear-gradient(#03543c,#00292b);font-size:11px}
+#pulse-app .pu-time b{font-size:13px}
+#pulse-app .pu-marketstate{border:1px solid #21b562;border-radius:15px;margin-top:6px;padding:8px 14px;background:linear-gradient(90deg,#003d2d,#002526);box-shadow:0 0 7px #20ff3c33}
+#pulse-app .pu-buttons{gap:8px;margin-top:11px}
+#pulse-app .pu-button{padding:9px 7px;font-size:12px;border:1px solid #33b869;border-radius:13px;background:linear-gradient(150deg,#07533d,#00232a)}
+#pulse-app .pu-button.accent{background:linear-gradient(135deg,#caff65,#83fa00);border-color:#d3ff8e;box-shadow:0 0 9px #80ff2155;color:#072013}
+#pulse-app .pu-artpanel{grid-template-columns:125px 1fr;gap:10px;min-height:110px}
+#pulse-app .pu-art{width:125px;height:115px;object-fit:contain;filter:drop-shadow(0 0 10px #15fa6549)}
+#pulse-app .pu-artpanel li{font-size:11px;line-height:2.05}
+#pulse-app .pu-message{font-size:19px}
+#pulse-app .pu-segments{gap:6px;margin:9px 0}
+#pulse-app .pu-segments button{padding:10px 2px;border-radius:11px;font-size:11px}
+#pulse-app .pu-segments button.selected{background:linear-gradient(#bdff66,#70fa00);box-shadow:0 0 10px #6aff515e}
+#pulse-app details.pu-fold{margin:9px 0;border:1px solid #24a266;border-radius:11px;background:linear-gradient(110deg,#025340,#002026);box-shadow:inset 0 1px 3px #45f64c25}
+#pulse-app details.pu-fold summary{font-size:12px;padding:10px 12px}
+#pulse-app details.pu-fold summary>span{display:flex;align-items:center;gap:8px}
+#pulse-app .pu-foldbody{font-size:12px}
+#pulse-app .pu-trade{padding:9px 10px;min-height:45px;background:#022b2b;border:1px solid #2caf63;border-radius:12px;gap:8px;box-shadow:0 0 6px #35ed4433}
+#pulse-app .pu-trade-meta{color:#d3efe1;font-size:10px;margin-inline-start:auto}
+#pulse-app .pu-mark{padding:5px 9px}
+#pulse-app .pu-trade-reasons{font-size:11px;color:#9ee8b4;margin:7px 0 9px;border-top:1px solid #26784e;padding-top:8px}
+#pulse-app .pu-profitgrid{grid-template-columns:1fr 1.32fr;gap:12px;margin:12px 0}
+#pulse-app .pu-gauge{width:160px;height:160px;filter:drop-shadow(0 0 7px #4af31e70)}
+#pulse-app .pu-profitline{padding:10px 9px;margin:5px 0;background:linear-gradient(120deg,#07563b,#002125);min-height:46px;border-color:#20a662}
+#pulse-app .pu-profitline:last-child{border-color:#bdff19;box-shadow:inset 0 0 7px #baff1755}
+#pulse-app .pu-balance{font-size:12px}
+#pulse-app .pu-scrolltabs{position:sticky;bottom:8px;z-index:20;flex:none;margin:12px 8px 7px;padding:8px 5px;border:1.3px solid #37c876;border-radius:19px;background:linear-gradient(115deg,#01483bf0,#001e26f7);box-shadow:inset 0 0 8px #43f55944,0 0 9px #24fb4160;min-height:64px}
+#pulse-app .pu-scrolltabs button{min-height:50px;font-size:10px;gap:5px;border-radius:12px}
+#pulse-app .pu-scrolltabs button b{font-size:0;line-height:1;display:grid;place-items:center}
+#pulse-app .pu-scrolltabs button.selected{background:linear-gradient(140deg,#d5ff70,#85f600);color:#03160a;box-shadow:0 0 10px #97ff2588}
+#pulse-app .pu-modal{z-index:10000}
+#pulse-app .pu-dialog{border:2px solid #a0ff49;background:linear-gradient(115deg,#034936,#002026);box-shadow:0 0 28px #6aff3888}
+@media(max-width:359px){#pulse-app .pu-screen{padding:8px}#pulse-app .pu-panel{padding:8px}#pulse-app .pu-artpanel{grid-template-columns:90px 1fr}#pulse-app .pu-art{height:95px;width:90px}#pulse-app .pu-gauge{width:119px;height:119px}#pulse-app .pu-cell strong{font-size:13px}#pulse-app .pu-title h1{font-size:19px}}
+
+/* Integrated data cards: preserve approved appearance and prevent long reports from overflowing. */
+#pulse-app .pu-detailrow{display:flex;justify-content:space-between;gap:10px;padding:7px 4px;border-bottom:1px solid #1c6c4b;font-size:11px;line-height:1.7;overflow-wrap:anywhere}
+#pulse-app .pu-detailrow strong{text-align:left;max-width:55%}
+#pulse-app .pu-recommend{padding:9px 5px;border-bottom:1px solid #2a8552}
+#pulse-app .pu-recommend p{font-size:11px;color:#c9e4d3}
+#pulse-app pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:270px;overflow:auto;color:#d3eadc;font-size:10px;direction:ltr;text-align:left}
+#pulse-app .pu-foldbody>div{overflow-wrap:anywhere}
+#pulse-app .pu-foldbody .pu-detailrow{display:block}
+
+#pulse-app .pu-week-actions{display:grid;gap:8px;margin-top:12px}
+#pulse-app .pu-week-actions label{display:grid;gap:5px;font-size:11px}
+#pulse-app .pu-week-actions input{background:#03251e;color:#f1ffef;border:1px solid #2ea76b;border-radius:9px;padding:9px;width:100%;max-width:100%}
+#pulse-app .pu-foldbody pre{margin:0 0 8px}
+
+/* Human-readable AI report: same approved DT PULSE theme; no raw JSON dump. */
+#pulse-app .pu-report-intro{font-weight:750;font-size:13px;color:#dfffdb;margin:4px 0 10px}
+#pulse-app .pu-report-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:7px 0 10px}
+#pulse-app .pu-report-stat{background:linear-gradient(125deg,#054134,#002721);border:1px solid #26945f;border-radius:10px;padding:9px 6px;text-align:center;min-width:0}
+#pulse-app .pu-report-stat small{display:block;color:#c2decf;font-size:10px}
+#pulse-app .pu-report-stat b{display:block;color:#adff46;font-size:15px;margin-top:4px;overflow-wrap:anywhere}
+#pulse-app .pu-report-content{padding:7px 9px;min-width:0}
+#pulse-app .pu-report-item{min-width:0}
+#pulse-app .pu-report-item:not(:has(>.pu-report-fold)){padding:7px 0;border-bottom:1px solid #1b5943;display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-wrap:wrap}
+#pulse-app .pu-report-key{color:#aacebd;font-size:11px}
+#pulse-app .pu-report-value{color:#eaffed;font-size:11px;font-weight:650;overflow-wrap:anywhere;white-space:normal;text-align:start;max-width:100%;direction:auto}
+#pulse-app .pu-report-fold{margin:6px 0}
+#pulse-app .pu-report-fold .pu-report-fold{margin:5px 0 5px 5px}
+#pulse-app .pu-report-content>.pu-report-item>.pu-report-fold>summary{font-size:11px}
+@media(min-width:420px){#pulse-app .pu-report-metrics{grid-template-columns:repeat(4,minmax(0,1fr))}}
