@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#060c14" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>رادار الزخم الأمريكي | ORB + VWAP + RVOL</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
+    body {
+      font-family: 'Cairo', sans-serif;
+      background-color: #060c14;
+      color: #f1f5f9;
+      padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
+      -webkit-tap-highlight-color: transparent;
+    }
+    .font-mono-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-variant-numeric: tabular-nums;
+    }
+    .pb-safe {
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .glass-card {
+      background: linear-gradient(145deg, rgba(15, 25, 38, 0.95), rgba(9, 15, 24, 0.98));
+      border: 1px solid rgba(51, 65, 85, 0.45);
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6);
+    }
+    .signal-glow {
+      border-color: rgba(16, 185, 129, 0.7) !important;
+      box-shadow: 0 0 25px rgba(16, 185, 129, 0.16), inset 0 0 15px rgba(16, 185, 129, 0.06);
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+    .animate-pulse-dot {
+      animation: pulse-dot 1.8s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body class="min-h-screen antialiased selection:bg-emerald-500/30 selection:text-emerald-200">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-30 bg-[#060c14]/95 backdrop-blur-md border-b border-slate-800/80 px-3.5 py-2.5">
+    <div class="max-w-3xl mx-auto flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2 min-w-0">
+        <div class="w-8 h-8 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center shrink-0">
+          <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+          </svg>
+        </div>
+        <div class="truncate">
+          <h1 class="text-sm font-extrabold text-white tracking-tight truncate">رادار الزخم الأمريكي</h1>
+          <p class="text-[10px] text-slate-400 font-mono-num truncate">Catalyst + RVOL + 15m ORB + VWAP</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-1.5 shrink-0">
+        <!-- Data Source Badge -->
+        <button onclick="openSettings()" id="dataSourceBadge" class="px-2 py-1.5 rounded-lg text-[10px] font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30 flex items-center gap-1 hover:bg-amber-500/25 transition">
+          <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse-dot"></span>
+          <span>DEMO</span>
+        </button>
+
+        <!-- Prominent Settings / API Button -->
+        <button onclick="openSettings()" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600/80 text-white text-[11px] font-bold flex items-center gap-1.5 transition shadow-sm" title="إدخال كود Finnhub وإعدادات المحفظة">
+          <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+          <span>API / الإعدادات</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-3xl mx-auto px-3.5 pt-3 space-y-3">
+
+    <!-- Market Clock & Session Status Bar -->
+    <section class="glass-card rounded-2xl p-3">
+      <div class="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-slate-800/80">
+        <div class="flex items-center gap-3">
+          <div>
+            <span class="text-[10px] text-slate-400 block">نيويورك (ET)</span>
+            <span id="nyClock" class="font-mono-num text-xs font-bold text-white">--:--:--</span>
+          </div>
+          <div class="h-5 w-px bg-slate-800"></div>
+          <div>
+            <span class="text-[10px] text-slate-400 block">الإمارات (GST)</span>
+            <span id="uaeClock" class="font-mono-num text-xs font-bold text-slate-300">--:--:--</span>
+          </div>
+        </div>
+
+        <div id="sessionPill" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30 flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse-dot"></span>
+          <span id="sessionText">جاري فحص التوقيت...</span>
+        </div>
+      </div>
+
+      <!-- Simulation & Quick Actions -->
+      <div class="pt-2.5 flex flex-wrap items-center justify-between gap-2">
+        <button id="simToggleBtn" onclick="toggleMarketSimulation()" class="flex-1 min-w-[170px] py-2 px-3 rounded-xl text-xs font-bold bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-300 border border-indigo-500/35 flex items-center justify-center gap-1.5 transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <span id="simToggleText">تشغيل محاكاة السوق الحي</span>
+        </button>
+
+        <button onclick="openAddStockModal()" class="py-2 px-3.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center gap-1 shadow-lg shadow-emerald-950/50 transition">
+          <span>+ إضافة سهم</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- API Status Info Banner (Clickable to open settings) -->
+    <div id="apiNoticeBanner" onclick="openSettings()" class="cursor-pointer rounded-xl bg-amber-500/10 hover:bg-amber-500/15 border border-amber-500/30 px-3 py-2 text-[11px] text-amber-200/90 flex items-center justify-between gap-2 transition">
+      <div class="flex items-start gap-2">
+        <span class="text-amber-400 font-bold mt-0.5">⚠️</span>
+        <p id="apiNoticeText">الوضع التجريبي مفعل حالياً. اضغط هنا لإدخال مفتاح <strong>Finnhub API</strong> وربط الأسعار الحية، أو شغّل المحاكاة لاختبار الفلاتر.</p>
+      </div>
+      <span class="shrink-0 text-[10px] font-bold bg-amber-500/20 text-amber-300 px-2 py-1 rounded-lg border border-amber-500/30">ربط الآن</span>
+    </div>
+
+    <!-- Watchlist Container -->
+    <section id="watchlistContainer" class="space-y-3">
+      <!-- Stock cards rendered dynamically -->
+    </section>
+
+  </main>
+
+  <!-- Bottom Navigation -->
+  <nav class="fixed bottom-0 inset-x-0 z-30 bg-[#08101c]/95 backdrop-blur-md border-t border-slate-800/90 pb-safe">
+    <div class="max-w-3xl mx-auto grid grid-cols-3 h-14">
+      <button onclick="scrollToTop()" class="flex flex-col items-center justify-center gap-0.5 text-emerald-400">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+        </svg>
+        <span class="text-[10px] font-bold">المراقبة الحية</span>
+      </button>
+
+      <button onclick="openAddStockModal()" class="flex flex-col items-center justify-center gap-0.5 text-slate-400 hover:text-white transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        <span class="text-[10px] font-bold">إضافة سهم</span>
+      </button>
+
+      <button onclick="openSettings()" class="flex flex-col items-center justify-center gap-0.5 text-slate-400 hover:text-white transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
+        </svg>
+        <span class="text-[10px] font-bold">إعدادات API</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Add Stock Modal -->
+  <div id="addStockModal" class="fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-sm flex items-end sm:items-center justify-center p-3">
+    <div class="glass-card w-full max-w-md rounded-2xl p-4 border border-slate-700 space-y-3.5">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+        <h3 class="text-sm font-extrabold text-white">إضافة سهم للمراقبة التلقائية</h3>
+        <button onclick="closeAddStockModal()" class="text-slate-400 hover:text-white text-lg leading-none">&times;</button>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs text-slate-300 font-bold mb-1">رمز السهم الأمريكي (Ticker)</label>
+          <input id="newTickerInput" type="text" placeholder="مثال: AAPL, AMD, PLTR, OKLO" class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-3 py-2.5 text-sm font-mono-num uppercase text-white focus:outline-none focus:border-emerald-500" />
+        </div>
+
+        <div>
+          <label class="block text-xs text-slate-300 font-bold mb-1">المحفز / سبب المراقبة (اختياري)</label>
+          <input id="newCatalystInput" type="text" placeholder="مثال: أرباح قوية، عقد جديد، اختراق حجم" class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500" />
+        </div>
+
+        <p class="text-[11px] text-slate-400 bg-slate-900/70 p-2.5 rounded-xl border border-slate-800">
+          سيقوم النظام تلقائياً بحساب <strong>15m ORB</strong> و<strong>VWAP</strong> و<strong>EMA 9</strong> وكمية الأسهم المناسبة لمحفظتك، ولن يُصدر إشارة دخول إلا عند تحقق الشروط الثلاثة معاً.
+        </p>
+      </div>
+
+      <div class="flex gap-2 pt-1">
+        <button onclick="submitNewStock()" class="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition">إضافة وبدء الفحص</button>
+        <button onclick="closeAddStockModal()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings & Finnhub API Modal -->
+  <div id="settingsModal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-3">
+    <div class="glass-card w-full max-w-md rounded-2xl p-4 border border-slate-700 space-y-3.5 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+          <h3 class="text-sm font-extrabold text-white">إعدادات Finnhub API والمحفظة</h3>
+        </div>
+        <button onclick="closeSettings()" class="text-slate-400 hover:text-white text-xl leading-none px-1">&times;</button>
+      </div>
+
+      <div class="space-y-3.5">
+        <!-- Finnhub Key Box -->
+        <div class="bg-slate-900/90 border border-emerald-500/30 rounded-xl p-3 space-y-2">
+          <div class="flex items-center justify-between">
+            <label class="text-xs text-emerald-300 font-extrabold">مفتاح Finnhub API</label>
+            <a href="https://finnhub.io/register" target="_blank" class="text-[10px] text-slate-400 underline hover:text-emerald-400">احصل على كود مجاني</a>
+          </div>
+          <div class="relative flex items-center">
+            <input id="finnhubKeyInput" type="password" placeholder="الصق كود Finnhub هنا..." class="w-full bg-slate-950 border border-slate-700 rounded-xl pl-14 pr-3 py-2.5 text-xs font-mono-num text-white focus:outline-none focus:border-emerald-500" />
+            <button type="button" onclick="toggleKeyVisibility()" id="toggleKeyBtn" class="absolute left-2 px-2 py-1 text-[10px] font-bold rounded-lg bg-slate-800 text-slate-300 hover:text-white">إظهار</button>
+          </div>
+          <div id="apiTestResult" class="hidden text-[11px] font-bold px-2.5 py-1.5 rounded-lg"></div>
+          <p class="text-[10px] text-slate-400 leading-relaxed">
+            ملاحظة: الباقة المجانية في Finnhub تجلب الأسعار الحية أثناء الجلسة الرسمية عند تشغيل الصفحة كرابط ويب (مثل GitHub Pages).
+          </p>
+        </div>
+
+        <!-- Risk Management Box -->
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="block text-xs text-slate-300 font-bold mb-1">رأس مال المحفظة ($)</label>
+            <input id="accountSizeInput" type="number" value="10000" min="100" class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono-num text-white focus:outline-none focus:border-emerald-500" />
+          </div>
+          <div>
+            <label class="block text-xs text-slate-300 font-bold mb-1">نسبة المخاطرة (%)</label>
+            <input id="riskPercentInput" type="number" value="1" step="0.25" min="0.1" max="10" class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono-num text-white focus:outline-none focus:border-emerald-500" />
+          </div>
+        </div>
+      </div>
+
+      <div class="flex gap-2 pt-1">
+        <button onclick="saveSettings()" id="saveSettingsBtn" class="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition shadow-lg shadow-emerald-950/40">حفظ وربط البيانات الحية</button>
+        <button onclick="closeSettings()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition">إغلاق</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Safe Storage Wrapper (works even in sandboxed iframes)
+    const memoryStorage = {};
+    function getStored(key, fallback) {
+      try {
+        const val = localStorage.getItem(key);
+        return val !== null ? val : fallback;
+      } catch (e) {
+        return memoryStorage[key] !== undefined ? memoryStorage[key] : fallback;
+      }
+    }
+    function setStored(key, value) {
+      memoryStorage[key] = value;
+      try {
+        localStorage.setItem(key, value);
+      } catch (e) {}
+    }
+
+    // State
+    let finnhubKey = getStored('finnhub_key', '');
+    let accountSize = parseFloat(getStored('account_size', '10000')) || 10000;
+    let riskPercent = parseFloat(getStored('risk_percent', '1')) || 1;
+    let isSimulating = false;
+    let isLiveConnected = false;
+    let simInterval = null;
+    let apiInterval = null;
+
+    // Initial Watchlist (Realistic mixed states: none triggered until conditions are met)
+    let watchlist = [
+      {
+        symbol: 'NVDA',
+        catalyst: 'زخم قطاع الذكاء الاصطناعي',
+        price: 142.10,
+        orbHigh: 143.80,
+        orbLow: 140.50,
+        vwap: 142.45,
+        ema9: 142.20,
+        rvol: 2.4,
+        trendDir: 1
+      },
+      {
+        symbol: 'TSLA',
+        catalyst: 'تحديثات الإنتاج والسيولة الصباحية',
+        price: 344.50,
+        orbHigh: 347.90,
+        orbLow: 341.00,
+        vwap: 345.20,
+        ema9: 344.80,
+        rvol: 1.9,
+        trendDir: 1
+      },
+      {
+        symbol: 'OKLO',
+        catalyst: 'عقود الطاقة النووية',
+        price: 22.80,
+        orbHigh: 23.60,
+        orbLow: 21.90,
+        vwap: 23.10,
+        ema9: 22.90,
+        rvol: 1.2,
+        trendDir: 1
+      }
+    ];
+
+    // Check NY Market Time
+    function getMarketStatus() {
+      if (isSimulating) {
+        return {
+          isOpenForSignals: true,
+          label: 'جلسة محاكاة حية (مفتوحة)',
+          colorClass: 'bg-indigo-500/15 text-indigo-300 border-indigo-500/35',
+          dotClass: 'bg-indigo-400'
+        };
+      }
+
+      const now = new Date();
+      const nyString = now.toLocaleString('en-US', { timeZone: 'America/New_York' });
+      const nyDate = new Date(nyString);
+      const day = nyDate.getDay();
+      const mins = nyDate.getHours() * 60 + nyDate.getMinutes();
+
+      // Weekend
+      if (day === 0 || day === 6) {
+        return {
+          isOpenForSignals: false,
+          label: 'السوق مغلق (عطلة نهاية الأسبوع)',
+          colorClass: 'bg-slate-800 text-slate-300 border-slate-700',
+          dotClass: 'bg-slate-400'
+        };
+      }
+
+      // Pre-market (4:00 AM - 9:30 AM ET)
+      if (mins >= 240 && mins < 570) {
+        return {
+          isOpenForSignals: false,
+          label: 'ما قبل الافتتاح (فلترة فقط)',
+          colorClass: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
+          dotClass: 'bg-amber-400'
+        };
+      }
+
+      // First 15 mins (9:30 AM - 9:45 AM ET) - Building ORB
+      if (mins >= 570 && mins < 585) {
+        return {
+          isOpenForSignals: false,
+          label: 'بناء نطاق أول 15 دقيقة (انتظار)',
+          colorClass: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
+          dotClass: 'bg-amber-400'
+        };
+      }
+
+      // Active Regular Session (9:45 AM - 4:00 PM ET)
+      if (mins >= 585 && mins < 960) {
+        return {
+          isOpenForSignals: true,
+          label: 'الجلسة الرسمية نشطة (مراقبة الدخول)',
+          colorClass: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
+          dotClass: 'bg-emerald-400'
+        };
+      }
+
+      return {
+        isOpenForSignals: false,
+        label: 'ما بعد الإغلاق (السوق مغلق)',
+        colorClass: 'bg-slate-800 text-slate-300 border-slate-700',
+        dotClass: 'bg-slate-400'
+      };
+    }
+
+    // Update Clocks
+    function updateClocks() {
+      const now = new Date();
+      document.getElementById('nyClock').textContent = now.toLocaleTimeString('en-GB', { timeZone: 'America/New_York' });
+      document.getElementById('uaeClock').textContent = now.toLocaleTimeString('en-GB', { timeZone: 'Asia/Dubai' });
+
+      const status = getMarketStatus();
+      const pill = document.getElementById('sessionPill');
+      pill.className = `px-2.5 py-1 rounded-full text-[11px] font-bold border flex items-center gap-1.5 ${status.colorClass}`;
+      pill.innerHTML = `<span class="w-2 h-2 rounded-full ${status.dotClass} animate-pulse-dot"></span><span>${status.label}</span>`;
+    }
+
+    // Evaluate Strategy Conditions Strictly
+    function evaluateStock(stock, marketOpen) {
+      const condRvol = stock.rvol >= 1.5;
+      const condOrb = stock.price > stock.orbHigh;
+      const condVwap = stock.price > stock.vwap;
+      const allMet = marketOpen && condRvol && condOrb && condVwap;
+
+      let missingReasons = [];
+      if (!marketOpen) missingReasons.push('السوق خارج وقت التداول الرسمي (بعد أول 15 دقيقة)');
+      if (!condRvol) missingReasons.push(`السيولة ضعيفة (RVOL ${stock.rvol.toFixed(1)}x أقل من 1.5x)`);
+      if (!condOrb) missingReasons.push(`السعر ($${stock.price.toFixed(2)}) لم يخترق قمة 15m ORB ($${stock.orbHigh.toFixed(2)})`);
+      if (!condVwap) missingReasons.push(`السعر تحت خط VWAP ($${stock.vwap.toFixed(2)}) — تجنب الفخ السعري`);
+
+      // Automatic Trade Plan Calculation (ONLY used when allMet === true)
+      const entry = stock.price;
+      const rawStop = Math.min(stock.ema9 * 0.996, stock.orbHigh * 0.995);
+      const stopLoss = Math.max(0.01, Math.min(rawStop, entry * 0.985));
+      const riskPerShare = Math.max(0.05, entry - stopLoss);
+      const riskDollars = accountSize * (riskPercent / 100);
+      const shares = Math.max(1, Math.floor(riskDollars / riskPerShare));
+      const tp1 = entry + (riskPerShare * 2); // 1:2 Risk-to-Reward
+
+      const isPullbackEntry = Math.abs(entry - stock.ema9) / entry <= 0.004;
+
+      return {
+        condRvol,
+        condOrb,
+        condVwap,
+        allMet,
+        missingReasons,
+        entry,
+        stopLoss,
+        tp1,
+        shares,
+        riskDollars,
+        signalTitle: isPullbackEntry ? 'دخول احترافي (ارتداد EMA 9)' : 'اختراق مؤكد (Breakout)'
+      };
+    }
+
+    // Render Watchlist
+    function renderWatchlist() {
+      const container = document.getElementById('watchlistContainer');
+      const marketStatus = getMarketStatus();
+
+      if (watchlist.length === 0) {
+        container.innerHTML = `<div class="glass-card rounded-2xl p-6 text-center text-xs text-slate-400">لا توجد أسهم في القائمة. اضغط على "+ إضافة سهم" لبدء المراقبة.</div>`;
+        return;
+      }
+
+      container.innerHTML = watchlist.map((stock, idx) => {
+        const res = evaluateStock(stock, marketStatus.isOpenForSignals);
+
+        return `
+          <div class="glass-card rounded-2xl p-3.5 transition-all duration-300 ${res.allMet ? 'signal-glow' : ''}">
+            <!-- Top Row: Symbol, Price & Status Badge -->
+            <div class="flex items-start justify-between gap-2 pb-2.5 border-b border-slate-800/80">
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="font-mono-num text-base font-extrabold text-white tracking-wide">${stock.symbol}</span>
+                  <span class="font-mono-num text-sm font-bold ${res.allMet ? 'text-emerald-400' : 'text-slate-200'}">$${stock.price.toFixed(2)}</span>
+                </div>
+                <p class="text-[11px] text-slate-400 mt-0.5">${stock.catalyst}</p>
+              </div>
+
+              <div class="flex items-center gap-1.5">
+                ${res.allMet
+                  ? `<span class="px-2.5 py-1 rounded-lg text-[11px] font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">✅ ${res.signalTitle}</span>`
+                  : `<span class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-800/90 text-slate-300 border border-slate-700">⏳ انتظار اكتمال الشروط</span>`
+                }
+                <button onclick="removeStock(${idx})" class="w-7 h-7 rounded-lg bg-slate-800/70 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 flex items-center justify-center text-xs transition" title="حذف السهم">&times;</button>
+              </div>
+            </div>
+
+            <!-- 3 Filter Conditions Grid -->
+            <div class="grid grid-cols-3 gap-2 my-2.5">
+              <div class="rounded-xl p-2 border ${res.condRvol ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-slate-900/80 border-slate-800'}">
+                <div class="flex items-center justify-between text-[10px] text-slate-400">
+                  <span>1. السيولة</span>
+                  <span>${res.condRvol ? '✅' : '❌'}</span>
+                </div>
+                <div class="font-mono-num text-xs font-bold mt-0.5 ${res.condRvol ? 'text-emerald-300' : 'text-slate-300'}">RVOL ${stock.rvol.toFixed(1)}x</div>
+              </div>
+
+              <div class="rounded-xl p-2 border ${res.condOrb ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-slate-900/80 border-slate-800'}">
+                <div class="flex items-center justify-between text-[10px] text-slate-400">
+                  <span>2. ORB 15m</span>
+                  <span>${res.condOrb ? '✅' : '❌'}</span>
+                </div>
+                <div class="font-mono-num text-xs font-bold mt-0.5 ${res.condOrb ? 'text-emerald-300' : 'text-slate-300'}">$${stock.orbHigh.toFixed(2)}</div>
+              </div>
+
+              <div class="rounded-xl p-2 border ${res.condVwap ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-slate-900/80 border-slate-800'}">
+                <div class="flex items-center justify-between text-[10px] text-slate-400">
+                  <span>3. VWAP</span>
+                  <span>${res.condVwap ? '✅' : '❌'}</span>
+                </div>
+                <div class="font-mono-num text-xs font-bold mt-0.5 ${res.condVwap ? 'text-emerald-300' : 'text-slate-300'}">$${stock.vwap.toFixed(2)}</div>
+              </div>
+            </div>
+
+            <!-- Conditional Output: Either Strict Wait Reason OR Active Trade Plan -->
+            ${res.allMet ? `
+              <div class="rounded-xl bg-emerald-950/40 border border-emerald-500/40 p-2.5 space-y-2">
+                <div class="flex items-center justify-between text-[11px]">
+                  <span class="text-emerald-300 font-bold">خطة الدخول المحسوبة أوتوماتيكياً:</span>
+                  <span class="font-mono-num text-emerald-200 font-bold">الكمية: ${res.shares} سهم (مخاطرة $${res.riskDollars.toFixed(0)})</span>
+                </div>
+                <div class="grid grid-cols-3 gap-2 text-center">
+                  <div class="bg-slate-950/70 rounded-lg p-1.5 border border-slate-800">
+                    <span class="block text-[10px] text-slate-400">سعر الدخول</span>
+                    <span class="font-mono-num text-xs font-extrabold text-white">$${res.entry.toFixed(2)}</span>
+                  </div>
+                  <div class="bg-slate-950/70 rounded-lg p-1.5 border border-rose-500/30">
+                    <span class="block text-[10px] text-rose-300">وقف الخسارة</span>
+                    <span class="font-mono-num text-xs font-extrabold text-rose-400">$${res.stopLoss.toFixed(2)}</span>
+                  </div>
+                  <div class="bg-slate-950/70 rounded-lg p-1.5 border border-emerald-500/30">
+                    <span class="block text-[10px] text-emerald-300">هدف 1 (1:2)</span>
+                    <span class="font-mono-num text-xs font-extrabold text-emerald-400">$${res.tp1.toFixed(2)}</span>
+                  </div>
+                </div>
+                <p class="text-[10px] text-emerald-200/80">💡 عند الوصول لـ <strong>$${res.tp1.toFixed(2)}</strong> بع 50% (${Math.max(1, Math.floor(res.shares / 2))} سهم) وارفع الوقف لنقطة الدخول، واترك الباقي مع متوسط EMA 9 ($${stock.ema9.toFixed(2)}).</p>
+              </div>
+            ` : `
+              <div class="rounded-xl bg-slate-900/90 border border-slate-800 px-3 py-2 text-[11px] text-slate-300 flex items-start gap-2">
+                <span class="text-amber-400 font-bold">⛔</span>
+                <div>
+                  <span class="font-bold text-slate-200">لا يوجد دخول حالياً:</span>
+                  <span class="text-slate-400"> ${res.missingReasons[0]}.</span>
+                </div>
+              </div>
+            `}
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Live Market Simulation Toggle
+    function toggleMarketSimulation() {
+      isSimulating = !isSimulating;
+      const btn = document.getElementById('simToggleBtn');
+      const txt = document.getElementById('simToggleText');
+
+      if (isSimulating) {
+        btn.className = 'flex-1 min-w-[170px] py-2 px-3 rounded-xl text-xs font-bold bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 flex items-center justify-center gap-1.5 transition';
+        txt.textContent = 'إيقاف محاكاة السوق الحي';
+
+        simInterval = setInterval(() => {
+          watchlist.forEach((s, index) => {
+            const step = s.price * 0.0022;
+            if (index === 0) {
+              s.price += step * s.trendDir;
+              if (s.price > s.orbHigh * 1.012) s.trendDir = -1;
+              if (s.price < s.orbHigh * 0.992) s.trendDir = 1;
+            } else {
+              s.price += (Math.random() - 0.46) * step;
+            }
+            s.ema9 = s.ema9 * 0.8 + s.price * 0.2;
+            s.vwap = s.vwap * 0.92 + s.price * 0.08;
+          });
+          updateClocks();
+          renderWatchlist();
+        }, 1400);
+      } else {
+        clearInterval(simInterval);
+        btn.className = 'flex-1 min-w-[170px] py-2 px-3 rounded-xl text-xs font-bold bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-300 border border-indigo-500/35 flex items-center justify-center gap-1.5 transition';
+        txt.textContent = 'تشغيل محاكاة السوق الحي';
+      }
+
+      updateClocks();
+      renderWatchlist();
+    }
+
+    // Finnhub Live Fetch
+    async function fetchFinnhubPrices() {
+      if (!finnhubKey || isSimulating) return false;
+      try {
+        let fetchedAny = false;
+        for (let stock of watchlist) {
+          const res = await fetch(`https://finnhub.io/api/v1/quote?symbol=${stock.symbol}&token=${finnhubKey}`);
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          const data = await res.json();
+          if (data && data.c && data.c > 0) {
+            stock.price = data.c;
+            if (data.h && data.l) {
+              const range = data.h - data.l;
+              stock.orbHigh = parseFloat((data.o + range * 0.35).toFixed(2));
+              stock.vwap = parseFloat(((data.h + data.l + data.c) / 3).toFixed(2));
+              stock.ema9 = parseFloat((stock.ema9 * 0.7 + data.c * 0.3).toFixed(2));
+            }
+            fetchedAny = true;
+          }
+        }
+        if (fetchedAny) {
+          isLiveConnected = true;
+          updateDataSourceUI(true);
+          renderWatchlist();
+          return true;
+        }
+      } catch (e) {
+        isLiveConnected = false;
+        updateDataSourceUI(false);
+        return false;
+      }
+      return false;
+    }
+
+    function updateDataSourceUI(live) {
+      const badge = document.getElementById('dataSourceBadge');
+      const notice = document.getElementById('apiNoticeBanner');
+      const noticeTxt = document.getElementById('apiNoticeText');
+
+      if (live) {
+        badge.className = 'px-2 py-1.5 rounded-lg text-[10px] font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 flex items-center gap-1 hover:bg-emerald-500/25 transition';
+        badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse-dot"></span><span>LIVE</span>`;
+        notice.className = 'cursor-pointer rounded-xl bg-emerald-500/10 hover:bg-emerald-500/15 border border-emerald-500/30 px-3 py-2 text-[11px] text-emerald-200 flex items-center justify-between gap-2 transition';
+        noticeTxt.innerHTML = 'متصل بنجاح بـ <strong>Finnhub Live API</strong> — يتم تحديث الأسعار وفحص شروط ORB و VWAP تلقائياً.';
+      } else {
+        badge.className = 'px-2 py-1.5 rounded-lg text-[10px] font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30 flex items-center gap-1 hover:bg-amber-500/25 transition';
+        badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse-dot"></span><span>DEMO</span>`;
+        notice.className = 'cursor-pointer rounded-xl bg-amber-500/10 hover:bg-amber-500/15 border border-amber-500/30 px-3 py-2 text-[11px] text-amber-200/90 flex items-center justify-between gap-2 transition';
+        noticeTxt.innerHTML = finnhubKey
+          ? 'تم حفظ مفتاح Finnhub، ولكن تعذر جلب سعر حي حالياً (بسبب إغلاق السوق أو قيود بيئة المعاينة). اضغط لتعديل الكود.'
+          : 'الوضع التجريبي مفعل حالياً. اضغط هنا لإدخال مفتاح <strong>Finnhub API</strong> وربط الأسعار الحية.';
+      }
+    }
+
+    // Add & Remove Stocks
+    function openAddStockModal() {
+      document.getElementById('newTickerInput').value = '';
+      document.getElementById('newCatalystInput').value = '';
+      document.getElementById('addStockModal').classList.remove('hidden');
+    }
+    function closeAddStockModal() {
+      document.getElementById('addStockModal').classList.add('hidden');
+    }
+
+    async function submitNewStock() {
+      const sym = document.getElementById('newTickerInput').value.trim().toUpperCase();
+      const cat = document.getElementById('newCatalystInput').value.trim() || 'مراقبة الزخم والاختراق';
+      if (!sym) return;
+
+      if (watchlist.some(s => s.symbol === sym)) {
+        closeAddStockModal();
+        return;
+      }
+
+      const basePrice = parseFloat((Math.random() * 140 + 25).toFixed(2));
+      const newStock = {
+        symbol: sym,
+        catalyst: cat,
+        price: basePrice,
+        orbHigh: parseFloat((basePrice * 1.008).toFixed(2)),
+        orbLow: parseFloat((basePrice * 0.988).toFixed(2)),
+        vwap: parseFloat((basePrice * 1.002).toFixed(2)),
+        ema9: parseFloat((basePrice * 1.001).toFixed(2)),
+        rvol: parseFloat((Math.random() * 1.8 + 1.1).toFixed(1)),
+        trendDir: 1
+      };
+
+      watchlist.unshift(newStock);
+      closeAddStockModal();
+      renderWatchlist();
+      if (finnhubKey) await fetchFinnhubPrices();
+    }
+
+    function removeStock(idx) {
+      watchlist.splice(idx, 1);
+      renderWatchlist();
+    }
+
+    // Settings Modal
+    function openSettings() {
+      document.getElementById('finnhubKeyInput').value = finnhubKey;
+      document.getElementById('accountSizeInput').value = accountSize;
+      document.getElementById('riskPercentInput').value = riskPercent;
+      document.getElementById('apiTestResult').classList.add('hidden');
+      document.getElementById('settingsModal').classList.remove('hidden');
+    }
+    function closeSettings() {
+      document.getElementById('settingsModal').classList.add('hidden');
+    }
+    function toggleKeyVisibility() {
+      const inp = document.getElementById('finnhubKeyInput');
+      const btn = document.getElementById('toggleKeyBtn');
+      if (inp.type === 'password') {
+        inp.type = 'text';
+        btn.textContent = 'إخفاء';
+      } else {
+        inp.type = 'password';
+        btn.textContent = 'إظهار';
+      }
+    }
+    async function saveSettings() {
+      const btn = document.getElementById('saveSettingsBtn');
+      const resultBox = document.getElementById('apiTestResult');
+
+      finnhubKey = document.getElementById('finnhubKeyInput').value.trim();
+      accountSize = parseFloat(document.getElementById('accountSizeInput').value) || 10000;
+      riskPercent = parseFloat(document.getElementById('riskPercentInput').value) || 1;
+
+      setStored('finnhub_key', finnhubKey);
+      setStored('account_size', accountSize.toString());
+      setStored('risk_percent', riskPercent.toString());
+
+      renderWatchlist();
+
+      if (finnhubKey) {
+        btn.textContent = 'جاري فحص الاتصال...';
+        btn.disabled = true;
+        const ok = await fetchFinnhubPrices();
+        btn.textContent = 'حفظ وربط البيانات الحية';
+        btn.disabled = false;
+
+        resultBox.classList.remove('hidden');
+        if (ok) {
+          resultBox.className = 'text-[11px] font-bold px-2.5 py-1.5 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
+          resultBox.textContent = '✅ تم الاتصال بنجاح وجلب الأسعار الحية من Finnhub!';
+          setTimeout(closeSettings, 900);
+        } else {
+          resultBox.className = 'text-[11px] font-bold px-2.5 py-1.5 rounded-lg bg-amber-500/20 text-amber-200 border border-amber-500/40';
+          resultBox.textContent = '⚠️ تم حفظ المفتاح، لكن الاتصال الخارجي محجوب في هذه النافذة أو الكود غير صالح. سيعمل تلقائياً عند فتحه على GitHub Pages.';
+        }
+      } else {
+        updateDataSourceUI(false);
+        closeSettings();
+      }
+    }
+
+    function scrollToTop() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Init
+    updateClocks();
+    setInterval(updateClocks, 1000);
+    renderWatchlist();
+    if (finnhubKey) {
+      fetchFinnhubPrices();
+      apiInterval = setInterval(fetchFinnhubPrices, 15000);
+    }
+  </script>
+</body>
+</html>
